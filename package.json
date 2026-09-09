@@ -1,5 +1,5 @@
 {
-  "name": "@arthelokyo/astrowind",
+  "name": "astrowind-site",
   "version": "1.0.0-beta.66",
   "description": "AstroWind: A free template using Astro 7 and Tailwind CSS v4. Astro starter theme.",
   "type": "module",
