@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: arthelokyo/astrowind
+  repo: alanmacdoug/astrowind
   branch: main
   auth_type: pkce
   app_id: Ov23ligGbhhYQ4n90qd3
