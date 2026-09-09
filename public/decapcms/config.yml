@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: arthelokyo/astrowind
   branch: main
+  auth_type: pkce
+  app_id: Ov23ligGbhhYQ4n90qd3
 
 media_folder: 'src/assets/images'
 public_folder: '/_astro'
