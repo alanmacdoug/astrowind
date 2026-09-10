@@ -21,11 +21,11 @@ export const footerData = {
     {
       title: 'Site',
       links: [
-        { text: 'Services', href: getPermalink('/services') },
-        { text: 'Blog', href: getBlogPermalink() },
-        { text: 'About', href: getPermalink('/about') },
-        { text: 'Contact', href: getPermalink('/contact') },
-      ],
+    { text: 'Services', href: getPermalink('/services') },
+    { text: 'About', href: getPermalink('/about') },
+    { text: 'Contact', href: getPermalink('/contact') },
+    { text: 'Blog', href: getBlogPermalink() },
+  ],
     },
   ],
   secondaryLinks: [
