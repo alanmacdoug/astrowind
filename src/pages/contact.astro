@@ -1,81 +1,83 @@
 ---
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
+import Hero from '~/components/widgets/Hero.astro';
 import Layout from '~/layouts/PageLayout.astro';
-import HeroText from '~/components/widgets/HeroText.astro';
-import ContactUs from '~/components/widgets/Contact.astro';
-import Features2 from '~/components/widgets/Features2.astro';
 
 const metadata = {
   title: 'Contact',
   description:
-    'Contact page demo built with AstroWind: a form, contact details and support links in one accessible layout.',
+    'Get in touch about email authentication audits, deliverability work, managed Mautic hosting or ongoing consulting.',
 };
 ---
 
 <Layout metadata={metadata}>
-  <!-- HeroText Widget ******************* -->
-
-  <HeroText tagline="Contact" title="Let's Connect!" />
-
-  <ContactUs
-    id="form"
-    title="Drop us a message today!"
-    subtitle="For quicker answers, explore our FAQs section. You may find the solution you're looking  for right there! If not, our support team is delighted to help you."
-    inputs={[
+  <Hero
+    tagline="Contact"
+    title="Tell me where your email is landing"
+    subtitle="Describe the problem in a paragraph or two — what's going wrong, what platform you send from, and roughly how many emails per month. I'll tell you straight whether it's something I can fix and what it will cost."
+    actions={[
       {
-        type: 'text',
-        name: 'name',
-        label: 'Name',
+        variant: 'primary',
+        text: 'Email me direct',
+        href: 'mailto:alan@macdougallsystems.com',
       },
       {
-        type: 'email',
-        name: 'email',
-        label: 'Email',
+        variant: 'secondary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
       },
     ]}
-    textarea={{
-      label: 'Message',
-    }}
-    disclaimer={{
-      label:
-        'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
-    }}
-    description="Our support team typically responds within 24 business hours."
   />
 
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="We are here to help!"
+  <Content
+    isReversed
     items={[
       {
-        title: 'General support',
-        description: `Chat with us for inquiries related to account management, website navigation, payment issues, accessing purchased templates or general questions about the website's functionality.`,
-      },
-      {
-        title: 'Contact sales',
-        description:
-          'Chat with us for questions about purchases, customization options, licensing for commercial use, inquiries about specific template, etc.',
-      },
-      {
-        title: 'Technical support',
-        description:
-          'Chat with us when facing issues like template installation, problems editing difficulties, compatibility issues with software or download errors, or other technical challenges related to using the templates.',
-      },
-      {
-        title: 'Phone',
-        description: '+1 (234) 567-890',
-        icon: 'tabler:headset',
-      },
-      {
         title: 'Email',
-        description: 'contact@support.com',
+        description:
+          'alan@macdougallsystems.com — for retainers, managed hosting and everything booked direct. I aim to reply within one working day.',
         icon: 'tabler:mail',
       },
       {
-        title: 'Location',
-        description: '1234 Lorem Ipsum St, 12345, Miami, EEUU',
-        icon: 'tabler:map-pin',
+        title: 'Upwork',
+        description:
+          'Preferred for fixed-scope project work — audits, deliverability rescues and migrations. Contracts, payments and messaging in one place.',
+        icon: 'tabler:briefcase',
+      },
+      {
+        title: 'What happens next',
+        description:
+          'I reply with questions, you answer them, and you get a fixed price before anything changes. No surprises, no hourly creep.',
+        icon: 'tabler:route',
       },
     ]}
+  >
+    <Fragment slot="content">
+      <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">How to reach me</h3>
+      <p>
+        Two doors. Project work goes through Upwork; everything else — retainers, managed Mautic hosting,
+        consulting — comes straight to me. Either way you get the same person and the same standard of work.
+      </p>
+    </Fragment>
+  </Content>
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Email me direct',
+        href: 'mailto:alan@macdougallsystems.com',
+      },
+      {
+        variant: 'secondary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+    ]}
+    title="A conversation is free"
+    subtitle="Describe the problem. If I can fix it, you'll know what it costs before you commit."
   />
 </Layout>
