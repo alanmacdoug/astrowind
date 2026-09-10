@@ -1,294 +1,154 @@
 ---
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
 import Features2 from '~/components/widgets/Features2.astro';
-import Features3 from '~/components/widgets/Features3.astro';
 import Hero from '~/components/widgets/Hero.astro';
-import Stats from '~/components/widgets/Stats.astro';
 import Steps2 from '~/components/widgets/Steps2.astro';
-import Team from '~/components/widgets/Team.astro';
-import Timeline from '~/components/widgets/Timeline.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
 const metadata = {
-  title: 'About us',
+  title: 'About',
   description:
-    'About page demo built with AstroWind: hero, stats, feature grids and timelines ready to describe your company.',
+    'Alan MacDougall — twenty years in email infrastructure. The story behind MacDougall Systems: the business, the military interlude, and the reopening.',
 };
 ---
 
 <Layout metadata={metadata}>
-  <!-- Hero Widget ******************* -->
+  <!-- Hero -->
 
   <Hero
-    tagline="About us"
-    image={{
-      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Caos Image',
-    }}
+    tagline="About"
+    title="One consultant. Twenty years. No middlemen."
   >
-    <Fragment slot="title">
-      Elevate your online presence with our <br />
-      <span class="text-accent dark:text-white"> Beautiful Website Templates</span>
-    </Fragment>
-
     <Fragment slot="subtitle">
-      Donec efficitur, ipsum quis congue luctus, mauris magna convallis mauris, eu auctor nisi lectus non augue. Donec
-      quis lorem non massa vulputate efficitur ac at turpis. Sed tincidunt ex a nunc convallis, et lobortis nisi tempus.
-      Suspendisse vitae nisi eget tortor luctus maximus sed non lectus.
+      MacDougall Systems is Alan MacDougall: an email infrastructure consultant who has spent his
+      working life in the plumbing behind the inbox — and is now back at it full-time.
     </Fragment>
   </Hero>
 
-  <!-- Stats Widget ****************** -->
+  <!-- The story -->
 
-  <Stats
-    title="Statistics about us"
-    stats={[
-      { title: 'Offices', amount: '4' },
-      { title: 'Employees', amount: '248' },
-      { title: 'Templates', amount: '12' },
-      { title: 'Awards', amount: '24' },
-    ]}
-  />
-
-  <!-- Features3 Widget ************** -->
-
-  <Features3
-    title="Our templates"
-    subtitle="Etiam scelerisque, enim eget vestibulum luctus, nibh mauris blandit nulla, nec vestibulum risus justo ut enim. Praesent lacinia diam et ante imperdiet euismod."
-    columns={3}
-    isBeforeContent={true}
-    items={[
+  <Content id="story" isReversed items={[
       {
-        title: 'Educational',
-        description:
-          'Morbi faucibus luctus quam, sit amet aliquet felis tempor id. Cras augue massa, ornare quis dignissim a, molestie vel nulla.',
-        icon: 'tabler:template',
+        title: 'Direct, always',
+        description: 'You work with the person doing the work. No account managers, no juniors, no handoffs.',
+        icon: 'tabler:users',
       },
       {
-        title: 'Interior Design',
-        description:
-          'Vivamus porttitor, tortor convallis aliquam pretium, turpis enim consectetur elit, vitae egestas purus erat ac nunc nulla.',
-        icon: 'tabler:template',
+        title: 'Evidence over assurances',
+        description: 'Recommendations backed by tests, reports and measurements — never "trust me".',
+        icon: 'tabler:checkup-list',
       },
       {
-        title: 'Photography',
-        description:
-          'Duis sed lectus in nisl vehicula porttitor eget quis odio. Aliquam erat volutpat. Nulla eleifend nulla id sem fermentum.',
-        icon: 'tabler:template',
-      },
-    ]}
-  />
-
-  <!-- Features3 Widget ************** -->
-
-  <Features3
-    columns={3}
-    isAfterContent={true}
-    items={[
-      {
-        title: 'E-commerce',
-        description:
-          'Rutrum non odio at vehicula. Proin ipsum justo, dignissim in vehicula sit amet, dignissim id quam. Sed ac tincidunt sapien.',
-        icon: 'tabler:template',
+        title: 'Scope agreed up front',
+        description: 'What will be done, what it costs, and when it will be finished — agreed before anything changes.',
+        icon: 'tabler:message-report',
       },
       {
-        title: 'Blog',
-        description:
-          'Nullam efficitur volutpat sem sed fringilla. Suspendisse et enim eu orci volutpat laoreet ac vitae libero.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Business',
-        description:
-          'Morbi et elit finibus, facilisis justo ut, pharetra ipsum. Donec efficitur, ipsum quis congue luctus, mauris magna.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Branding',
-        description:
-          'Suspendisse vitae nisi eget tortor luctus maximus sed non lectus. Cras malesuada pretium placerat. Nullam venenatis dolor a ante rhoncus.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Medical',
-        description:
-          'Vestibulum malesuada lacus id nibh posuere feugiat. Nam volutpat nulla a felis ultrices, id suscipit mauris congue. In hac habitasse platea dictumst.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Fashion Design',
-        description:
-          'Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus.',
-        icon: 'tabler:template',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      alt: 'Colorful Image',
-    }}
-  />
-
-  <!-- Steps2 Widget ****************** -->
-
-  <Steps2
-    title="Our values"
-    subtitle="Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus. Nulla facilisi. Vestibulum malesuada lacus."
-    items={[
-      {
-        title: 'Customer-centric approach',
-        description:
-          'Donec id nibh neque. Quisque et fermentum tortor. Fusce vitae dolor a mauris dignissim commodo. Ut eleifend luctus condimentum.',
-      },
-      {
-        title: 'Constant Improvement',
-        description:
-          'Phasellus laoreet fermentum venenatis. Vivamus dapibus pulvinar arcu eget mattis. Fusce eget mauris leo.',
-      },
-      {
-        title: 'Ethical Practices',
-        description:
-          'Vestibulum imperdiet libero et lectus molestie, et maximus augue porta. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
-      },
-    ]}
-  />
-
-  <!-- Timeline Widget **************** -->
-
-  <Timeline
-    id="history"
-    tagline="Our story"
-    title="Achievements"
-    subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla, sed porttitor est nibh at nulla."
-    layout="alternate"
-    items={[
-      {
-        date: '2019',
-        title: 'The first template',
-        description: 'Nam malesuada urna in enim imperdiet tincidunt. Phasellus non tincidunt nisi, at elementum mi.',
-        icon: 'tabler:rocket',
-      },
-      {
-        date: '2021',
-        title: 'Global reach',
-        description:
-          'Cras semper nulla leo, eget laoreet erat cursus sed. Praesent faucibus massa in purus iaculis dictum.',
+        title: 'Remote, worldwide',
+        description: 'Based in Scotland, working with clients wherever they are. Has been the case since 2006.',
         icon: 'tabler:globe',
       },
-      {
-        date: '2023',
-        title: 'Positive customer feedback and reviews',
-        description:
-          'Phasellus lacinia cursus velit, eu malesuada magna pretium eu. Etiam aliquet tellus purus, blandit lobortis ex rhoncus vitae.',
-        icon: 'tabler:message-star',
-      },
-      {
-        date: '2026',
-        title: 'Awards and recognition as industry experts',
-        description: 'Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci.',
-        icon: 'tabler:award',
-        highlight: true,
-      },
     ]}
-  />
+  >
+    <Fragment slot="content">
+      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">The story so far</h2>
+      <p>
+        I started in email marketing in 2006, when deliverability was a craft nobody had named yet. Over the
+        following years that grew into a managed hosting and consulting business — servers, email authentication,
+        marketing automation, messaging integrations — with clients across eight countries.
+      </p>
+      <br />
+      <p>
+        In [YEAR], I closed that business to serve full-time in the military. The closure had nothing to do
+        with the clients or the work, and the reviews from that period show it: the business ended because I did,
+        not because it failed. After several years of service, including operational deployments, I returned to
+        civilian life at the end of 2025.
+      </p>
+      <br />
+      <p>
+        MacDougall Systems is the reopening — same discipline, same trade, modern tools. The email world has
+        changed in the meantime: the major inbox providers now enforce the authentication standards I've been
+        implementing since the beginning. Most businesses haven't caught up. That's where I come in.
+      </p>
+    </Fragment>
 
-  <!-- Team Widget ******************** -->
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-50 dark:bg-transparent"></div>
+    </Fragment>
+  </Content>
 
-  <Team
-    id="team"
-    tagline="The people"
-    title="Meet the team"
-    subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla."
-    members={[
-      {
-        name: 'Alicia Rivera',
-        role: 'Founder & CEO',
-        image: {
-          src: 'https://images.unsplash.com/photo-1618835962148-cf177563c6c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=930&q=80',
-          alt: 'Alicia Rivera',
-        },
-        bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        socials: [
-          { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/', ariaLabel: 'LinkedIn' },
-          { icon: 'tabler:brand-x', href: 'https://x.com/', ariaLabel: 'X' },
-        ],
-      },
-      {
-        name: 'Daniel Okafor',
-        role: 'Lead developer',
-        image: {
-          src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Daniel Okafor',
-        },
-        bio: 'Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla.',
-        socials: [{ icon: 'tabler:brand-github', href: 'https://github.com/', ariaLabel: 'GitHub' }],
-      },
-      {
-        name: 'Mei Tanaka',
-        role: 'Product designer',
-        image: {
-          src: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Mei Tanaka',
-        },
-        bio: 'Sed porttitor est nibh at nulla. Cras semper nulla leo, eget laoreet erat.',
-        socials: [{ icon: 'tabler:brand-dribbble', href: 'https://dribbble.com/', ariaLabel: 'Dribbble' }],
-      },
-      {
-        name: 'Jonas Weber',
-        role: 'Customer success',
-        image: {
-          src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Jonas Weber',
-        },
-        bio: 'Praesent faucibus massa in purus iaculis dictum.',
-        socials: [{ icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/', ariaLabel: 'LinkedIn' }],
-      },
-    ]}
-  />
+  <!-- How I work -->
 
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="Our locations"
-    tagline="Find us"
-    columns={4}
+  <Steps2
+    title="How I work with every client"
+    subtitle="Whether it's a one-off audit or an ongoing retainer, the same five stages: Survey, Explain, Remediate, Verify, Engage."
     items={[
       {
-        title: 'EE.UU',
-        description: '1234 Lorem Ipsum St, 12345, Miami',
+        title: 'Survey',
+        description:
+          'A conversation, then a technical investigation of your current setup. Diagnosis before proposals, always.',
+        icon: 'tabler:search',
       },
       {
-        title: 'Spain',
-        description: '5678 Lorem Ipsum St, 56789, Madrid',
+        title: 'Explain',
+        description:
+          'Findings in plain English, with scope and price agreed before any changes are made. You will never wonder what you are paying for.',
+        icon: 'tabler:message-report',
       },
       {
-        title: 'Australia',
-        description: '9012 Lorem Ipsum St, 90123, Sydney',
+        title: 'Remediate & Verify',
+        description:
+          'The agreed work, implemented and documented — then proven with tests and reports you can see for yourself.',
+        icon: 'tabler:tools',
       },
       {
-        title: 'Brazil',
-        description: '3456 Lorem Ipsum St, 34567, São Paulo',
+        title: 'Engage',
+        description:
+          'Where it makes sense, an ongoing relationship with defined response windows, so problems are caught before they cost you.',
+        icon: 'tabler:users',
       },
     ]}
   />
 
-  <!-- Features2 Widget ************** -->
+  <!-- What's here now -->
 
   <Features2
-    title="Technical Support"
-    tagline="Contact us"
-    columns={2}
+    title="Where everything lives"
+    tagline="The working setup"
+    columns={3}
     items={[
       {
-        title: 'Chat with us',
-        description:
-          'Integer luctus laoreet libero, auctor varius purus rutrum sit amet. Ut nec molestie nisi, quis eleifend mi.',
-        icon: 'tabler:messages',
+        title: 'Upwork',
+        description: 'Project work is booked through my Upwork profile, where the full work history and reviews live.',
+        icon: 'tabler:brand-upwork',
       },
       {
-        title: 'Call us',
-        description:
-          'Mauris faucibus finibus orci, in posuere elit viverra non. In hac habitasse platea dictumst. Cras lobortis metus a hendrerit congue.',
-        icon: 'tabler:headset',
+        title: 'This site',
+        description: 'The blog carries the working knowledge: authentication, deliverability, and the systems behind both.',
+        icon: 'tabler:article',
+      },
+      {
+        title: 'Direct engagement',
+        description: 'Retainers and managed services are arranged directly — email is the door.',
+        icon: 'tabler:mail',
       },
     ]}
+  />
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Let's talk about where your email is landing"
+    subtitle="Free conversation. Honest assessment. No obligation."
   />
 </Layout>
