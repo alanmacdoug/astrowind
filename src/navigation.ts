@@ -9,7 +9,7 @@ export const headerData = {
   ],
   actions: [
     {
-      text: 'Hire me',
+      text: 'Hire me on Upwork',
       href: 'https://www.upwork.com/freelancers/YOUR_PROFILE_ID',
       target: '_blank',
     },
