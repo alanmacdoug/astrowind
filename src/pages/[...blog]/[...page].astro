@@ -36,7 +36,7 @@ const breadcrumbs = [
 const metadata = {
   title: `Blog${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
   description:
-    'Articles about Astro, Tailwind CSS and the AstroWind template: tutorials, customisation guides and web development notes.',
+    'Email infrastructure and deliverability: authentication, spam-folder diagnosis, sending platforms and twenty years of hard-won lessons.',
   robots: {
     index: blogListRobots?.index && currentPage === 1,
     follow: blogListRobots?.follow,
@@ -54,9 +54,7 @@ const metadata = {
   </Fragment>
   <Breadcrumbs bar items={breadcrumbs} />
   <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
-    <Headline
-      subtitle="A statically generated blog example with news, tutorials, resources and other interesting content related to AstroWind"
-    >
+    <Headline subtitle="Practical email deliverability writing from twenty years behind the inbox">
       The Blog
     </Headline>
     <BlogList posts={page.data} />
@@ -66,12 +64,17 @@ const metadata = {
       <PostTags tags={allTags}  title="Search by Tags:" />
     -->
   </section>
-  <Newsletter
-    tagline="Newsletter"
-    title="New articles in your inbox"
-    subtitle="Tutorials and notes about Astro, Tailwind CSS and the template, when they are published. Nothing else."
-    button="Subscribe"
-    disclaimer="Unsubscribe with one click. This form is a template: pass an <code>action</code> to connect it to your email tool."
-    classes={{ container: 'max-w-4xl' }}
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Get in touch', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Email that reaches the inbox. Every time."
+    subtitle="If your mail is landing in spam, an audit starts at £150. Reading articles is free."
   />
 </Layout>
