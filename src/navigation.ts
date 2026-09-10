@@ -23,13 +23,7 @@ export const footerData = {
         { text: 'Services', href: getPermalink('/services') },
         { text: 'Blog', href: getBlogPermalink() },
         { text: 'About', href: getPermalink('/about') },
-      ],
-    },
-    {
-      title: 'Company',
-      links: [
-        { text: 'About', href: getPermalink('/about') },
-        { text: 'Email: alan@macdougallsystems.com', href: 'mailto:alan@macdougallsystems.com' },
+        { text: 'Contact', href: getPermalink('/contact') },
       ],
     },
   ],
