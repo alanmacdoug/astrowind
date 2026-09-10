@@ -1,7 +1,6 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
-import Header from '~/components/widgets/Header.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import Content from '~/components/widgets/Content.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
@@ -19,25 +18,6 @@ const metadata = {
 
 <Layout metadata={metadata}>
   <Fragment slot="announcement"></Fragment>
-  <Fragment slot="header">
-    <Header
-      links={[
-        { text: 'Services', href: '#services' },
-        { text: 'How I work', href: '#process' },
-        { text: 'About', href: '#about' },
-        { text: 'Blog', href: getPermalink('blog') },
-      ]}
-      actions={[
-        {
-          text: 'Hire me',
-          href: 'https://www.upwork.com/freelancers/UPWORK_URL',
-          target: '_blank',
-        },
-      ]}
-      isSticky
-      showToggleTheme
-    />
-  </Fragment>
 
   <!-- Hero -->
 
