@@ -18,14 +18,6 @@ export const headerData = {
 export const footerData = {
   links: [
     {
-      title: 'Services',
-      links: [
-        { text: 'Email authentication audits', href: getPermalink('/services') },
-        { text: 'Managed email systems', href: getPermalink('/services') },
-        { text: 'Fix-my-deliverability', href: getPermalink('/services') },
-      ],
-    },
-    {
       title: 'Site',
       links: [
         { text: 'Services', href: getPermalink('/services') },
