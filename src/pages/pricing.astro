@@ -2,274 +2,165 @@
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import Prices from '~/components/widgets/Pricing.astro';
-import Comparison from '~/components/widgets/Comparison.astro';
 import FAQs from '~/components/widgets/FAQs.astro';
 import Steps from '~/components/widgets/Steps.astro';
-import Features3 from '~/components/widgets/Features3.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 
 const metadata = {
   title: 'Pricing',
   description:
-    'Pricing page demo built with AstroWind: tiered plans, feature comparison, steps and FAQs styled with Tailwind CSS.',
+    'Clear pricing for email infrastructure work: fixed-scope audits, hourly consulting, and monthly managed services. No hidden costs.',
 };
 ---
 
 <Layout metadata={metadata}>
-  <!-- HeroText Widget ******************* -->
+  <!-- HeroText -->
 
   <HeroText
     tagline="Pricing"
-    title="Stellar Pricing for Every Journey"
-    subtitle="Choose the perfect plan that aligns with your cosmic goals."
+    title="Know what it costs before you commit"
+    subtitle="Project work is priced up front and fixed. Ongoing work is scoped to what you need — and cancellable with notice."
   />
 
-  <!-- Pricing Widget ******************* -->
+  <!-- Pricing -->
 
   <Prices
-    title="Our prices"
-    subtitle="Only pay for what you need"
+    title="Ways to work together"
+    subtitle="Every engagement starts the same way: a free conversation, then a fixed price"
     prices={[
       {
-        title: 'basic',
-        subtitle: 'Optimal choice for personal use',
-        price: { monthly: 29, yearly: 290 },
-        period: { monthly: 'per month', yearly: 'per year' },
+        title: 'Authentication Audit',
+        subtitle: 'One-off diagnostic, fixed price',
+        price: { monthly: 150 },
+        period: { monthly: 'fixed price, from' },
         items: [
-          {
-            description: 'Etiam in libero, et volutpat',
-          },
-          {
-            description: 'Aenean ac nunc dolor tristique',
-          },
-          {
-            description: 'Cras scelerisque accumsan lib',
-          },
-          {
-            description: 'In hac habitasse',
-          },
+          { description: 'Full SPF, DKIM and DMARC review' },
+          { description: 'Plain-English findings report' },
+          { description: 'Prioritised fix list with costs' },
+          { description: 'Typical turnaround: 3 working days' },
         ],
         callToAction: {
-          text: 'Get started',
-          href: '#',
+          text: 'Book an audit',
+          href: '#contact',
         },
       },
       {
-        title: 'standard',
-        subtitle: 'Optimal choice for small teams',
-        price: { monthly: 69, yearly: 690 },
-        period: { monthly: 'per month', yearly: 'per year' },
-        note: 'Two months free on the yearly plan',
+        title: 'Managed & Monitored',
+        subtitle: 'Monthly, for business-critical email',
+        price: { monthly: 75 },
+        period: { monthly: 'per month, from' },
+        note: 'Scope agreed up front — cancel with [X] months notice',
         highlight: true,
         items: [
-          {
-            description: 'Proin vel laoreet',
-          },
-          {
-            description: 'Ut efficitur habitasse egestas',
-          },
-          {
-            description: 'Volutpat hac curabitur',
-          },
-          {
-            description: 'Pellentesque blandit ut nibh',
-          },
-          {
-            description: 'Donec fringilla sem',
-          },
+          { description: 'Managed Mautic hosting and maintenance' },
+          { description: 'DNS drift and blacklist monitoring' },
+          { description: 'DMARC report review' },
+          { description: 'Defined response windows' },
+          { description: 'Scheduled deliverability health checks' },
         ],
         callToAction: {
-          text: 'Get started',
-          href: '#',
+          text: 'Discuss ongoing work',
+          href: '#contact',
         },
         hasRibbon: true,
-        ribbonTitle: 'popular',
+        ribbonTitle: 'most clients',
       },
       {
-        title: 'premium',
-        subtitle: 'Optimal choice for companies',
-        price: { monthly: 199, yearly: 1990 },
-        period: { monthly: 'per month', yearly: 'per year' },
+        title: 'Consulting',
+        subtitle: 'Advisory and project work by the hour',
+        price: { monthly: 35 },
+        period: { monthly: 'per hour' },
         items: [
-          {
-            description: 'Curabitur suscipit risus',
-          },
-          {
-            description: 'Aliquam habitasse malesuada',
-          },
-          {
-            description: 'Suspendisse sit amet blandit',
-          },
-          {
-            description: 'Suspendisse auctor blandit dui',
-          },
+          { description: 'Platform strategy and migrations' },
+          { description: 'Automation architecture' },
+          { description: 'Second opinions on proposals' },
+          { description: 'Booked in blocks as needed' },
         ],
         callToAction: {
-          text: 'Get started',
-          href: '#',
+          text: 'Ask about availability',
+          href: '#contact',
         },
       },
     ]}
   />
 
-  <!-- Comparison Widget ************ -->
-
-  <Comparison
-    id="compare"
-    tagline="Compare plans"
-    title="Everything in each plan"
-    subtitle="The full feature matrix. Highlighted column: the plan most teams pick."
-    firstColumnLabel="Features"
-    columns={[
-      { title: 'Basic', subtitle: '$29 / month', callToAction: { text: 'Get started', href: '/contact' } },
-      {
-        title: 'Standard',
-        subtitle: '$69 / month',
-        highlight: true,
-        callToAction: { text: 'Get started', href: '/contact' },
-      },
-      { title: 'Premium', subtitle: '$199 / month', callToAction: { text: 'Talk to us', href: '/contact' } },
-    ]}
-    rows={[
-      { group: 'Core', label: 'Pages', values: ['Unlimited', 'Unlimited', 'Unlimited'] },
-      { group: 'Core', label: 'Projects', values: ['1', '5', 'Unlimited'] },
-      { group: 'Core', label: 'Team members', values: ['1', '5', '25'] },
-      { group: 'Core', label: 'Custom domain', values: [true, true, true] },
-      { group: 'Support', label: 'Email support', values: [true, true, true] },
-      {
-        group: 'Support',
-        label: 'Priority support',
-        description: 'Response within one business day',
-        values: [false, true, true],
-      },
-      { group: 'Support', label: 'Dedicated manager', values: [false, false, true] },
-      { group: 'Extras', label: 'Analytics dashboard', values: [false, true, true] },
-      { group: 'Extras', label: 'Single sign-on (SSO)', values: [false, false, true] },
-      { group: 'Extras', label: 'Audit log', values: [false, false, '90 days'] },
-    ]}
-  />
-
-  <!-- Features3 Widget ************** -->
-
-  <Features3
-    title="Price-related features"
-    subtitle="Discover the advantages of choosing our plans"
-    columns={2}
-    items={[
-      {
-        title: 'Tiered Pricing Plans',
-        description: 'Choose from a range of pricing plans designed to accommodate different budgets and requirements.',
-        icon: 'tabler:stairs',
-      },
-      {
-        title: 'Transparent Pricing',
-        description: 'Clearly displayed pricing details for each plan, with no hidden costs or unexpected charges.',
-        icon: 'tabler:flip-vertical',
-      },
-      {
-        title: 'Secure Payment Methods',
-        description: 'Secure payment gateways to protect your financial information during transactions.',
-        icon: 'tabler:shield-lock',
-      },
-      {
-        title: 'Instant Access',
-        description: `Immediate access to your chosen plan's features and templates upon subscription.`,
-        icon: 'tabler:accessible',
-      },
-      {
-        title: 'Upgrade Value',
-        description: 'Upgrade to higher-tier plans to unlock more features and benefits for an enhanced experience.',
-        icon: 'tabler:chevrons-up',
-      },
-      {
-        title: '24H support',
-        description: 'Questions answered via live chat, email or phone, every calendar day.',
-        icon: 'tabler:headset',
-      },
-    ]}
-    classes={{ container: 'max-w-5xl' }}
-  />
-
-  <!-- Steps Widget ****************** -->
+  <!-- Steps -->
 
   <Steps
-    title="A guided journey from plans to creativity"
-    tagline="simplified process"
-    isReversed={true}
+    title="How a price becomes fixed"
+    tagline="no surprises"
     items={[
       {
-        title: 'Pick a plan',
-        description: 'Compare the three plans and choose the one that fits your project.',
-        icon: 'tabler:number-1',
+        title: 'Free conversation',
+        description: `We talk about your problem and what “done” looks like. No charge, no obligation.`,
+        icon: 'tabler:message-report',
       },
       {
-        title: 'Create your account',
-        description: 'Sign up or log in. It takes a minute and you only do it once.',
-        icon: 'tabler:number-2',
+        title: 'Survey',
+        description: `I investigate your setup — DNS, authentication, sending platforms — before quoting anything.`,
+        icon: 'tabler:search',
       },
       {
-        title: 'Pay securely',
-        description: 'Enter your payment details, review the order and confirm.',
-        icon: 'tabler:number-3',
+        title: 'Quote, fixed',
+        description: `Written scope and price, agreed before any work begins. If it changes, you approve it first.`,
+        icon: 'tabler:file-text',
       },
       {
-        title: 'Download and build',
-        description: 'Get the template and start editing right away.',
-        icon: 'tabler:number-4',
+        title: 'Verify, then invoice',
+        description: `You see the evidence the work is done before the invoice arrives.`,
+        icon: 'tabler:checkup-list',
       },
     ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1536816579748-4ecb3f03d72a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80',
-      alt: 'Steps image',
-    }}
   />
 
-  <!-- FAQs Widget ******************* -->
+  <!-- FAQs -->
 
   <FAQs
-    title="Pricing FAQs"
-    subtitle="Choosing the right plan is important, and we're here to answer your questions. If you have queries about our pricing options, you're in the right place."
+    title="Pricing questions"
+    subtitle="The ones that come up before the first call."
     columns={1}
     items={[
       {
-        title: 'Do the plans come with customer support?',
+        title: 'Why does the audit have a range, not one price?',
         description:
-          'Absolutely, all plans include access to our dedicated customer support to assist you with any queries or concerns.',
+          'Simple single-domain setups sit at the bottom of the range. Multiple sending platforms, complicated DNS history or large domains take longer to survey properly. The exact price is quoted after the free initial conversation — before you commit to anything.',
       },
       {
-        title: 'Is there a trial period for the different plans?',
+        title: 'Are there hidden costs after the audit?',
         description:
-          "Unfortunately, we don't offer trial periods for the plans. However, you can check out our demo section to preview the quality of our templates.",
+          'No. The report tells you what is wrong and how to fix it. If you want me to implement the fixes, that is a separate, separately-priced piece of work — quoted and agreed before it starts.',
       },
       {
-        title: 'Can I switch between plans?',
+        title: 'How is ongoing work billed?',
         description:
-          'Certainly! You can easily upgrade or downgrade your plan, at any time, to find the one that best suits your evolving requirements.',
+          'Monthly, in advance, for the agreed scope. Retainers are cancellable with notice — the arrangement should stay because it earns its keep, not because it is trapped.',
       },
       {
-        title: 'What payment methods do you accept?',
+        title: 'What currencies and methods?',
         description:
-          'We accept major credit cards and online payment methods to ensure a convenient and secure transaction process.',
+          '[DECIDE: GBP invoicing via bank transfer and Upwork escrow; retainers by standing order. Square this with your Upwork rate before publishing.]',
       },
       {
-        title: 'Are there any hidden fees beyond the displayed cost?',
+        title: 'Can we start small?',
         description:
-          'No, the subscription cost covers all the features and templates listed under each plan. There are no hidden fees or extra charges.',
+          'Most engagements start with an audit. It gives you a clear picture of where you stand, and gives us both a low-risk way to see whether the ongoing relationship makes sense.',
       },
     ]}
   />
 
-  <!-- CallToAction Widget *********** -->
+  <!-- CTA -->
 
   <CallToAction
-    title="Ready to boost your projects?"
-    subtitle="Join our community of satisfied customers who have transformed their work with our templates."
+    title="Still deciding?"
+    subtitle="A conversation costs nothing — and a deliverability problem costs you quietly every day."
     actions={[
       {
         variant: 'primary',
-        text: 'Get started now',
-        href: '/',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
       },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
   />
 </Layout>
