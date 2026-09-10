@@ -18,14 +18,14 @@ export const headerData = {
 
 export const footerData = {
   links: [
-    {
+  {
       title: 'Site',
       links: [
-    { text: 'Services', href: getPermalink('/services') },
-    { text: 'About', href: getPermalink('/about') },
-    { text: 'Contact', href: getPermalink('/contact') },
-    { text: 'Blog', href: getBlogPermalink() },
-  ],
+        { text: 'Services', href: getPermalink('/services') },
+        { text: 'About', href: getPermalink('/about') },
+        { text: 'Contact', href: getPermalink('/contact') },
+        { text: 'Blog', href: getBlogPermalink() },
+      ],
     },
   ],
   secondaryLinks: [
