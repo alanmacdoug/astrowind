@@ -1,1 +1,429 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
 
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Features3 from '~/components/widgets/Features3.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'Tools',
+  description:
+    'Free client-side email authentication checker. Enter a domain to see its SPF, DKIM and DMARC posture as the major inbox providers see it.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Tools"
+    title="Check your email authentication"
+    subtitle="Enter a domain and see its SPF, DKIM and DMARC posture as the major inbox providers see it. No signup, nothing sent, nothing stored — the checks run in your browser."
+  />
+
+  <!-- The tool -->
+
+  <section id="auth-checker" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+
+    <div
+      class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+    >
+      <form id="checker-form" class="flex flex-col sm:flex-row gap-3">
+        <label for="domain-input" class="sr-only">Domain to check</label>
+        <input
+          id="domain-input"
+          type="text"
+          name="domain"
+          placeholder="example.com"
+          autocomplete="off"
+          spellcheck="false"
+          class="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <button
+          type="submit"
+          id="check-button"
+          class="btn btn-primary font-medium rounded-lg px-6 py-3 whitespace-nowrap"
+        >
+          Check domain
+        </button>
+      </form>
+
+      <div id="status" class="mt-4 text-slate-500 dark:text-slate-400 text-sm hidden"></div>
+
+      <div id="results" class="mt-6 space-y-4"></div>
+    </div>
+
+    <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+      This tool runs entirely in your browser. Nothing is sent, logged or stored — your domain is queried
+      directly against public DNS.
+    </p>
+  </section>
+
+  <!-- What these records do -->
+
+  <Features3
+    title="What these records do"
+    subtitle="Three lines of DNS text decide whether the inbox trusts your mail."
+    columns={3}
+    items={[
+      {
+        title: 'SPF',
+        description:
+          'Lists the servers allowed to send mail for your domain. Too many includes, and the record silently stops being evaluated.',
+        icon: 'tabler:shield-lock',
+      },
+      {
+        title: 'DKIM',
+        description:
+          'Cryptographically signs your outgoing mail so receivers can verify it was not tampered with in transit.',
+        icon: 'tabler:key',
+      },
+      {
+        title: 'DMARC',
+        description:
+          'Tells receivers what to do when SPF or DKIM fail — and where to send the reports. Published as p=none is watching, not enforcing.',
+        icon: 'tabler:eye-check',
+      },
+    ]}
+  />
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Seeing problems in the results?"
+    subtitle="These issues are exactly what an authentication audit resolves — fixed price from £150."
+  />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
+
+<script>
+  // --- DoH client -----------------------------------------------------------
+
+  const DOH_ENDPOINTS = [
+    'https://dns.google/resolve',
+    'https://cloudflare-dns.com/dns-query',
+  ];
+
+  async function dohQuery(name: string, type: string): Promise<any[]> {
+    for (const endpoint of DOH_ENDPOINTS) {
+      try {
+        const url = `${endpoint}?name=${encodeURIComponent(name)}&type=${type}`;
+        const res = await fetch(url, { headers: { accept: 'application/dns-json' } });
+        if (!res.ok) continue;
+        const json: any = await res.json();
+        if (json && Array.isArray(json.Answer)) return json.Answer;
+        if (json && json.Status === 3) return []; // NXDOMAIN
+        return [];
+      } catch {
+        // try next endpoint
+      }
+    }
+    throw new Error('DNS lookup failed');
+  }
+
+  function txtRecords(answers: any[]): string[] {
+    return answers
+      .filter((a) => a.type === 16)
+      .map((a) => String(a.data).replace(/^"|"$/g, ''));
+  }
+
+  // --- Parsers ---------------------------------------------------------------
+
+  function parseSPF(records: string[]) {
+    const spfRecords = records.filter((r) => r.toLowerCase().startsWith('v=spf1'));
+    if (spfRecords.length === 0) return { found: false, count: 0, all: '', terms: [] as string[] };
+    const terms = spfRecords[0].split(/\s+/).slice(1);
+    const allTerm = terms.find((t) => t.startsWith('all=')) || '';
+    return { found: true, count: spfRecords.length, all: allTerm, terms };
+  }
+
+  async function countSPFLookups(
+    records: string[],
+    visited: Set<string>,
+    depth = 0,
+  ): Promise<number> {
+    const spf = parseSPF(records);
+    if (!spf.found || depth > 10) return 0;
+    let lookups = 0;
+    for (const term of spf.terms) {
+      const mech = term.split(':')[0];
+      if (['include', 'redirect', 'a', 'mx', 'ptr', 'exists'].includes(mech)) {
+        lookups++;
+        if ((mech === 'include' || mech === 'redirect') && depth < 6) {
+          const target = term.split(':').pop() || '';
+          if (target && !visited.has(target)) {
+            visited.add(target);
+            try {
+              const sub = txtRecords(await dohQuery(target, 'TXT'));
+              lookups += await countSPFLookups(sub, visited, depth + 1);
+            } catch {
+              /* unresolvable include counts as its single lookup */
+            }
+          }
+        }
+      }
+    }
+    return lookups;
+  }
+
+  function parseDMARC(records: string[]) {
+    const dmarc = records.find((r) => r.toLowerCase().startsWith('v=dmarc1'));
+    if (!dmarc) return { found: false, policy: '', rua: false };
+    const pMatch = dmarc.match(/p\s*=\s*(\w+)/i);
+    const rua = /rua\s*=/.test(dmarc);
+    return { found: true, policy: (pMatch ? pMatch[1] : '').toLowerCase(), rua };
+  }
+
+  const DKIM_SELECTORS = [
+    'default',
+    'google',
+    'selector1',
+    'selector2',
+    's1',
+    's2',
+    'k1',
+    'k2',
+    'mail',
+    'smtp',
+    'dkim',
+    'zoho',
+  ];
+
+  // --- Rendering helpers -----------------------------------------------------
+
+  const resultsEl = document.getElementById('results')!;
+  const statusEl = document.getElementById('status')!;
+  const form = document.getElementById('checker-form') as HTMLFormElement;
+  const input = document.getElementById('domain-input') as HTMLInputElement;
+  const button = document.getElementById('check-button') as HTMLButtonElement;
+
+  function esc(s: string): string {
+    return s.replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
+    );
+  }
+
+  function chip(status: 'pass' | 'warn' | 'fail'): string {
+    const styles: Record<string, string> = {
+      pass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+      warn: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+      fail: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+    };
+    const labels: Record<string, string> = { pass: 'OK', warn: 'Check', fail: 'Issue' };
+    return `<span class="inline-block text-xs font-semibold uppercase tracking-wide rounded-full px-2.5 py-1 ${styles[status]}">${labels[status]}</span>`;
+  }
+
+  function card(title: string, status: 'pass' | 'warn' | 'fail', bodyHtml: string): string {
+    return `
+      <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="font-bold text-lg dark:text-white">${title}</h3>
+          ${chip(status)}
+        </div>
+        <div class="mt-2 text-sm text-slate-600 dark:text-slate-300 space-y-1">${bodyHtml}</div>
+      </div>`;
+  }
+
+  function normDomain(raw: string): string | null {
+    let d = raw.trim().toLowerCase();
+    d = d.replace(/^https?:\/\//, '').replace(/^www\./, '');
+    if (d.includes('@')) d = d.split('@').pop() || '';
+    d = d.split('/')[0].split(':')[0];
+    if (!/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/.test(d) || !d.includes('.')) return null;
+    return d;
+  }
+
+  // --- Main check -------------------------------------------------------------
+
+  async function runCheck(domain: string) {
+    resultsEl.innerHTML = '';
+    button.disabled = true;
+    button.textContent = 'Checking…';
+
+    try {
+      setStatus('Querying DNS records for ' + domain + '…');
+
+      const [txt, dmarcRaw, mx, dkimHits] = await Promise.all([
+        dohQuery(domain, 'TXT'),
+        dohQuery(`_dmarc.${domain}`, 'TXT'),
+        dohQuery(domain, 'MX'),
+        (async () => {
+          const probes = await Promise.allSettled(
+            DKIM_SELECTORS.map((s) => dohQuery(`${s}._domainkey.${domain}`, 'TXT')),
+          );
+          return probes
+            .map((p, i) => (p.status === 'fulfilled' && p.value.length > 0 ? DKIM_SELECTORS[i] : null))
+            .filter(Boolean) as string[];
+        })(),
+      ]);
+
+      const txts = txtRecords(txt);
+      const dmarc = parseDMARC(txtRecords(dmarcRaw));
+      const spf = parseSPF(txts);
+
+      setStatus('Walking SPF includes…');
+      const lookups = spf.found ? await countSPFLookups(txts, new Set()) : 0;
+
+      renderResults(domain, { spf, lookups, dmarc, mxCount: mx.length, dkimHits });
+    } catch (err) {
+      resultsEl.innerHTML = card(
+        'Lookup failed',
+        'fail',
+        '<p>The DNS queries could not be completed. Try again in a moment.</p>',
+      );
+    } finally {
+      setStatus('');
+      button.disabled = false;
+      button.textContent = 'Check domain';
+    }
+  }
+
+  function setStatus(text: string) {
+    if (!text) {
+      statusEl.classList.add('hidden');
+    } else {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = text;
+    }
+  }
+
+  function renderResults(
+    domain: string,
+    r: {
+      spf: { found: boolean; count: number; all: string; terms: string[] };
+      lookups: number;
+      dmarc: { found: boolean; policy: string; rua: boolean };
+      mxCount: number;
+      dkimHits: string[];
+    },
+  ) {
+    let html = '';
+    let issues = 0;
+
+    // SPF
+    if (!r.spf.found) {
+      issues++;
+      html += card('SPF', 'fail', '<p>No SPF record found. Receivers have no list of authorised senders for this domain.</p>');
+    } else {
+      let body = `<p>Record found with ${esc(r.spf.terms.length)} mechanisms.</p>`;
+      let status: 'pass' | 'warn' | 'fail' = 'pass';
+      if (r.spf.count > 1) {
+        issues++;
+        status = 'fail';
+        body += `<p><strong>${r.spf.count} SPF records found</strong> — multiple records invalidate each other. This must be fixed.</p>`;
+      }
+      const qualifier = r.spf.all.replace('all=', '');
+      if (qualifier === '-') {
+        body += '<p>Enforcing (<code>-all</code>): unauthorised senders are rejected.</p>';
+      } else if (qualifier === '~') {
+        body += '<p>Softfail (<code>~all</code>): unauthorised senders pass but are marked. Workable, but weaker than <code>-all</code>.</p>';
+      } else {
+        issues++;
+        status = status === 'fail' ? 'fail' : 'warn';
+        body += '<p>No <code>-all</code> enforcement at the end of the record — anything not matched may still pass.</p>';
+      }
+      html += card('SPF', status, body);
+    }
+
+    // SPF lookup depth
+    if (r.spf.found) {
+      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookups required to evaluate this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
+      let status: 'pass' | 'warn' | 'fail' = 'pass';
+      if (r.lookups > 10) {
+        issues++;
+        status = 'fail';
+      } else if (r.lookups >= 8) {
+        issues++;
+        status = 'warn';
+      }
+      html += card('SPF lookup depth', status, body);
+    }
+
+    // DKIM
+    {
+      let body = '';
+      if (r.dkimHits.length > 0) {
+        body = `<p>Public keys found for ${r.lookupsSafe ?? ''}${r.dkimHits.map(esc).join(', ')}.</p><p class="text-xs">Note: absence of other selectors does not prove DKIM is missing — private or unusual selectors will not appear here.</p>`;
+      } else {
+        body = '<p>No public keys found among common selectors. This domain may use a private selector — or may not sign mail at all.</p><p class="text-xs">Note: this check probes common selector names only and cannot conclusively rule DKIM in or out.</p>';
+      }
+      const status: 'pass' | 'warn' = r.dkimHits.length > 0 ? 'pass' : 'warn';
+      if (r.dkimHits.length === 0) issues++;
+      html += card('DKIM', status, body);
+    }
+
+    // DMARC
+    if (!r.dmarc.found) {
+      issues++;
+      html += card('DMARC', 'fail', '<p>No DMARC record found. Receivers apply their own policy to unauthenticated mail from this domain — spoofing goes unchecked.</p>');
+    } else {
+      const policy = r.dmarc.policy || 'none';
+      let body = `<p>Policy: <code>p=${esc(policy)}</code>.</p>`;
+      if (policy === 'reject') {
+        body += '<p>Full enforcement: unauthenticated mail is rejected.</p>';
+      } else if (policy === 'quarantine') {
+        body += '<p>Enforced: unauthenticated mail is sent to spam.</p>';
+      } else {
+        issues++;
+        body += '<p>Monitor-only (<code>p=none</code>): reports are generated but no enforcement happens. Spoofed mail still delivers.</p>';
+      }
+      body += r.dmarc.rua
+        ? '<p>Aggregate reports are being collected — someone is monitoring this domain.</p>'
+        : '<p>No reporting address (<code>rua</code>) — aggregate reports are not being collected.</p>';
+      const status: 'pass' | 'warn' | 'fail' = policy === 'reject' ? 'pass' : policy === 'quarantine' ? 'pass' : 'warn';
+      html += card('DMARC', status, body);
+    }
+
+    // Verdict + conditional funnel
+    if (issues > 0) {
+      html += `
+        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
+          <p class="font-semibold text-lg dark:text-white">Issues found: ${issues}</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">These issues are exactly what an authentication audit resolves — typically within days, at a fixed price.</p>
+          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Get an audit — from £150</a>
+        </div>`;
+    } else {
+      html += `
+        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
+          <p class="font-semibold text-lg dark:text-white">All checks pass</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Records like these drift over time. Monitoring catches it before your reputation pays.</p>
+        </div>`;
+    }
+
+    resultsEl.innerHTML = html;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const domain = normDomain(input.value);
+    if (!domain) {
+      setStatus('Please enter a valid domain, e.g. example.com');
+      return;
+    }
+    runCheck(domain);
+  });
+</script>
