@@ -169,6 +169,14 @@ const metadata = {
     depth = 0,
   ): Promise<number> {
     const spf = parseSPF(records);
+    if (depth > 0) {
+      console.log(
+        '[depth ' + depth + '] parseSPF found:',
+        spf.found,
+        '| record head:',
+        JSON.stringify(records[0]?.slice(0, 80)),
+      );
+    }
     if (!spf.found || depth > 10) return 0;
     let lookups = 0;
     for (const term of spf.terms) {
