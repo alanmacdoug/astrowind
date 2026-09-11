@@ -23,64 +23,62 @@ const metadata = {
 
   <!-- The calculator (slate-100) -->
 
-  <section id="mautic-compare" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-4xl">
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
+  <section id="mautic-compare" class="relative bg-slate-100 dark:bg-transparent">
+    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-4xl">
+      <div
+        class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+      >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Subscribers</span>
+            <input
+              id="subs"
+              type="number"
+              min="100"
+              max="500000"
+              step="100"
+              value="25000"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
 
-    <div
-      class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
-    >
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Subscribers</span>
-          <input
-            id="subs"
-            type="number"
-            min="100"
-            max="500000"
-            step="100"
-            value="25000"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Managed Mautic monthly fee (£)</span>
+            <input
+              id="mautic-fee"
+              type="number"
+              min="0"
+              value="75"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
 
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Managed Mautic monthly fee (£)</span>
-          <input
-            id="mautic-fee"
-            type="number"
-            min="0"
-            value="75"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
+          <fieldset class="sm:col-span-2">
+            <legend class="text-sm font-medium dark:text-white mb-2">
+              Hosted ESP to compare (indicative tier pricing, editable)
+            </legend>
+            <div id="platform-selects" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+          </fieldset>
+        </div>
 
-        <fieldset class="sm:col-span-2">
-          <legend class="text-sm font-medium dark:text-white mb-2">
-            Hosted ESP to compare (indicative tier pricing, editable)
-          </legend>
-          <div id="platform-selects" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-        </fieldset>
+        <button
+          type="button"
+          id="calc-btn"
+          class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
+        >
+          Compare
+        </button>
+
+        <div id="results" class="mt-8"></div>
+        <div id="chart-area" class="mt-6"></div>
       </div>
 
-      <button
-        type="button"
-        id="calc-btn"
-        class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
-      >
-        Compare
-      </button>
-
-      <div id="results" class="mt-8"></div>
-      <div id="chart-area" class="mt-6"></div>
+      <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+        Runs entirely in your browser — nothing is sent or stored. ESP tier figures are indicative estimates,
+        not vendor-published prices: both platforms use on-page calculators rather than published rate cards.
+        Always check current pricing with the vendor before any decision.
+      </p>
     </div>
-
-    <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-      Runs entirely in your browser — nothing is sent or stored. ESP tier figures are indicative estimates,
-      not vendor-published prices: both platforms use on-page calculators rather than published rate cards.
-      Always check current pricing with the vendor before any decision.
-    </p>
   </section>
 
   <!-- More tools (white — alternates against the calculator's slate-100) -->
@@ -124,7 +122,7 @@ const metadata = {
         variant: 'primary',
         target: '_blank',
         text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        href: 'https://www.upwork.com/freelancers/~0151852008049f31c2',
       },
       { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
