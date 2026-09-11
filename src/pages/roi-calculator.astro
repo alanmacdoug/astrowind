@@ -21,7 +21,7 @@ const metadata = {
     subtitle="Enter your numbers and see the revenue leaking away through two holes: mail landing in spam, and mail that lands but never gets opened. Conservative maths, every assumption shown — nothing hidden."
   />
 
-  <!-- The calculator -->
+  <!-- The calculator (slate-100) -->
 
   <section id="roi-calculator" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
     <Fragment slot="bg">
@@ -163,13 +163,9 @@ const metadata = {
     </p>
   </section>
 
-  <!-- More tools -->
+  <!-- More tools (white — alternates against the calculator's slate-100) -->
 
   <section id="more-tools" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
-
     <div class="text-center mb-6">
       <h2 class="text-2xl font-bold dark:text-white">More tools</h2>
       <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -260,150 +256,4 @@ const metadata = {
 
   const fields = {
     industry: document.getElementById('industry') as HTMLSelectElement,
-    listSize: document.getElementById('list-size') as HTMLInputElement,
-    sendFrequency: document.getElementById('send-frequency') as HTMLInputElement,
-    openRate: document.getElementById('open-rate') as HTMLInputElement,
-    clickRate: document.getElementById('click-rate') as HTMLInputElement,
-    conversionRate: document.getElementById('conversion-rate') as HTMLInputElement,
-    customerValue: document.getElementById('customer-value') as HTMLInputElement,
-    inboxLoss: document.getElementById('inbox-loss') as HTMLInputElement,
-    unknownLoss: document.getElementById('unknown-loss') as HTMLInputElement,
-    lossWrapper: document.getElementById('loss-input-wrapper') as HTMLElement,
-    benchmarkNote: document.getElementById('open-benchmark-note') as HTMLElement,
-    button: document.getElementById('calc-button') as HTMLButtonElement,
-    results: document.getElementById('results') as HTMLElement,
-  };
-
-  function achievableOpen(): number {
-    return ACHIEVABLE_OPEN[fields.industry.value] ?? ACHIEVABLE_OPEN.other;
-  }
-
-  function setBenchmarkNote() {
-    const achievable = achievableOpen();
-    fields.benchmarkNote.textContent = `A strong performer in this industry typically sustains around ${achievable}% opens (placeholder figure, not a sourced benchmark).`;
-  }
-
-  function applyPrefill() {
-    const preset = INDUSTRY_PREFILL[fields.industry.value] || INDUSTRY_PREFILL.other;
-    fields.openRate.value = String(preset.open);
-    fields.clickRate.value = String(preset.click);
-    fields.conversionRate.value = String(preset.conversion);
-    setBenchmarkNote();
-  }
-
-  fields.industry.addEventListener('change', applyPrefill);
-
-  fields.unknownLoss.addEventListener('change', () => {
-    fields.lossWrapper.style.display = fields.unknownLoss.checked ? 'none' : 'block';
-    if (fields.unknownLoss.checked) fields.inboxLoss.value = String(DEFAULT_INBOX_LOSS);
-  });
-
-  setBenchmarkNote();
-
-  function num(el: HTMLInputElement, fallback: number): number {
-    const v = parseFloat(el.value);
-    return Number.isFinite(v) && v >= 0 ? v : fallback;
-  }
-
-  function calculate() {
-    const list = Math.max(0, num(fields.listSize, 0));
-    const sends = Math.max(0, num(fields.sendFrequency, 0));
-    const openPct = Math.min(100, num(fields.openRate, 0));
-    const clickPct = Math.min(100, num(fields.clickRate, 0));
-    const convPct = Math.min(100, num(fields.conversionRate, 0));
-    const value = Math.max(0, num(fields.customerValue, 0));
-    const lossPct = Math.min(100, num(fields.inboxLoss, DEFAULT_INBOX_LOSS));
-    const achievable = achievableOpen();
-
-    // Monthly funnel, with every step visible in the breakdown
-    const emails = list * sends;
-    const reached = emails * (1 - lossPct / 100);
-    const opened = reached * (openPct / 100);
-    const clicked = opened * (clickPct / 100);
-    const customers = clicked * (convPct / 100);
-    const revenueNow = customers * value;
-
-    // Hole 1: revenue from mail that never reaches the inbox.
-    // Assumes the lost mail would have performed at the sender's ACTUAL rates.
-    const lostToPlacement =
-      emails * (lossPct / 100) * (openPct / 100) * (clickPct / 100) * (convPct / 100) * value;
-    const customersLostToPlacement = emails * (lossPct / 100) * (openPct / 100) * (clickPct / 100) * (convPct / 100);
-
-    // Hole 2: revenue from delivered mail opened by nobody — the gap
-    // between the user's open rate and the achievable benchmark.
-    // Deliberately zero if they already meet or beat the benchmark.
-    const openGap = Math.max(0, achievable - openPct);
-    const lostToOpens = reached * (openGap / 100) * (clickPct / 100) * (convPct / 100) * value;
-    const customersLostToOpens = reached * (openGap / 100) * (clickPct / 100) * (convPct / 100);
-
-    const lostRevenue = lostToPlacement + lostToOpens;
-
-    const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');
-
-    const rows: string[] = [
-      `Emails sent per month: <strong>${fmt(emails)}</strong> (${fmt(list)} subscribers × ${sends} sends)`,
-      `Reaching the inbox: <strong>${fmt(reached)}</strong> (${100 - lossPct}% inbox placement)`,
-      `Opened: <strong>${fmt(opened)}</strong> (${openPct}% open rate${
-        openGap > 0
-          ? `, against an achievable <strong>${achievable}%</strong> — roughly ${fmt(reached * (achievable / 100))} opens were available`
-          : ''
-      })`,
-      `Clicked: <strong>${fmt(clicked)}</strong> (${clickPct}% of opens)`,
-      `Converted: <strong>${fmt(customers)}</strong> customers (${convPct}% of clicks)`,
-      `Revenue this month: <strong>${gbp.format(revenueNow)}</strong> (${fmt(customers)} × ${gbp.format(value)})`,
-    ];
-
-    const lossLines: string[] = [];
-    if (lossPct > 0) {
-      lossLines.push(
-        `Lost to spam placement: <strong>${gbp.format(lostToPlacement)}/month</strong> — about ${fmt(Math.max(0, customersLostToPlacement))} customers who never saw the email`,
-      );
-    }
-    if (openGap > 0) {
-      lossLines.push(
-        `Lost to emails nobody opened: <strong>${gbp.format(lostToOpens)}/month</strong> — about ${fmt(Math.max(0, customersLostToOpens))} customers, delivered fine but unclicked because unopened`,
-      );
-    }
-    if (lossLines.length === 0) {
-      lossLines.push('Neither hole is leaking at these numbers — full inbox placement and an open rate at or above the achievable benchmark.');
-    }
-
-    let verdictHtml: string;
-
-    if (lostRevenue >= 500) {
-      verdictHtml = `
-        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
-          <p class="text-sm text-slate-600 dark:text-slate-300">Estimated revenue lost to poor email performance:</p>
-          <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(lostRevenue)} <span class="text-base font-normal">/ month</span></p>
-          <div class="text-sm text-slate-600 dark:text-slate-300 mt-3 space-y-1 text-left list-none mx-auto max-w-xl">
-            ${lossLines.map((l) => `<div class="pl-1">•&nbsp; ${l}</div>`).join('')}
-          </div>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A deliverability audit attacks both holes — getting your mail delivered <em>and</em> getting it opened. Fixing this starts at £150.</p>
-          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Get an audit — from £150</a>
-        </div>`;
-    } else if (openGap === 0 && lossPct > 0) {
-      verdictHtml = `
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">Your open rate is already at the achievable benchmark — delivery is the only leak</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Estimated loss: ${gbp.format(lostRevenue)} per month, all of it spam placement. If your numbers are accurate, engagement isn't the problem — getting mail through is.</p>
-        </div>`;
-    } else {
-      verdictHtml = `
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">At these numbers, email performance is unlikely to be your bottleneck</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Estimated combined loss: ${gbp.format(lostRevenue)} per month. If your numbers are accurate, your list size or conversion rate probably matters more than placement or opens right now.</p>
-        </div>`;
-    }
-
-    fields.results.innerHTML = `
-      <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-        <h3 class="font-bold text-lg dark:text-white mb-2">How the estimate is built</h3>
-        <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1 list-disc pl-5">
-          ${rows.map((r) => `<li>${r}</li>`).join('')}
-        </ul>
-      </div>
-      <div class="mt-4">${verdictHtml}</div>`;
-  }
-
-  fields.button.addEventListener('click', calculate);
-</script>
+    listSize: document.getElementById('list-size') as HTM
