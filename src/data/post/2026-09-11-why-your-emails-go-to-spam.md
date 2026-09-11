@@ -6,7 +6,7 @@ excerpt: >-
   enforce sender requirements most businesses still fail. This scaffold
   post exists to test the article layout.
 author: Alan MacDougall
-publishDate: '2026-09-11'
+publishDate: 2026-09-11
 categories:
   - Deliverability
 tags:
