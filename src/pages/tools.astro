@@ -290,10 +290,11 @@ const metadata = {
 
       renderResults(domain, { spf, lookups, dmarc, mxCount: mx.length, dkimHits });
     } catch (err) {
+      console.error('Auth check failed:', err);
       resultsEl.innerHTML = card(
         'Lookup failed',
         'fail',
-        '<p>The DNS queries could not be completed. Try again in a moment.</p>',
+        `<p>The DNS queries could not be completed. Reason: <code>${esc(String(err))}</code>. Try again in a moment.</p>`,
       );
     } finally {
       setStatus('');
