@@ -57,7 +57,9 @@ const metadata = {
         </label>
 
         <fieldset class="sm:col-span-2">
-          <legend class="text-sm font-medium dark:text-white mb-2">Hosted ESP to compare (indicative tier pricing, editable)</legend>
+          <legend class="text-sm font-medium dark:text-white mb-2">
+            Hosted ESP to compare (indicative tier pricing, editable)
+          </legend>
           <div id="platform-selects" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         </fieldset>
       </div>
@@ -153,7 +155,7 @@ const metadata = {
     platformSelects: document.getElementById('platform-selects') as HTMLElement,
   };
 
-  // Build editable platform selects
+  // Build editable platform checkboxes with a tier summary and price input
   const espCheckboxes: HTMLInputElement[] = [];
   const espPriceInputs: Record<string, HTMLInputElement> = {};
 
@@ -178,14 +180,16 @@ const metadata = {
 
     const tierSummary = document.createElement('span');
     tierSummary.className = 'block text-xs mt-1';
-    tierSummary.textContent =
-      esp.tiers.map((t) => `${t.upto.toLocaleString()}+: £${t.price}/mo`).join(' · ');
+    tierSummary.textContent = esp.tiers
+      .map((t) => `${t.upto.toLocaleString()}+: £${t.price}/mo`)
+      .join(' · ');
 
     const priceInput = document.createElement('input');
     priceInput.type = 'number';
     priceInput.min = '0';
     priceInput.value = '210';
-    priceInput.title = 'Monthly price at the current subscriber count (auto-filled from tiers, editable)';
+    priceInput.title =
+      'Monthly price at the current subscriber count (auto-filled from tiers, editable)';
     priceInput.className =
       'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary';
     espPriceInputs[esp.id] = priceInput;
@@ -213,7 +217,7 @@ const metadata = {
   }
 
   function findBreakEven(esp: (typeof ESPS)[number], mauticFee: number): number | null {
-    // Smallest subscriber count where ESP price exceeds the Mautic fee
+    // Smallest subscriber count where the ESP price exceeds the Mautic fee
     const step = 100;
     for (let s = step; s <= MAX_SUBS * 4; s += step) {
       if (espPriceFor(esp, s) > mauticFee) return s;
@@ -221,7 +225,7 @@ const metadata = {
     return null;
   }
 
-  // --- Rendering -----------------------------------------------------------------
+  // --- Chart ----------------------------------------------------------------------
 
   const gbp = new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -270,7 +274,7 @@ const metadata = {
       }
       svg += `<path d="${path}" fill="none" stroke="${colour}" stroke-width="2"/>`;
       svg += `<text x="${x(1000)}" y="${y(espPriceFor(esp, 1000)) - 8}" font-size="11" fill="${colour}">${esp.name}</text>`;
-    };
+    });
 
     // Subscriber marker
     svg += `<line x1="${x(subs)}" y1="${PAD_T}" x2="${x(subs)}" y2="${H - PAD_B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 4"/>`;
@@ -280,13 +284,14 @@ const metadata = {
     return svg;
   }
 
+  // --- Main calculation -------------------------------------------------------------
+
   function calculate() {
     const subs = Math.max(100, parseInt(fields.subs.value, 10) || 100);
     const mauticFee = Math.max(0, parseFloat(fields.mauticFee.value) || 0);
 
-    // Sync tier-derived price into each visible price input
     const activeEsps = ESPS.filter((_, i) => espCheckboxes[i].checked);
-    const rows: string[] = [];
+
     let tableHtml = `
       <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
       <table class="w-full text-sm">
@@ -306,16 +311,13 @@ const metadata = {
       const diff = price - mauticFee;
       const annual = diff * 12;
       const be = findBreakEven(esp, mauticFee);
-      rows.push(
-        `${esp.name}: ${gbp.format(price)}/mo (break-even: ${be ? be.toLocaleString() + ' subscribers' : 'never at these fees'})`,
-      );
       const diffCell =
         diff > 0
           ? `<span class="text-red-600 dark:text-red-400 font-semibold">+${gbp.format(diff)}</span>`
           : `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">${gbp.format(diff)}</span>`;
       tableHtml += `
           <tr class="border-b border-slate-100 dark:border-slate-800">
-            <td class="p-3 dark:text-white">${esp.name}</td>
+            <td class="p-3 dark:text-white">${esp.name}<br /><span class="text-xs text-slate-500 dark:text-slate-400">Break-even: ${be ? be.toLocaleString() + ' subscribers' : 'never at these fees'}</span></td>
             <td class="p-3 text-right dark:text-white">${gbp.format(price)}</td>
             <td class="p-3 text-right">${diffCell}</td>
             <td class="p-3 text-right dark:text-white">${gbp.format(annual)}</td>
