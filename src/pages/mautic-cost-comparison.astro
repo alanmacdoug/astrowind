@@ -1,0 +1,365 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'Mautic Cost Comparison',
+  description:
+    'Compare managed Mautic hosting against tiered ESP pricing as your list grows. See the break-even subscriber count and the annual difference.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Tools"
+    title="Managed Mautic vs tiered ESP pricing"
+    subtitle="Hosted email platforms charge by contact count; managed Mautic is a flat monthly fee for infrastructure you own. Enter your list size and see where the curves cross."
+  />
+
+  <!-- The calculator -->
+
+  <section id="mautic-compare" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-4xl">
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+
+    <div
+      class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Subscribers</span>
+          <input
+            id="subs"
+            type="number"
+            min="100"
+            max="500000"
+            step="100"
+            value="25000"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Managed Mautic monthly fee (£)</span>
+          <input
+            id="mautic-fee"
+            type="number"
+            min="0"
+            value="75"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <fieldset class="sm:col-span-2">
+          <legend class="text-sm font-medium dark:text-white mb-2">Hosted ESP to compare (indicative tier pricing, editable)</legend>
+          <div id="platform-selects" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        </fieldset>
+      </div>
+
+      <button
+        type="button"
+        id="calc-btn"
+        class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
+      >
+        Compare
+      </button>
+
+      <div id="results" class="mt-8"></div>
+      <div id="chart-area" class="mt-6"></div>
+    </div>
+
+    <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+      Runs entirely in your browser — nothing is sent or stored. ESP tier figures are rough indicative
+      placeholders and change frequently: verify current pricing with the vendor before any decision.
+    </p>
+  </section>
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Above the crossover?"
+    subtitle="Managed Mautic hosting keeps the fee flat while your list grows — and you work with the person who runs the infrastructure."
+  />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
+
+<script>
+  // --- Data: editable ESP tier pricing (indicative placeholders) --------------
+  // Each entry: monthly £ price at or below that contact count.
+  // Replace with sourced/vendor-verified tiers during the review pass.
+  const ESPS = [
+    {
+      id: 'esp1',
+      name: 'Platform A (mid-tier ESP)',
+      tiers: [
+        { upto: 1000, price: 25 },
+        { upto: 5000, price: 60 },
+        { upto: 10000, price: 110 },
+        { upto: 25000, price: 210 },
+        { upto: 50000, price: 380 },
+        { upto: 100000, price: 650 },
+      ],
+    },
+    {
+      id: 'esp2',
+      name: 'Platform B (premium ESP)',
+      tiers: [
+        { upto: 1000, price: 35 },
+        { upto: 5000, price: 85 },
+        { upto: 10000, price: 150 },
+        { upto: 25000, price: 280 },
+        { upto: 50000, price: 500 },
+        { upto: 100000, price: 900 },
+      ],
+    },
+  ];
+
+  const MAX_SUBS = 100000;
+
+  // --- DOM ---------------------------------------------------------------------
+
+  const fields = {
+    subs: document.getElementById('subs') as HTMLInputElement,
+    mauticFee: document.getElementById('mautic-fee') as HTMLInputElement,
+    calcBtn: document.getElementById('calc-btn') as HTMLButtonElement,
+    results: document.getElementById('results') as HTMLElement,
+    chartArea: document.getElementById('chart-area') as HTMLElement,
+    platformSelects: document.getElementById('platform-selects') as HTMLElement,
+  };
+
+  // Build editable platform selects
+  const espCheckboxes: HTMLInputElement[] = [];
+  const espPriceInputs: Record<string, HTMLInputElement> = {};
+
+  for (const esp of ESPS) {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex items-start gap-3';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = esp.id === 'esp1';
+    cb.id = esp.id + '-cb';
+    cb.className = 'mt-1 h-4 w-4';
+    espCheckboxes.push(cb);
+
+    const lbl = document.createElement('label');
+    lbl.htmlFor = cb.id;
+    lbl.className = 'flex-1 text-sm text-slate-600 dark:text-slate-300 cursor-pointer';
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'block font-medium dark:text-white';
+    nameSpan.textContent = esp.name;
+
+    const tierSummary = document.createElement('span');
+    tierSummary.className = 'block text-xs mt-1';
+    tierSummary.textContent =
+      esp.tiers.map((t) => `${t.upto.toLocaleString()}+: £${t.price}/mo`).join(' · ');
+
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.min = '0';
+    priceInput.value = '210';
+    priceInput.title = 'Monthly price at the current subscriber count (auto-filled from tiers, editable)';
+    priceInput.className =
+      'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary';
+    espPriceInputs[esp.id] = priceInput;
+
+    lbl.appendChild(nameSpan);
+    lbl.appendChild(tierSummary);
+    wrap.appendChild(cb);
+    wrap.appendChild(lbl);
+    wrap.appendChild(priceInput);
+    fields.platformSelects.appendChild(wrap);
+  }
+
+  // --- Pricing functions --------------------------------------------------------
+
+  function espPriceFor(esp: (typeof ESPS)[number], subs: number): number {
+    // Lowest tier that covers the subscriber count; above the largest tier,
+    // extrapolate using the last two tiers' slope.
+    for (const t of esp.tiers) {
+      if (subs <= t.upto) return t.price;
+    }
+    const last = esp.tiers[esp.tiers.length - 1];
+    const prev = esp.tiers[esp.tiers.length - 2];
+    const slope = (last.price - prev.price) / (last.upto - prev.upto);
+    return last.price + slope * (subs - last.upto);
+  }
+
+  function findBreakEven(esp: (typeof ESPS)[number], mauticFee: number): number | null {
+    // Smallest subscriber count where ESP price exceeds the Mautic fee
+    const step = 100;
+    for (let s = step; s <= MAX_SUBS * 4; s += step) {
+      if (espPriceFor(esp, s) > mauticFee) return s;
+    }
+    return null;
+  }
+
+  // --- Rendering -----------------------------------------------------------------
+
+  const gbp = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0,
+  });
+
+  function renderChart(subs: number, mauticFee: number, activeEsps: (typeof ESPS)[number]) {
+    // Hand-rolled SVG: cost vs subscribers, 0–100k domain
+    const W = 640;
+    const H = 320;
+    const PAD_L = 48;
+    const PAD_B = 36;
+    const PAD_T = 16;
+    const PAD_R = 16;
+
+    const xMax = MAX_SUBS;
+    const yMax = 1000;
+
+    const x = (s: number) => PAD_L + (s / xMax) * (W - PAD_L - PAD_R);
+    const y = (p: number) => H - PAD_B - (Math.min(p, yMax) / yMax) * (H - PAD_B - PAD_T);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img" aria-label="Monthly cost versus subscriber count">`;
+
+    // Grid lines and axis labels
+    for (const s of [0, 25000, 50000, 75000, 100000]) {
+      svg += `<line x1="${x(s)}" y1="${PAD_T}" x2="${x(s)}" y2="${H - PAD_B}" stroke="currentColor" stroke-opacity="0.1"/>`;
+      svg += `<text x="${x(s)}" y="${H - PAD_B + 18}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">${s / 1000}k</text>`;
+    }
+    for (const p of [0, 250, 500, 750, 1000]) {
+      svg += `<line x1="${PAD_L}" y1="${y(p)}" x2="${W - PAD_R}" y2="${y(p)}" stroke="currentColor" stroke-opacity="0.1"/>`;
+      svg += `<text x="${PAD_L - 6}" y="${y(p) + 4}" text-anchor="end" font-size="11" fill="currentColor" opacity="0.6">£${p}</text>`;
+    }
+
+    // Mautic flat line
+    svg += `<line x1="${x(0)}" y1="${y(mauticFee)}" x2="${x(xMax)}" y2="${y(mauticFee)}" stroke="#6d4aff" stroke-width="2.5"/>`;
+    svg += `<text x="${x(xMax)}" y="${y(mauticFee) - 6}" text-anchor="end" font-size="11" fill="#6d4aff">Managed Mautic (${gbp.format(mauticFee)}/mo)</text>`;
+
+    // ESP step lines
+    const espColours = ['#ef4444', '#f59e0b'];
+    activeEsps.forEach((esp, i) => {
+      const colour = espColours[i % espColours.length];
+      let path = `M ${x(0)} ${y(espPriceFor(esp, 1))}`;
+      for (let s = 0; s <= xMax; s += 500) {
+        path += ` L ${x(s)} ${y(espPriceFor(esp, s))}`;
+      }
+      svg += `<path d="${path}" fill="none" stroke="${colour}" stroke-width="2"/>`;
+      svg += `<text x="${x(1000)}" y="${y(espPriceFor(esp, 1000)) - 8}" font-size="11" fill="${colour}">${esp.name}</text>`;
+    };
+
+    // Subscriber marker
+    svg += `<line x1="${x(subs)}" y1="${PAD_T}" x2="${x(subs)}" y2="${H - PAD_B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    svg += `<text x="${x(subs)}" y="${PAD_T + 12}" text-anchor="middle" font-size="11" fill="#0ea5e9">Your list (${subs.toLocaleString()})</text>`;
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  function calculate() {
+    const subs = Math.max(100, parseInt(fields.subs.value, 10) || 100);
+    const mauticFee = Math.max(0, parseFloat(fields.mauticFee.value) || 0);
+
+    // Sync tier-derived price into each visible price input
+    const activeEsps = ESPS.filter((_, i) => espCheckboxes[i].checked);
+    const rows: string[] = [];
+    let tableHtml = `
+      <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left border-b border-slate-200 dark:border-slate-700 dark:text-slate-300">
+            <th class="p-3">Platform</th>
+            <th class="p-3 text-right">Monthly at ${subs.toLocaleString()} subs</th>
+            <th class="p-3 text-right">vs managed Mautic</th>
+            <th class="p-3 text-right">Annual difference</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    for (const esp of activeEsps) {
+      const price = espPriceFor(esp, subs);
+      espPriceInputs[esp.id].value = String(Math.round(price));
+      const diff = price - mauticFee;
+      const annual = diff * 12;
+      const be = findBreakEven(esp, mauticFee);
+      rows.push(
+        `${esp.name}: ${gbp.format(price)}/mo (break-even: ${be ? be.toLocaleString() + ' subscribers' : 'never at these fees'})`,
+      );
+      const diffCell =
+        diff > 0
+          ? `<span class="text-red-600 dark:text-red-400 font-semibold">+${gbp.format(diff)}</span>`
+          : `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">${gbp.format(diff)}</span>`;
+      tableHtml += `
+          <tr class="border-b border-slate-100 dark:border-slate-800">
+            <td class="p-3 dark:text-white">${esp.name}</td>
+            <td class="p-3 text-right dark:text-white">${gbp.format(price)}</td>
+            <td class="p-3 text-right">${diffCell}</td>
+            <td class="p-3 text-right dark:text-white">${gbp.format(annual)}</td>
+          </tr>`;
+    }
+
+    tableHtml += `
+          <tr class="border-t-2 border-slate-200 dark:border-slate-700 dark:text-white">
+            <td class="p-3 font-semibold">Managed Mautic</td>
+            <td class="p-3 text-right font-semibold">${gbp.format(mauticFee)}</td>
+            <td class="p-3 text-right">—</td>
+            <td class="p-3 text-right">—</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>`;
+
+    const worstDiff = Math.max(0, ...activeEsps.map((e) => espPriceFor(e, subs) - mauticFee));
+
+    let verdictHtml = '';
+    if (worstDiff >= 75) {
+      verdictHtml = `
+        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center mt-4">
+          <p class="font-semibold text-lg dark:text-white">You are above the crossover</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers, managed Mautic at ${gbp.format(mauticFee)}/month is the cheaper option — and the gap widens as the list grows.</p>
+          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss managed Mautic hosting</a>
+        </div>`;
+    } else if (activeEsps.length > 0) {
+      verdictHtml = `
+        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center mt-4">
+          <p class="font-semibold text-lg dark:text-white">Below the crossover — the ESP is cheaper for now</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers, tiered pricing hasn't yet overtaken the managed Mautic fee. The break-even point tells you when it will.</p>
+        </div>`;
+    }
+
+    fields.results.innerHTML = tableHtml + verdictHtml;
+    if (activeEsps.length > 0) {
+      fields.chartArea.innerHTML = renderChart(subs, mauticFee, activeEsps);
+    } else {
+      fields.chartArea.innerHTML =
+        '<p class="text-sm text-slate-500 dark:text-slate-400">Select at least one platform to compare.</p>';
+    }
+  }
+
+  fields.calcBtn.addEventListener('click', calculate);
+  calculate(); // initial render with defaults
+</script>
