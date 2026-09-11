@@ -23,144 +23,142 @@ const metadata = {
 
   <!-- The calculator (slate-100) -->
 
-  <section id="roi-calculator" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
+  <section id="roi-calculator" class="relative bg-slate-100 dark:bg-transparent">
+    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+      <div
+        class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+      >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="sm:col-span-2 block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Industry (pre-fills typical rates)</span>
+            <select
+              id="industry"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="other">Other / not sure</option>
+              <option value="retail">Retail & ecommerce</option>
+              <option value="saas">SaaS / software</option>
+              <option value="agency">Agency / consulting</option>
+              <option value="nonprofit">Nonprofit</option>
+            </select>
+          </label>
 
-    <div
-      class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
-    >
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label class="sm:col-span-2 block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Industry (pre-fills typical rates)</span>
-          <select
-            id="industry"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="other">Other / not sure</option>
-            <option value="retail">Retail & ecommerce</option>
-            <option value="saas">SaaS / software</option>
-            <option value="agency">Agency / consulting</option>
-            <option value="nonprofit">Nonprofit</option>
-          </select>
-        </label>
-
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">List size (subscribers)</span>
-          <input
-            id="list-size"
-            type="number"
-            min="1"
-            value="5000"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Emails per subscriber per month</span>
-          <input
-            id="send-frequency"
-            type="number"
-            min="0.5"
-            step="0.5"
-            value="4"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-
-        <div class="sm:col-span-1">
           <label class="block">
-            <span class="block text-sm font-medium dark:text-white mb-1">Open rate (%)</span>
+            <span class="block text-sm font-medium dark:text-white mb-1">List size (subscribers)</span>
             <input
-              id="open-rate"
+              id="list-size"
+              type="number"
+              min="1"
+              value="5000"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
+
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Emails per subscriber per month</span>
+            <input
+              id="send-frequency"
+              type="number"
+              min="0.5"
+              step="0.5"
+              value="4"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
+
+          <div class="sm:col-span-1">
+            <label class="block">
+              <span class="block text-sm font-medium dark:text-white mb-1">Open rate (%)</span>
+              <input
+                id="open-rate"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value="22"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </label>
+            <p id="open-benchmark-note" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5"></p>
+          </div>
+
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Click rate (% of opens)</span>
+            <input
+              id="click-rate"
               type="number"
               min="0"
               max="100"
               step="0.1"
-              value="22"
+              value="2.5"
               class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </label>
-          <p id="open-benchmark-note" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5"></p>
-        </div>
 
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Click rate (% of opens)</span>
-          <input
-            id="click-rate"
-            type="number"
-            min="0"
-            max="100"
-            step="0.1"
-            value="2.5"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Conversion rate (% of clicks)</span>
-          <input
-            id="conversion-rate"
-            type="number"
-            min="0"
-            max="100"
-            step="0.1"
-            value="2"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-
-        <label class="block">
-          <span class="block text-sm font-medium dark:text-white mb-1">Customer value (£)</span>
-          <input
-            id="customer-value"
-            type="number"
-            min="1"
-            value="60"
-            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </label>
-
-        <label class="sm:col-span-2 flex items-start gap-3 mt-1">
-          <input id="unknown-loss" type="checkbox" class="mt-1 h-4 w-4" />
-          <span class="text-sm text-slate-600 dark:text-slate-300">
-            I don't know how much of my mail lands in spam — estimate it for me (uses an industry-typical 15%
-            inbox loss)
-          </span>
-        </label>
-
-        <div id="loss-input-wrapper" class="block">
           <label class="block">
-            <span class="block text-sm font-medium dark:text-white mb-1">Mail failing to reach the inbox (%)</span>
+            <span class="block text-sm font-medium dark:text-white mb-1">Conversion rate (% of clicks)</span>
             <input
-              id="inbox-loss"
+              id="conversion-rate"
               type="number"
               min="0"
               max="100"
-              step="0.5"
-              value="15"
+              step="0.1"
+              value="2"
               class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </label>
+
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Customer value (£)</span>
+            <input
+              id="customer-value"
+              type="number"
+              min="1"
+              value="60"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
+
+          <label class="sm:col-span-2 flex items-start gap-3 mt-1">
+            <input id="unknown-loss" type="checkbox" class="mt-1 h-4 w-4" />
+            <span class="text-sm text-slate-600 dark:text-slate-300">
+              I don't know how much of my mail lands in spam — estimate it for me (uses an industry-typical 15%
+              inbox loss)
+            </span>
+          </label>
+
+          <div id="loss-input-wrapper" class="block">
+            <label class="block">
+              <span class="block text-sm font-medium dark:text-white mb-1">Mail failing to reach the inbox (%)</span>
+              <input
+                id="inbox-loss"
+                type="number"
+                min="0"
+                max="100"
+                step="0.5"
+                value="15"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </label>
+          </div>
         </div>
+
+        <button
+          type="button"
+          id="calc-button"
+          class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
+        >
+          Calculate
+        </button>
+
+        <div id="results" class="mt-8"></div>
       </div>
 
-      <button
-        type="button"
-        id="calc-button"
-        class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
-      >
-        Calculate
-      </button>
-
-      <div id="results" class="mt-8"></div>
+      <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+        Runs entirely in your browser — nothing is sent or stored. Industry pre-fill and achievable-open figures
+        are rough placeholders for demonstration and should not be treated as sourced benchmarks.
+      </p>
     </div>
-
-    <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-      Runs entirely in your browser — nothing is sent or stored. Industry pre-fill and achievable-open figures
-      are rough placeholders for demonstration and should not be treated as sourced benchmarks.
-    </p>
   </section>
 
   <!-- More tools (white — alternates against the calculator's slate-100) -->
@@ -203,7 +201,7 @@ const metadata = {
         variant: 'primary',
         target: '_blank',
         text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        href: 'https://www.upwork.com/freelancers/~0151852008049f31c2',
       },
       { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
