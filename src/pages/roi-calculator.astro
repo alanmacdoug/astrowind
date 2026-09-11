@@ -163,6 +163,42 @@ const metadata = {
     </p>
   </section>
 
+  <!-- More tools -->
+
+  <section id="more-tools" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold dark:text-white">More tools</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        Free, browser-based, nothing to sign up for.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <a
+        href="/tools"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Email authentication checker</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Check any domain's SPF, DKIM and DMARC — records shown, interpreted in plain English.
+        </p>
+      </a>
+      <a
+        href="/mautic-cost-comparison"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Mautic vs ESP cost comparison</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Managed Mautic against typical ESP pricing — find the subscriber count where the crossover happens.
+        </p>
+      </a>
+    </div>
+  </section>
+
   <!-- CTA -->
 
   <CallToAction
