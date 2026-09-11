@@ -22,6 +22,10 @@ const {
 // the default crops it to the hero frame.
 const { aspect: imageAspect, ...imageProps } = typeof image === 'object' && image ? image : { src: '', alt: '' };
 const imageWhole = imageAspect === 'auto';
+
+// Only pad below the hero text when an image follows it — otherwise this
+// compounds with the outer wrapper's py to stack dead bottom whitespace.
+const heroTextPadding = image ? 'pb-10 md:pb-16' : '';
 ---
 
 <section class="relative md:-mt-[76px] not-prose" {...id ? { id } : {}}>
@@ -33,7 +37,7 @@ const imageWhole = imageAspect === 'auto';
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
     <div class="pt-0 md:pt-[76px] pointer-events-none"></div>
     <div class="py-12 md:py-20">
-      <div class="text-center pb-10 md:pb-16 max-w-5xl mx-auto">
+      <div class:list={['text-center max-w-5xl mx-auto', heroTextPadding]}>
         {
           badge && (
             <span class="inline-block mb-4 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary dark:bg-primary/25 dark:text-blue-200 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
