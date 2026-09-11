@@ -199,19 +199,22 @@ const metadata = {
   type SpfWalkItem = { term: string; cost: number; note?: string };
   type SpfWalk = { lookups: number; items: SpfWalkItem[] };
 
-  // Walks the SPF record and returns the total DNS lookup count plus a
+    // Walks the SPF record and returns the total DNS lookup count plus a
   // per-term breakdown attributed to the top-level mechanism that caused it.
+  // Handles both `include:`/`redirect:` (colon) and `redirect=` (equals)
+  // modifier forms — a redirect costs one lookup plus its includes' cost.
   async function walkSPF(records: string[], visited: Set<string>, depth = 0): Promise<SpfWalk> {
     const result: SpfWalk = { lookups: 0, items: [] };
     const spf = parseSPF(records);
     if (!spf.found || depth > 10) return result;
     for (const term of spf.terms) {
-      const mech = term.split(':')[0].toLowerCase();
+      const mech = term.split(/[=:]/)[0].toLowerCase();
       if (['include', 'redirect', 'a', 'mx', 'ptr', 'exists'].includes(mech)) {
         let cost = 1;
         let note: string | undefined;
         if ((mech === 'include' || mech === 'redirect') && depth < 6) {
-          const target = term.split(':').pop() || '';
+          const sepIdx = term.indexOf(':') !== -1 ? term.indexOf(':') : term.indexOf('=');
+          const target = sepIdx !== -1 ? term.slice(sepIdx + 1) : '';
           if (target && !visited.has(target)) {
             visited.add(target);
             try {
