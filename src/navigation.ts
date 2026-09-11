@@ -5,6 +5,7 @@ export const headerData = {
     { text: 'Services', href: getPermalink('/services') },
     { text: 'About', href: getPermalink('/about') },
     { text: 'Contact', href: getPermalink('/contact') },
+    { text: 'Tools', href: getPermalink('/tools') },
     { text: 'Blog', href: getBlogPermalink() },
   ],
   actions: [
@@ -24,6 +25,7 @@ export const footerData = {
         { text: 'Services', href: getPermalink('/services') },
         { text: 'About', href: getPermalink('/about') },
         { text: 'Contact', href: getPermalink('/contact') },
+        { text: 'Tools', href: getPermalink('/tools') },
         { text: 'Blog', href: getBlogPermalink() },
       ],
     },
