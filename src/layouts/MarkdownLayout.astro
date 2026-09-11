@@ -1,5 +1,6 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
 
 import type { MetaData } from '~/types';
 
@@ -25,4 +26,18 @@ const metadata: MetaData = {
       <slot />
     </div>
   </section>
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Get in touch', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Email that reaches the inbox. Every time."
+    subtitle="If your mail is landing in spam, an audit starts at £150. Reading articles is free."
+  />
 </Layout>
