@@ -276,7 +276,13 @@ const metadata = {
             DKIM_SELECTORS.map((s) => dohQuery(`${s}._domainkey.${domain}`, 'TXT')),
           );
           return probes
-            .map((p, i) => (p.status === 'fulfilled' && p.value.length > 0 ? DKIM_SELECTORS[i] : null))
+            .map((p, i) => {
+              if (p.status !== 'fulfilled') return null;
+              const keyTexts = txtRecords(p.value).filter(
+                (t) => /(^|\s)v=DKIM1/i.test(t) || /(^|;)\s*p=/.test(t),
+              );
+              return keyTexts.length > 0 ? DKIM_SELECTORS[i] : null;
+            })
             .filter(Boolean) as string[];
         })(),
       ]);
@@ -330,7 +336,7 @@ const metadata = {
       issues++;
       html += card('SPF', 'fail', '<p>No SPF record found. Receivers have no list of authorised senders for this domain.</p>');
     } else {
-      let body = `<p>Record found with ${esc(r.spf.terms.length)} mechanisms.</p>`;
+      let body = `<p>Record found with ${r.spf.terms.length} mechanisms.</p>`;
       let status: 'pass' | 'warn' | 'fail' = 'pass';
       if (r.spf.count > 1) {
         issues++;
@@ -352,7 +358,7 @@ const metadata = {
 
     // SPF lookup depth
     if (r.spf.found) {
-      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookups required to evaluate this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
+      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookups required to evaluating this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
       let status: 'pass' | 'warn' | 'fail' = 'pass';
       if (r.lookups > 10) {
         issues++;
@@ -368,7 +374,7 @@ const metadata = {
     {
       let body = '';
       if (r.dkimHits.length > 0) {
-        body = `<p>Public keys found for ${r.lookupsSafe ?? ''}${r.dkimHits.map(esc).join(', ')}.</p><p class="text-xs">Note: absence of other selectors does not prove DKIM is missing — private or unusual selectors will not appear here.</p>`;
+        body = `<p>Public keys found for ${r.dkimHits.map(esc).join(', ')}.</p><p class="text-xs">Note: absence of other selectors does not prove DKIM is missing — private or unusual selectors will not appear here.</p>`;
       } else {
         body = '<p>No public keys found among common selectors. This domain may use a private selector — or may not sign mail at all.</p><p class="text-xs">Note: this check probes common selector names only and cannot conclusively rule DKIM in or out.</p>';
       }
