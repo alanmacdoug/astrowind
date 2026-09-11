@@ -1,4 +1,5 @@
 ---
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Content from '~/components/widgets/Content.astro';
 import Hero from '~/components/widgets/Hero.astro';
@@ -80,4 +81,16 @@ const metadata = {
     title="A conversation is free"
     subtitle="Describe the problem. If I can fix it, you'll know what it costs before you commit."
   />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
 </Layout>
