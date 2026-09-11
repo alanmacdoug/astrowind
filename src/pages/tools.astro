@@ -135,9 +135,9 @@ const metadata = {
         const res = await fetch(url, { headers: { accept: 'application/dns-json' } });
         if (!res.ok) continue;
         const json: any = await res.json();
-        if (json && Array.isArray(json.Answer)) return json.Answer;
-        if (json && json.Status === 3) return []; // NXDOMAIN
-        return [];
+        if (json && json.Status === 3) return []; // NXDOMAIN — authoritative, no fallback needed
+        if (json && json.Status === 0) return Array.isArray(json.Answer) ? json.Answer : [];
+        continue; // any other status: try the next endpoint
       } catch {
         // try next endpoint
       }
@@ -155,10 +155,12 @@ const metadata = {
 
   function parseSPF(records: string[]) {
     const spfRecords = records.filter((r) => r.toLowerCase().startsWith('v=spf1'));
-    if (spfRecords.length === 0) return { found: false, count: 0, all: '', terms: [] as string[] };
+    if (spfRecords.length === 0)
+      return { found: false, count: 0, qualifier: '', terms: [] as string[] };
     const terms = spfRecords[0].split(/\s+/).slice(1);
-    const allTerm = terms.find((t) => t.startsWith('all=')) || '';
-    return { found: true, count: spfRecords.length, all: allTerm, terms };
+    const allTerm = terms.find((t) => /^[~+\-?]?all$/i.test(t)) || '';
+    const qualifier = allTerm ? allTerm.charAt(0) : '';
+    return { found: true, count: spfRecords.length, qualifier, terms };
   }
 
   async function countSPFLookups(
@@ -272,18 +274,19 @@ const metadata = {
         dohQuery(`_dmarc.${domain}`, 'TXT'),
         dohQuery(domain, 'MX'),
         (async () => {
-          const probes = await Promise.allSettled(
-            DKIM_SELECTORS.map((s) => dohQuery(`${s}._domainkey.${domain}`, 'TXT')),
-          );
-          return probes
-            .map((p, i) => {
-              if (p.status !== 'fulfilled') return null;
-              const keyTexts = txtRecords(p.value).filter(
+          const hits: string[] = [];
+          for (const s of DKIM_SELECTORS) {
+            try {
+              const ans = await dohQuery(`${s}._domainkey.${domain}`, 'TXT');
+              const keyTexts = txtRecords(ans).filter(
                 (t) => /(^|\s)v=DKIM1/i.test(t) || /(^|;)\s*p=/.test(t),
               );
-              return keyTexts.length > 0 ? DKIM_SELECTORS[i] : null;
-            })
-            .filter(Boolean) as string[];
+              if (keyTexts.length > 0) hits.push(s);
+            } catch {
+              /* selector unresolved — skip */
+            }
+          }
+          return hits;
         })(),
       ]);
 
@@ -321,7 +324,7 @@ const metadata = {
   function renderResults(
     domain: string,
     r: {
-      spf: { found: boolean; count: number; all: string; terms: string[] };
+      spf: { found: boolean; count: number; qualifier: string; terms: string[] };
       lookups: number;
       dmarc: { found: boolean; policy: string; rua: boolean };
       mxCount: number;
@@ -343,10 +346,10 @@ const metadata = {
         status = 'fail';
         body += `<p><strong>${r.spf.count} SPF records found</strong> — multiple records invalidate each other. This must be fixed.</p>`;
       }
-      const qualifier = r.spf.all.replace('all=', '');
-      if (qualifier === '-') {
+      const q = r.spf.qualifier;
+      if (q === '-') {
         body += '<p>Enforcing (<code>-all</code>): unauthorised senders are rejected.</p>';
-      } else if (qualifier === '~') {
+      } else if (q === '~') {
         body += '<p>Softfail (<code>~all</code>): unauthorised senders pass but are marked. Workable, but weaker than <code>-all</code>.</p>';
       } else {
         issues++;
@@ -358,7 +361,7 @@ const metadata = {
 
     // SPF lookup depth
     if (r.spf.found) {
-      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookups required to evaluating this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
+      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookup${r.lookups === 1 ? '' : 's'} required to evaluate this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
       let status: 'pass' | 'warn' | 'fail' = 'pass';
       if (r.lookups > 10) {
         issues++;
