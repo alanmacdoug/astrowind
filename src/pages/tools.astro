@@ -185,7 +185,9 @@ const metadata = {
               const sub = txtRecords(await dohQuery(target, 'TXT'));
               const subWalk = await walkSPF(sub, visited, depth + 1);
               cost += subWalk.lookups;
-              note = 'expands to ' + subWalk.lookups + ' lookups in total';
+              if (subWalk.lookups > 0) {
+                note = `includes ${subWalk.lookups} nested lookup${subWalk.lookups === 1 ? '' : 's'}`;
+              }
             } catch (e) {
               console.warn('Include lookup failed for', target, e);
               note = 'could not be resolved — counts as its single lookup';
