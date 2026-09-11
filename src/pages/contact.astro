@@ -5,16 +5,18 @@ import Content from '~/components/widgets/Content.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
+import contactDoor from '~/assets/images/contact-door.jpg';
+
 const metadata = {
   title: 'Contact',
   description:
-    'Get in touch about email authentication audits, deliverability work, managed Mautic hosting or ongoing consulting.',
+    'Get in touch with MacDougall Systems about email authentication, deliverability, managed hosting or consulting.',
 };
 ---
 
 <Layout metadata={metadata}>
   <Hero
-    tagline="Contact"
+    tagline=" Contact"
     title="Tell me where your email is landing"
     subtitle="Describe the problem in a paragraph or two — what's going wrong, what platform you send from, and roughly how many emails per month. I'll tell you straight whether it's something I can fix and what it will cost."
     actions={[
@@ -34,6 +36,11 @@ const metadata = {
 
   <Content
     isReversed
+    image={{
+      src: contactDoor,
+      alt: 'A brass letterbox in a slate-grey door with a soft envelope glowing in the slot',
+      aspect: 'auto',
+    }}
     items={[
       {
         title: 'Email',
@@ -62,10 +69,6 @@ const metadata = {
         consulting — comes straight to me. Either way you get the same person and the same standard of work.
       </p>
     </Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
   </Content>
 
   <CallToAction
@@ -90,7 +93,7 @@ const metadata = {
 
   <BlogLatestPosts
     id="blog"
-    title="From the blog"
+  title="From the blog"
     information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
   >
     <Fragment slot="bg">
