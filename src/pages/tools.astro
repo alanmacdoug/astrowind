@@ -9,7 +9,7 @@ import Hero from '~/components/widgets/Hero.astro';
 const metadata = {
   title: 'Tools',
   description:
-    'Free client-side email authentication checker. Enter a domain to see its SPF, DKIM and DMARC posture as the major inbox providers see it.',
+    'Free client-side email authentication checker. Enter a domain to see its SPF, DKIM and DMARC posture as the major inbox providers see it — with the raw DNS records included.',
 };
 ---
 
@@ -19,7 +19,7 @@ const metadata = {
   <Hero
     tagline="Tools"
     title="Check your email authentication"
-    subtitle="Enter a domain and see its SPF, DKIM and DMARC posture as the major inbox providers see it. No signup, nothing sent, nothing stored — the checks run in your browser."
+    subtitle="Enter a domain and see its SPF, DKIM and DMARC posture as the major inbox providers see it — including the exact DNS records, interpreted in plain English. No signup, nothing sent, nothing stored."
   />
 
   <!-- The tool -->
@@ -163,42 +163,58 @@ const metadata = {
     return { found: true, count: spfRecords.length, qualifier, terms };
   }
 
-  async function countSPFLookups(
-    records: string[],
-    visited: Set<string>,
-    depth = 0,
-  ): Promise<number> {
+  type SpfWalkItem = { term: string; cost: number; note?: string };
+  type SpfWalk = { lookups: number; items: SpfWalkItem[] };
+
+  // Walks the SPF record and returns the total DNS lookup count plus a
+  // per-term breakdown attributed to the top-level mechanism that caused it.
+  async function walkSPF(records: string[], visited: Set<string>, depth = 0): Promise<SpfWalk> {
+    const result: SpfWalk = { lookups: 0, items: [] };
     const spf = parseSPF(records);
-    if (!spf.found || depth > 10) return 0;
-    let lookups = 0;
+    if (!spf.found || depth > 10) return result;
     for (const term of spf.terms) {
-      const mech = term.split(':')[0];
+      const mech = term.split(':')[0].toLowerCase();
       if (['include', 'redirect', 'a', 'mx', 'ptr', 'exists'].includes(mech)) {
-        lookups++;
+        let cost = 1;
+        let note: string | undefined;
         if ((mech === 'include' || mech === 'redirect') && depth < 6) {
           const target = term.split(':').pop() || '';
           if (target && !visited.has(target)) {
             visited.add(target);
             try {
               const sub = txtRecords(await dohQuery(target, 'TXT'));
-              lookups += await countSPFLookups(sub, visited, depth + 1);
+              const subWalk = await walkSPF(sub, visited, depth + 1);
+              cost += subWalk.lookups;
+              note = 'expands to ' + subWalk.lookups + ' lookups in total';
             } catch (e) {
               console.warn('Include lookup failed for', target, e);
-              /* unresolvable include counts as its single lookup */
+              note = 'could not be resolved — counts as its single lookup';
             }
           }
         }
+        result.lookups += cost;
+        result.items.push({ term, cost, note });
       }
     }
-    return lookups;
+    return result;
   }
 
   function parseDMARC(records: string[]) {
     const dmarc = records.find((r) => r.toLowerCase().startsWith('v=dmarc1'));
-    if (!dmarc) return { found: false, policy: '', rua: false };
-    const pMatch = dmarc.match(/p\s*=\s*(\w+)/i);
-    const rua = /rua\s*=/.test(dmarc);
-    return { found: true, policy: (pMatch ? pMatch[1] : '').toLowerCase(), rua };
+    if (!dmarc)
+      return { found: false, policy: '', rua: false, ruaAddress: '', pct: null as number | null, sp: '' };
+    const pMatch = dmarc.match(/(?:^|;)\s*p\s*=\s*(\w+)/i);
+    const pctMatch = dmarc.match(/(?:^|;)\s*pct\s*=\s*(\d+)/i);
+    const spMatch = dmarc.match(/(?:^|;)\s*sp\s*=\s*(\w+)/i);
+    const ruaMatch = dmarc.match(/(?:^|;)\s*rua\s*=\s*([^;]+)/i);
+    return {
+      found: true,
+      policy: pMatch ? pMatch[1].toLowerCase() : '',
+      rua: !!ruaMatch,
+      ruaAddress: ruaMatch ? ruaMatch[1].trim() : '',
+      pct: pctMatch ? parseInt(pctMatch[1], 10) : null,
+      sp: spMatch ? spMatch[1].toLowerCase() : '',
+    };
   }
 
   const DKIM_SELECTORS = [
@@ -215,6 +231,30 @@ const metadata = {
     'dkim',
     'zoho',
   ];
+
+  // --- Mail provider fingerprinting (MX hostname matching) --------------------
+
+  const MX_PROVIDERS: { name: string; match: RegExp; spfHint: string }[] = [
+    { name: 'Google Workspace', match: /google(mail)?\.com|aspmx.*google/i, spfHint: '_spf.google.com' },
+    { name: 'Microsoft 365', match: /mail\.protection\.outlook\.com/i, spfHint: 'spf.protection.outlook.com' },
+    { name: 'Zoho Mail', match: /zoho/i, spfHint: 'zoho' },
+    { name: 'Fastmail', match: /fastmail|messagingengine\.com/i, spfHint: 'messagingengine.com' },
+    { name: 'Proton Mail', match: /proton\.me|protonmail\.ch/i, spfHint: '_spf.proton.me' },
+    { name: 'iCloud Mail', match: /icloud\.com|apple\.com/i, spfHint: '_spf.trek.icloud.com' },
+    { name: 'GoDaddy', match: /secureserver\.net/i, spfHint: 'secureserver.net' },
+    { name: 'IONOS / 1&1', match: /perfora\.net|kundenserver\.de|ionos/i, spfHint: 'ionos' },
+    { name: 'Proofpoint (gateway)', match: /pphosted|ppops\.net|proofpoint/i, spfHint: 'pphosted.com' },
+    { name: 'Mimecast (gateway)', match: /mimecast/i, spfHint: 'mimecast' },
+    { name: 'Cisco Secure Email (gateway)', match: /iphmx\.com/i, spfHint: 'iphmx.com' },
+    { name: 'Barracuda (gateway)', match: /barracuda/i, spfHint: 'barracuda' },
+  ];
+
+  function identifyProvider(mxHosts: string[]): string | null {
+    for (const p of MX_PROVIDERS) {
+      if (mxHosts.some((h) => p.match.test(h))) return p.name;
+    }
+    return null;
+  }
 
   // --- Rendering helpers -----------------------------------------------------
 
@@ -251,6 +291,24 @@ const metadata = {
       </div>`;
   }
 
+  function rawBlock(records: string[], label?: string): string {
+    if (!records || records.length === 0) return '';
+    const n = records.length;
+    return `
+      <details class="mt-2">
+        <summary class="cursor-pointer select-none text-xs font-medium text-primary dark:text-primary-300">View raw record${n > 1 ? 's' : ''}${label ? ' — ' + esc(label) : ''}</summary>
+        <pre class="mt-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-all text-slate-700 dark:text-slate-300">${records.map(esc).join('\n\n')}</pre>
+      </details>`;
+  }
+
+  function detailBlock(summary: string, innerHtml: string): string {
+    return `
+      <details class="mt-2">
+        <summary class="cursor-pointer select-none text-xs font-medium text-primary dark:text-primary-300">${esc(summary)}</summary>
+        <div class="mt-2 text-sm text-slate-600 dark:text-slate-300">${innerHtml}</div>
+      </details>`;
+  }
+
   function normDomain(raw: string): string | null {
     let d = raw.trim().toLowerCase();
     d = d.replace(/^https?:\/\//, '').replace(/^www\./, '');
@@ -275,14 +333,14 @@ const metadata = {
         dohQuery(`_dmarc.${domain}`, 'TXT'),
         dohQuery(domain, 'MX'),
         (async () => {
-          const hits: string[] = [];
+          const hits: { selector: string; record: string }[] = [];
           for (const s of DKIM_SELECTORS) {
             try {
               const ans = await dohQuery(`${s}._domainkey.${domain}`, 'TXT');
               const keyTexts = txtRecords(ans).filter(
                 (t) => /(^|\s)v=DKIM1/i.test(t) || /(^|;)\s*p=/.test(t),
               );
-              if (keyTexts.length > 0) hits.push(s);
+              if (keyTexts.length > 0) hits.push({ selector: s, record: keyTexts[0] });
             } catch {
               /* selector unresolved — skip */
             }
@@ -292,13 +350,34 @@ const metadata = {
       ]);
 
       const txts = txtRecords(txt);
-      const dmarc = parseDMARC(txtRecords(dmarcRaw));
+      const dmarcRecord = txtRecords(dmarcRaw);
+      const dmarc = parseDMARC(dmarcRecord);
       const spf = parseSPF(txts);
+      const spfRawRecords = txts.filter((t) => t.toLowerCase().startsWith('v=spf1'));
+
+      const mxRecords = mx
+        .filter((a) => a.type === 15)
+        .map((a) => String(a.data))
+        .sort();
+      const mxHosts = mxRecords.map((d) => (d.split(' ').pop() || '').replace(/\.$/, ''));
+      const provider = identifyProvider(mxHosts);
 
       setStatus('Walking SPF includes…');
-      const lookups = spf.found ? await countSPFLookups(txts, new Set()) : 0;
+      const spfWalk: SpfWalk = spf.found
+        ? await walkSPF(txts, new Set())
+        : { lookups: 0, items: [] };
 
-      renderResults(domain, { spf, lookups, dmarc, mxCount: mx.length, dkimHits });
+      renderResults(domain, {
+        spfRawRecords,
+        spf,
+        spfWalk,
+        dmarc,
+        dmarcRecord,
+        mxRecords,
+        mxHosts,
+        provider,
+        dkimHits,
+      });
     } catch (err) {
       console.error('Auth check failed:', err);
       resultsEl.innerHTML = card(
@@ -325,20 +404,28 @@ const metadata = {
   function renderResults(
     domain: string,
     r: {
+      spfRawRecords: string[];
       spf: { found: boolean; count: number; qualifier: string; terms: string[] };
-      lookups: number;
-      dmarc: { found: boolean; policy: string; rua: boolean };
-      mxCount: number;
-      dkimHits: string[];
+      spfWalk: SpfWalk;
+      dmarc: { found: boolean; policy: string; rua: boolean; ruaAddress: string; pct: number | null; sp: string };
+      dmarcRecord: string[];
+      mxRecords: string[];
+      mxHosts: string[];
+      provider: string | null;
+      dkimHits: { selector: string; record: string }[];
     },
   ) {
     let html = '';
     let issues = 0;
 
-    // SPF
+    // SPF — merged card: record verdict, lookup depth, mechanism breakdown
     if (!r.spf.found) {
       issues++;
-      html += card('SPF', 'fail', '<p>No SPF record found. Receivers have no list of authorised senders for this domain.</p>');
+      html += card(
+        'SPF',
+        'fail',
+        '<p>No SPF record found. Receivers have no list of authorised senders for this domain.</p>',
+      );
     } else {
       let body = `<p>Record found with ${r.spf.terms.length} mechanisms.</p>`;
       let status: 'pass' | 'warn' | 'fail' = 'pass';
@@ -357,21 +444,45 @@ const metadata = {
         status = status === 'fail' ? 'fail' : 'warn';
         body += '<p>No <code>-all</code> enforcement at the end of the record — anything not matched may still pass.</p>';
       }
-      html += card('SPF', status, body);
-    }
 
-    // SPF lookup depth
-    if (r.spf.found) {
-      let body = `<p>Approximately <strong>${r.lookups}</strong> DNS lookup${r.lookups === 1 ? '' : 's'} required to evaluate this record. The limit is 10 — beyond it, the record is ignored entirely.</p>`;
-      let status: 'pass' | 'warn' | 'fail' = 'pass';
-      if (r.lookups > 10) {
+      // Lookup depth (merged from the old separate card)
+      const lookups = r.spfWalk.lookups;
+      body += `<p>DNS lookups required to evaluate this record: <strong>${lookups}</strong> of 10 allowed. Beyond 10, receivers stop evaluating the record entirely.</p>`;
+      if (lookups > 10) {
         issues++;
         status = 'fail';
-      } else if (r.lookups >= 8) {
+        body += '<p><strong>Over the limit</strong> — parts of this record are being ignored. Authorised senders may be failing authentication without anyone noticing.</p>';
+      } else if (lookups >= 8) {
         issues++;
-        status = 'warn';
+        status = status === 'fail' ? 'fail' : 'warn';
+        body += '<p>Close to the 10-lookup limit. Any new sending service could push it over.</p>';
       }
-      html += card('SPF lookup depth', status, body);
+
+      // Cross-check: identified provider vs SPF content — informational
+      if (r.provider) {
+        const p = MX_PROVIDERS.find((pr) => pr.name === r.provider)!;
+        if (p.spfHint && !r.spf.terms.some((t) => t.toLowerCase().includes(p.spfHint.toLowerCase()))) {
+          body += `<p>Your mail appears to be handled by <strong>${esc(r.provider)}</strong>, but the SPF record does not mention <code>${esc(p.spfHint)}</code>. Mail sent through that platform may be failing SPF for this domain.</p>`;
+        }
+      }
+
+      // Expandable per-term breakdown with per-include lookup costs
+      if (r.spfWalk.items.length > 0) {
+        const rows = r.spfWalk.items
+          .map((it) => {
+            const plural = it.cost === 1 ? '' : 's';
+            const note = it.note ? ` — ${esc(it.note)}` : '';
+            return `<li><code>${esc(it.term)}</code> — ${it.cost} lookup${plural}${note}</li>`;
+          })
+          .join('');
+        body += detailBlock(
+          'Show mechanism breakdown with lookup costs',
+          `<ul class="space-y-1 list-disc pl-5">${rows}</ul>`,
+        );
+      }
+
+      body += rawBlock(r.spfRawRecords, 'SPF record');
+      html += card('SPF', status, body);
     }
 
     // DKIM — informational: absence is not proof of a problem, so it never
@@ -379,9 +490,15 @@ const metadata = {
     {
       let body = '';
       if (r.dkimHits.length > 0) {
-        body = `<p>Public keys found for ${r.dkimHits.map(esc).join(', ')}.</p><p class="text-xs">Note: absence of other selectors does not prove DKIM is missing — private or unusual selectors will not appear here.</p>`;
+        body = `<p>Public keys found for ${r.dkimHits.map((h) => esc(h.selector)).join(', ')}.</p>`;
+        body += rawBlock(
+          r.dkimHits.map((h) => `${h.selector}._domainkey.${domain}\n${h.record}`),
+          'DKIM public keys',
+        );
+        body += '<p class="text-xs">Note: absence of other selectors does not prove DKIM is missing — private or unusual selectors will not appear here.</p>';
       } else {
-        body = '<p>No public keys found among common selectors. This domain may use a private selector — or may not sign mail at all.</p><p class="text-xs">Note: this check probes common selector names only and cannot conclusively rule DKIM in or out.</p>';
+        body = '<p>No public keys found among common selectors. This domain may use a private selector — or may not sign mail at all.</p>';
+        body += '<p class="text-xs">Note: this check probes common selector names only and cannot conclusively rule DKIM in or out.</p>';
       }
       const status: 'pass' | 'warn' = r.dkimHits.length > 0 ? 'pass' : 'warn';
       html += card('DKIM', status, body);
@@ -400,13 +517,34 @@ const metadata = {
         body += '<p>Enforced: unauthenticated mail is sent to spam.</p>';
       } else {
         issues++;
-        body += '<p>Monitor-only (<code>p=none</code>): reports are generated but no enforcement happens. Spoofed mail still delivers.</p>';
+        body += '<p>Monitor-only (<code>p=none</code>): reports are generated but no enforcement happens. Spoofed mail still delivers — this is where every domain should start, but it is not a place to stay.</p>';
+      }
+      if (r.dmarc.sp && r.dmarc.sp !== policy) {
+        body += `<p>Subdomain policy: <code>sp=${esc(r.dmarc.sp)}</code> applies to subdomains instead.</p>`;
+      }
+      if (r.dmarc.pct !== null && r.dmarc.pct < 100) {
+        body += `<p>Policy applies to only <code>pct=${r.dmarc.pct}%</code> of messages — enforcement is being phased in gradually.</p>`;
       }
       body += r.dmarc.rua
-        ? '<p>Aggregate reports are being collected — someone is monitoring this domain.</p>'
-        : '<p>No reporting address (<code>rua</code>) — aggregate reports are not being collected.</p>';
-      const status: 'pass' | 'warn' | 'fail' = policy === 'reject' ? 'pass' : policy === 'quarantine' ? 'pass' : 'warn';
+        ? `<p>Aggregate reports are being collected${r.dmarc.ruaAddress ? ` (<code>${esc(r.dmarc.ruaAddress)}</code>)` : ''} — someone is monitoring this domain.</p>`
+        : '<p>No reporting address (<code>rua</code>) — aggregate reports are not being collected, so nobody sees who is spoofing this domain.</p>';
+      body += rawBlock(r.dmarcRecord, 'DMARC record');
+      const status: 'pass' | 'warn' | 'fail' = policy === 'reject' || policy === 'quarantine' ? 'pass' : 'warn';
       html += card('DMARC', status, body);
+    }
+
+    // MX / provider fingerprint — informational
+    {
+      let body = '';
+      if (r.mxHosts.length === 0) {
+        body = '<p>No MX records found — this domain does not receive mail. That is fine if intentional.</p>';
+      } else if (r.provider) {
+        body = `<p>Mail for this domain is handled by <strong>${esc(r.provider)}</strong>.</p>`;
+      } else {
+        body = '<p>Mail exchangers found, but they do not match a known provider.</p>';
+      }
+      body += rawBlock(r.mxRecords, 'MX records');
+      html += card('Mail provider (MX)', 'pass', body);
     }
 
     // Verdict + conditional funnel
