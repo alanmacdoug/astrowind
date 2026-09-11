@@ -1,4 +1,5 @@
 ---
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import Prices from '~/components/widgets/Pricing.astro';
@@ -41,7 +42,7 @@ const metadata = {
         ],
         callToAction: {
           text: 'Book an audit',
-          href: '#contact',
+          href: '/contact',
         },
       },
       {
@@ -60,7 +61,7 @@ const metadata = {
         ],
         callToAction: {
           text: 'Discuss ongoing work',
-          href: '#contact',
+          href: '/contact',
         },
         hasRibbon: true,
         ribbonTitle: 'most clients',
@@ -78,7 +79,7 @@ const metadata = {
         ],
         callToAction: {
           text: 'Ask about availability',
-          href: '#contact',
+          href: '/contact',
         },
       },
     ]}
@@ -163,4 +164,16 @@ const metadata = {
       { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
   />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
 </Layout>
