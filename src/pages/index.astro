@@ -1,143 +1,211 @@
 ---
-import { Icon } from 'astro-icon/components';
-import Button from '~/components/ui/Button.astro';
-import Headline from '~/components/ui/Headline.astro';
-import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
-import Image from '~/components/common/Image.astro';
-import { getColumnsClass } from '~/utils/utils';
-import type { Content as Props } from '~/types';
+import Layout from '~/layouts/PageLayout.astro';
 
-const {
-  title = await Astro.slots.render('title'),
-  subtitle = await Astro.slots.render('subtitle'),
-  tagline,
-  content = await Astro.slots.render('content'),
-  callToAction,
-  items = [],
-  columns,
-  image = await Astro.slots.render('image'),
-  isReversed = false,
-  isAfterContent = false,
+import Hero from '~/components/widgets/Hero.astro';
+import Content from '~/components/widgets/Content.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Features3 from '~/components/widgets/Features3.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import { getPermalink } from '~/utils/permalinks';
 
-  id,
-  isDark = false,
-  classes = {},
-  bg = await Astro.slots.render('bg'),
-} = Astro.props;
+import aboutPipes from '~/assets/images/about-pipes.jpg';
 
-const columnsClass = getColumnsClass(columns);
-
-// `image.aspect` decides the crop: square by default, 4/3, portrait, or the
-// natural height without cropping (`auto`).
-const { aspect = '1/1', ...imageProps } = typeof image === 'object' && image ? image : { src: '', alt: '' };
-const aspectClass = {
-  '4/3': 'aspect-[4/3] object-cover',
-  '1/1': 'aspect-square object-cover',
-  '3/4': 'aspect-[3/4] object-cover',
-  auto: '',
-}[aspect];
-const aspectSize = {
-  '4/3': { width: 640, height: 480 },
-  '1/1': { width: 640, height: 640 },
-  '3/4': { width: 480, height: 640 },
-  auto: { width: 640, height: undefined },
-}[aspect];
+const metadata = {
+  title: 'MacDougall Systems — Email Infrastructure & Deliverability',
+  description:
+    'Twenty years of email infrastructure expertise. SPF, DKIM and DMARC audits, managed email systems, and deliverability rescue — keeping your email out of the spam folder.',
+};
 ---
 
-<WidgetWrapper
-  id={id}
-  isDark={isDark}
-  containerClass={`max-w-7xl mx-auto ${isAfterContent ? 'pt-0 md:pt-0 lg:pt-0' : ''} ${classes?.container ?? ''}`}
-  bg={bg}
->
-  <Headline
-    title={title}
-    subtitle={subtitle}
-    tagline={tagline}
-    classes={{
-      container: 'max-w-xl sm:mx-auto lg:max-w-2xl',
-      title: 'text-4xl md:text-5xl font-bold tracking-tighter mb-4 font-heading',
-      subtitle: 'max-w-3xl mx-auto sm:text-center text-xl text-muted dark:text-slate-400',
-      ...((classes?.headline as Record<string, string>) ?? {}),
+<Layout metadata={metadata}>
+  <Fragment slot="announcement"></Fragment>
+
+  <!-- Hero -->
+
+  <Hero
+    id="hero"
+    tagline="Email Infrastructure & Deliverability"
+    title="Email that reaches the inbox. Every time."
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        target: '_blank',
+      },
+      { variant: 'secondary', text: 'Get in touch', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+  >
+    <Fragment slot="subtitle">
+      <p>
+        Since 2006, I've built, authenticated and repaired email systems for clients across eight countries. SPF, DKIM, DMARC, sending reputation, marketing automation — if it affects whether your email lands, it's my trade.
+      </p>
+    </Fragment>
+  </Hero>
+
+  <!-- About -->
+
+  <Content
+    id="about"
+    columns={2}
+    image={{
+      src: aboutPipes,
+      alt: 'The rear of a network rack, neatly bundled cabling lit by soft indigo light',
+      aspect: 'auto',
     }}
+    items={[
+      {
+        icon: 'tabler:mail',
+        callToAction: {
+          target: '_blank',
+          text: 'Email me',
+          href: 'mailto:alan@macdougallsystems.com',
+        },
+      },
+      {
+        icon: 'tabler:brand-upwork',
+        callToAction: {
+          target: '_blank',
+          text: 'Upwork profile',
+          href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        },
+      },
+    ]}
+  >
+    <Fragment slot="content">
+      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Two decades in the pipes</h2>
+      <p>
+        Email deliverability became a trade before most businesses knew it existed. I've spent my working life in the
+        infrastructure behind the inbox: DNS and authentication records, sending reputation, self-hosted marketing
+        systems, and the automation platforms that depend on all of it working.
+      </p>
+      <br />
+      <p>
+        Between 2006 and my recent years of military service, I built and ran a managed hosting and consultancy business
+        serving clients in eight countries — servers, Mautic installations, authentication, SMS and messaging
+        integrations. That business closed because I was called away, not because it failed. It's now reopened under
+        one name with sharper tools.
+      </p>
+      <br />
+      <p>
+        Today the inbox providers have made proper email authentication mandatory for everyone — and most businesses
+        haven't caught up. That gap is what MacDougall Systems exists to close.
+      </p>
+    </Fragment>
+
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </Content>
+
+  <!-- Process: how engagements run -->
+
+  <Steps
+    id="process"
+    title="How I work with every client"
+    subtitle="A defined process, agreed before anything changes — the same discipline for a one-off audit or an ongoing retainer."
+    items={[
+      {
+        title: 'Survey <span class="font-normal">— consultation & investigation</span>',
+        description: `We start with a conversation, then a technical survey of your current setup: DNS, authentication records, sending platforms, list hygiene. No proposals before diagnosis.`,
+        icon: 'tabler:search',
+      },
+      {
+        title: 'Explain <span class="font-normal">— findings in plain English</span>',
+        description: `You receive a clear picture of what's wrong, what it's costing you, and what fixing it involves. Scope and price are agreed before any changes are made.`,
+        icon: 'tabler:message-report',
+      },
+      {
+        title: 'Remediate <span class="font-normal">— implementation</span>',
+        description: `The agreed work, done properly: authentication records aligned, systems configured, deliverability repaired. Changes documented as they're made.`,
+        icon: 'tabler:tools',
+      },
+      {
+        title: 'Verify <span class="font-normal">— proof it works</span>',
+        description: `Tests and reports demonstrating the result — authenticated mail, passing checks, measurable improvement. You see the evidence, not just my word.`,
+        icon: 'tabler:checkup-list',
+      },
+      {
+        title: 'Engage <span class="font-normal">— ongoing relationship</span>',
+        description: `Where it makes sense: monitoring, maintenance and defined response windows, so problems are caught before your sender reputation pays for them.`,
+        icon: 'tabler:users',
+      },
+    ]}
+    classes={{ container: 'max-w-3xl' }}
   />
-  <div class="mx-auto max-w-7xl px-0 py-4 md:px-2">
-    <div class={`md:flex ${isReversed ? 'md:flex-row-reverse' : ''} md:gap-16`}>
-      <div class="md:basis-1/2 self-center">
-        {content && <div class="mb-12 text-lg dark:text-slate-400" set:html={content} />}
 
-        {
-          callToAction && (
-            <div class="mt-[-40px] mb-8 text-primary dark:text-blue-300">
-              <Button variant="link" {...callToAction} />
-            </div>
-          )
-        }
+  <!-- Services -->
 
-        {
-          items.length > 0 && (
-            <div class:list={['grid mx-auto gap-y-4 md:gap-y-8 gap-8', columnsClass]}>
-              {items.map(({ title: itemTitle, description, icon, callToAction }) => (
-                <div class="intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
-                  <div class="flex flex-row max-w-none">
-                    <div class="flex justify-center">
-                      <Icon
-                        name={icon || 'tabler:check'}
-                        class="flex h-7 w-7 items-center justify-center rounded-full bg-green-600 dark:bg-green-700 text-gray-50 p-1 mr-2 rtl:mr-0 rtl:ml-2"
-                      />
-                    </div>
-                    <div class="mt-0.5">
-                      {itemTitle && (
-                        <h3 class="text-lg font-medium leading-6 dark:text-white ml-2 rtl:ml-0 rtl:mr-2">
-                          {itemTitle}
-                        </h3>
-                      )}
-                      {description && (
-                        <p
-                          class:list={[{ 'mt-3': itemTitle }, 'text-muted dark:text-slate-400 ml-2 rtl:ml-0 rtl:mr-2']}
-                          set:html={description}
-                        />
-                      )}
-                      {callToAction && (
-                        <div
-                          class:list={[
-                            { 'mt-3': itemTitle || description },
-                            'text-lg font-medium leading-6 dark:text-white ml-2 rtl:ml-0 rtl:mr-2',
-                          ]}
-                        >
-                          <Button variant="link" {...callToAction} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
-        }
-      </div>
-      <div class="mt-10 md:mt-0 md:basis-1/2">
-        {
-          image && (
-            <div class="relative m-auto max-w-4xl">
-              {typeof image === 'string' ? (
-                <Fragment set:html={image} />
-              ) : (
-                <Image
-                  class:list={['mx-auto w-full rounded-lg bg-gray-500 shadow-lg', aspectClass]}
-                  width={aspectSize.width}
-                  height={aspectSize.height}
-                  widths={[400, 640, 960]}
-                  sizes="(max-width: 767px) 100vw, 640px"
-                  layout="constrained"
-                  format="webp"
-                  {...imageProps}
-                />
-              )}
-            </div>
-          )
-        }
-      </div>
-    </div>
-  </div>
-</WidgetWrapper>
+  <Features3
+    id="services"
+    title="What I do"
+    subtitle="The problems MacDougall Systems solves."
+    columns={3}
+    defaultIcon="tabler:point-filled"
+    items={[
+      {
+        title: 'Email authentication',
+        description: 'SPF, DKIM and DMARC set up, audited and enforced properly — the baseline the big inbox providers now demand.',
+        icon: 'tabler:shield-lock',
+      },
+      {
+        title: 'Deliverability rescue',
+        description: "Your email is going to spam and nobody can tell you why. I can, and I'll fix it.",
+        icon: 'tabler:mail-forward',
+      },
+      {
+        title: 'Managed Mautic hosting',
+        description: 'Self-hosted marketing automation, run by someone who has administered it in production for years.',
+        icon: 'tabler:server',
+      },
+      {
+        title: 'ActiveCampaign consulting',
+        description: 'Setup, migrations, automation architecture and list strategy for the platform you already pay for.',
+        icon: 'tabler:settings-cog',
+      },
+      {
+        title: 'Sending infrastructure',
+        description: 'Relay setup, IP reputation management and segmented sending — newsletters, drip campaigns and transactional mail that behaves.',
+        icon: 'tabler:route',
+      },
+      {
+        title: 'Full-stack email systems',
+        description: 'Where email meets everything else: SMS and messaging integrations, CRM connections, campaign landing pages.',
+        icon: 'tabler:plug-connected',
+      },
+    ]}
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </Features3>
+
+  <!-- Call to action -->
+
+  <CallToAction
+    title="Stop guessing where your email lands"
+    subtitle="A conversation costs nothing, and a deliverability problem costs you quietly every single day."
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        target: '_blank',
+      },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+  />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
