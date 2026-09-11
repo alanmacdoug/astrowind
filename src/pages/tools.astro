@@ -142,7 +142,7 @@ const metadata = {
         // try next endpoint
       }
     }
-    throw new Error('DNS lookup failed');
+    throw new Error('DNS lookup failed for ' + name);
   }
 
   function txtRecords(answers: any[]): string[] {
@@ -179,10 +179,13 @@ const metadata = {
           const target = term.split(':').pop() || '';
           if (target && !visited.has(target)) {
             visited.add(target);
+            console.log('SPF walk →', target);
             try {
               const sub = txtRecords(await dohQuery(target, 'TXT'));
+              if (sub.length > 0) console.log('  got', sub.length, 'TXT records from', target);
               lookups += await countSPFLookups(sub, visited, depth + 1);
-            } catch {
+            } catch (e) {
+              console.warn('Include lookup FAILED for', target, e);
               /* unresolvable include counts as its single lookup */
             }
           }
@@ -373,7 +376,8 @@ const metadata = {
       html += card('SPF lookup depth', status, body);
     }
 
-    // DKIM
+    // DKIM — informational: absence is not proof of a problem, so it never
+    // increments the issues counter
     {
       let body = '';
       if (r.dkimHits.length > 0) {
@@ -382,7 +386,6 @@ const metadata = {
         body = '<p>No public keys found among common selectors. This domain may use a private selector — or may not sign mail at all.</p><p class="text-xs">Note: this check probes common selector names only and cannot conclusively rule DKIM in or out.</p>';
       }
       const status: 'pass' | 'warn' = r.dkimHits.length > 0 ? 'pass' : 'warn';
-      if (r.dkimHits.length === 0) issues++;
       html += card('DKIM', status, body);
     }
 
