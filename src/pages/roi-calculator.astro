@@ -1,0 +1,307 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'ROI Calculator',
+  description:
+    'Estimate what poor email deliverability costs your business each month — list size, rates and customer value in, honest numbers out.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Tools"
+    title="What is poor deliverability costing you?"
+    subtitle="Enter your numbers and see the revenue that lands in the spam folder instead of the inbox. Conservative maths, every assumption shown — nothing hidden."
+  />
+
+  <!-- The calculator -->
+
+  <section id="roi-calculator" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+
+    <div
+      class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label class="sm:col-span-2 block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Industry (pre-fills typical rates)</span>
+          <select
+            id="industry"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="other">Other / not sure</option>
+            <option value="retail">Retail & ecommerce</option>
+            <option value="saas">SaaS / software</option>
+            <option value="agency">Agency / consulting</option>
+            <option value="nonprofit">Nonprofit</option>
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">List size (subscribers)</span>
+          <input
+            id="list-size"
+            type="number"
+            min="1"
+            value="5000"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Emails per subscriber per month</span>
+          <input
+            id="send-frequency"
+            type="number"
+            min="0.5"
+            step="0.5"
+            value="4"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Open rate (%)</span>
+          <input
+            id="open-rate"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            value="22"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Click rate (% of opens)</span>
+          <input
+            id="click-rate"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            value="2.5"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Conversion rate (% of clicks)</span>
+          <input
+            id="conversion-rate"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            value="2"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium dark:text-white mb-1">Customer value (£)</span>
+          <input
+            id="customer-value"
+            type="number"
+            min="1"
+            value="60"
+            class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </label>
+
+        <label class="sm:col-span-2 flex items-start gap-3 mt-1">
+          <input id="unknown-loss" type="checkbox" class="mt-1 h-4 w-4" />
+          <span class="text-sm text-slate-600 dark:text-slate-300">
+            I don't know how much of my mail lands in spam — estimate it for me (uses an industry-typical 15%
+            inbox loss)
+          </span>
+        </label>
+
+        <div id="loss-input-wrapper" class="block">
+          <label class="block">
+            <span class="block text-sm font-medium dark:text-white mb-1">Mail failing to reach the inbox (%)</span>
+            <input
+              id="inbox-loss"
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              value="15"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </label>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="calc-button"
+        class="btn btn-primary font-medium rounded-lg px-6 py-3 mt-6 w-full sm:w-auto"
+      >
+        Calculate
+      </button>
+
+      <div id="results" class="mt-8"></div>
+    </div>
+
+    <p class="relative text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+      Runs entirely in your browser — nothing is sent or stored. Industry pre-fill figures are rough
+      placeholders for demonstration and should not be treated as sourced benchmarks.
+    </p>
+  </section>
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        target: '_blank',
+        text: 'Hire me on Upwork',
+        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+      },
+      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+    ]}
+    title="Seeing a number you don't like?"
+    subtitle="Every pound above was already yours — it just isn't reaching the inbox."
+  />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
+
+<script>
+  // Rough placeholder pre-fill figures — replace with sourced benchmarks
+  // before promoting this beyond draft. Values are % .
+  const INDUSTRY_PREFILL: Record<string, { open: number; click: number; conversion: number }> = {
+    retail: { open: 20, click: 2.5, conversion: 2.2 },
+    saas: { open: 23, click: 2.7, conversion: 3.0 },
+    agency: { open: 25, click: 3.5, conversion: 5.0 },
+    nonprofit: { open: 26, click: 2.5, conversion: 1.5 },
+    other: { open: 22, click: 2.5, conversion: 2.0 },
+  };
+
+  const DEFAULT_INBOX_LOSS = 15;
+
+  const gbp = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0,
+  });
+
+  const fields = {
+    industry: document.getElementById('industry') as HTMLSelectElement,
+    listSize: document.getElementById('list-size') as HTMLInputElement,
+    sendFrequency: document.getElementById('send-frequency') as HTMLInputElement,
+    openRate: document.getElementById('open-rate') as HTMLInputElement,
+    clickRate: document.getElementById('click-rate') as HTMLInputElement,
+    conversionRate: document.getElementById('conversion-rate') as HTMLInputElement,
+    customerValue: document.getElementById('customer-value') as HTMLInputElement,
+    inboxLoss: document.getElementById('inbox-loss') as HTMLInputElement,
+    unknownLoss: document.getElementById('unknown-loss') as HTMLInputElement,
+    lossWrapper: document.getElementById('loss-input-wrapper') as HTMLElement,
+    button: document.getElementById('calc-button') as HTMLButtonElement,
+    results: document.getElementById('results') as HTMLElement,
+  };
+
+  function applyPrefill() {
+    const preset = INDUSTRY_PREFILL[fields.industry.value] || INDUSTRY_PREFILL.other;
+    fields.openRate.value = String(preset.open);
+    fields.clickRate.value = String(preset.click);
+    fields.conversionRate.value = String(preset.conversion);
+  }
+
+  fields.industry.addEventListener('change', applyPrefill);
+
+  fields.unknownLoss.addEventListener('change', () => {
+    fields.lossWrapper.style.display = fields.unknownLoss.checked ? 'none' : 'block';
+    if (fields.unknownLoss.checked) fields.inboxLoss.value = String(DEFAULT_INBOX_LOSS);
+  });
+
+  function num(el: HTMLInputElement, fallback: number): number {
+    const v = parseFloat(el.value);
+    return Number.isFinite(v) && v >= 0 ? v : fallback;
+  }
+
+  function calculate() {
+    const list = Math.max(0, num(fields.listSize, 0));
+    const sends = Math.max(0, num(fields.sendFrequency, 0));
+    const openPct = Math.min(100, num(fields.openRate, 0));
+    const clickPct = Math.min(100, num(fields.clickRate, 0));
+    const convPct = Math.min(100, num(fields.conversionRate, 0));
+    const value = Math.max(0, num(fields.customerValue, 0));
+    const lossPct = Math.min(100, num(fields.inboxLoss, DEFAULT_INBOX_LOSS));
+
+    // Monthly funnel, with every step visible in the breakdown
+    const emails = list * sends;
+    const reached = emails * (1 - lossPct / 100);
+    const opened = reached * (openPct / 100);
+    const clicked = opened * (clickPct / 100);
+    const customers = clicked * (convPct / 100);
+    const revenueNow = customers * value;
+
+    const potentialCustomers = emails * (openPct / 100) * (clickPct / 100) * (convPct / 100);
+    const lostCustomers = potentialCustomers - customers;
+    const lostRevenue = lostCustomers * value;
+
+    const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');
+
+    const rows: string[] = [
+      `Emails sent per month: <strong>${fmt(emails)}</strong> (${fmt(list)} subscribers × ${sends} sends)`,
+      `Reaching the inbox: <strong>${fmt(reached)}</strong> (${100 - lossPct}% inbox placement)`,
+      `Opened: <strong>${fmt(opened)}</strong> (${openPct}% open rate)`,
+      `Clicked: <strong>${fmt(clicked)}</strong> (${clickPct}% of opens)`,
+      `Converted: <strong>${fmt(customers)}</strong> customers (${convPct}% of clicks)`,
+      `Revenue this month: <strong>${gbp.format(revenueNow)}</strong> (${fmt(customers)} × ${gbp.format(value)})`,
+    ];
+
+    let verdictHtml: string;
+
+    if (lostRevenue >= 500) {
+      verdictHtml = `
+        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
+          <p class="text-sm text-slate-600 dark:text-slate-300">Estimated revenue lost to inbox placement:</p>
+          <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(lostRevenue)} <span class="text-base font-normal">/ month</span></p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">Around <strong>${fmt(Math.max(0, lostCustomers))}</strong> customers per month are clicking nothing because they never saw the email.</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">Fixing this starts at £150 — a fraction of the monthly cost.</p>
+          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Get an audit — from £150</a>
+        </div>`;
+    } else {
+      verdictHtml = `
+        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
+          <p class="font-semibold text-lg dark:text-white">At these numbers, deliverability is unlikely to be your bottleneck</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Estimated loss: ${gbp.format(lostRevenue)} per month. If your numbers are accurate, your list or conversion rate probably matters more than inbox placement right now.</p>
+        </div>`;
+    }
+
+    fields.results.innerHTML = `
+      <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <h3 class="font-bold text-lg dark:text-white mb-2">How the estimate is built</h3>
+        <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1 list-disc pl-5">
+          ${rows.map((r) => `<li>${r}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="mt-4">${verdictHtml}</div>`;
+  }
+
+  fields.button.addEventListener('click', calculate);
+</script>
