@@ -7,6 +7,8 @@ import Hero from '~/components/widgets/Hero.astro';
 import Steps2 from '~/components/widgets/Steps2.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
+import aboutStory from '~/assets/images/about-story.jpg';
+
 const metadata = {
   title: 'About',
   description:
@@ -38,7 +40,15 @@ const metadata = {
 
   <!-- The story -->
 
-  <Content id="story" isReversed items={[
+  <Content
+    id="story"
+    isReversed
+    image={{
+      src: aboutStory,
+      alt: 'A solitary workspace at dusk: a laptop on a worn desk by a window in fading blue light',
+      aspect: 'auto',
+    }}
+    items={[
       {
         title: 'Direct, always',
         description: 'You work with the person doing the work. No account managers, no juniors, no handoffs.',
