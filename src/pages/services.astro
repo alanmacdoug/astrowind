@@ -7,6 +7,8 @@ import Hero from '~/components/widgets/Hero.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
+import servicesMonitoring from '~/assets/images/services-monitoring.jpg';
+
 const metadata = {
   title: 'Services',
   description:
@@ -86,6 +88,11 @@ const metadata = {
 
   <Content
     isReversed
+    image={{
+      src: servicesMonitoring,
+      alt: 'A monitoring workstation with three screens showing email deliverability dashboards in soft indigo light',
+      aspect: 'auto',
+    }}
     items={[
       {
         title: 'Managed Mautic hosting',
