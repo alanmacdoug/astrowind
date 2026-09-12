@@ -33,7 +33,8 @@ const metadata = {
         text: 'Free consultation',
         href: getPermalink('/contact'),
       },
-      { variant: 'secondary', text: 'Email me directly', href: 'mailto:alan@macdougallsystems.com' },
+ { variant: 'primary', text: 'Book a free consultation', href: getPermalink('/contact') },
+{ variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
   >
     <Fragment slot="subtitle">
@@ -177,12 +178,8 @@ const metadata = {
     title="Stop guessing where your email lands"
     subtitle="A conversation costs nothing, and a deliverability problem costs you quietly every single day."
     actions={[
-      {
-        variant: 'primary',
-        text: 'Free consultation',
-        href: getPermalink('/contact'),
-      },
-      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+      { variant: 'primary', text: 'Book a free consultation', href: getPermalink('/contact') },
+{ variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
   />
 
