@@ -1,6 +1,5 @@
 ---
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
-import CallToAction from '~/components/widgets/CallToAction.astro';
 import Content from '~/components/widgets/Content.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import Layout from '~/layouts/PageLayout.astro';
@@ -34,9 +33,9 @@ const metadata = {
   <!-- Contact form -->
 
   <section class="relative not-prose" id="contact-form-section" aria-labelledby="contact-form-heading">
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-    <div class="mx-auto max-w-2xl px-4 md:px-6 py-12 md:py-16 text-default">
-      <div class="mx-auto p-6 md:p-8 rounded-md shadow-xl dark:border dark:border-slate-600 dark:shadow-none">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent pointer-events-none" aria-hidden="true"></div>
+    <div class="mx-auto max-w-2xl px-4 md:px-6 pt-4 md:pt-8 pb-12 md:pb-16 text-default">
+      <div class="mx-auto p-6 md:p-8 rounded-md shadow-xl bg-white dark:bg-transparent dark:border dark:border-slate-600 dark:shadow-none">
         <h2 id="contact-form-heading" class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Send a message</h2>
         <p class="text-muted mt-4 mb-8 text-xl">Fill this in and it lands in my inbox — same one-working-day reply as email.</p>
         <form id="contact-form" class="grid gap-6" novalidate>
@@ -105,24 +104,7 @@ const metadata = {
         hosting — and you work with the same person throughout, start to finish.
       </p>
     </Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
   </Content>
-
-  <CallToAction
-    actions={[
-      {
-        variant: 'primary',
-        text: 'Email me direct',
-        href: 'mailto:alan@macdougallsystems.com',
-      },
-      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
-    ]}
-    title="A conversation is free"
-    subtitle="Describe the problem. If I can fix it, you'll know what it costs before you commit."
-  />
 
   <!-- Blog -->
 
