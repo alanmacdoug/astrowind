@@ -101,9 +101,13 @@ const metadata = {
       },
       { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
-    title="Seeing problems in the results?"
+   title="Seeing problems in the results?"
     subtitle="These issues are exactly what an authentication audit resolves — fixed price from £150."
-  />
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </CallToAction>
 
   <!-- More tools (white — would otherwise butt against the slate blog section) -->
 
