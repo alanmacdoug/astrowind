@@ -7,6 +7,8 @@ import Hero from '~/components/widgets/Hero.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
+import { getPermalink } from '~/utils/permalinks';
+
 import servicesMonitoring from '~/assets/images/services-monitoring.jpg';
 
 const metadata = {
@@ -26,11 +28,10 @@ const metadata = {
     actions={[
       {
         variant: 'primary',
-        target: '_blank',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        text: 'Book a free consultation',
+        href: getPermalink('/contact'),
       },
-      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
   />
 
@@ -38,7 +39,7 @@ const metadata = {
 
   <Features2
     title="Project work"
-    subtitle="Defined scope, fixed price, clear deliverable. Booked through Upwork or direct."
+    subtitle="Defined scope, fixed price, clear deliverable. Booked directly, starting with a free conversation."
     columns={3}
     items={[
       {
@@ -165,11 +166,10 @@ const metadata = {
     actions={[
       {
         variant: 'primary',
-        target: '_blank',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
+        text: 'Book a free consultation',
+        href: getPermalink('/contact'),
       },
-      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
     title="Tell me where your email is landing"
     subtitle="An audit starts at £150. A conversation is free."
