@@ -75,7 +75,7 @@ const metadata = {
                 min="0"
                 max="100"
                 step="0.1"
-                value="22"
+                value="28"
                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </label>
@@ -90,7 +90,7 @@ const metadata = {
               min="0"
               max="100"
               step="0.1"
-              value="2.5"
+              value="6.8"
               class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </label>
@@ -103,7 +103,7 @@ const metadata = {
               min="0"
               max="100"
               step="0.1"
-              value="2"
+              value="5"
               class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </label>
@@ -155,8 +155,10 @@ const metadata = {
       </div>
 
       <p class="relative text-center text-xs text-slate-600 dark:text-slate-400 mt-4">
-        Runs entirely in your browser — nothing is sent or stored. Industry pre-fill and achievable-open figures
-        are rough placeholders for demonstration and should not be treated as sourced benchmarks.
+        Runs entirely in your browser — nothing is sent or stored. Pre-filled rates are drawn from published
+        platform benchmarks (Klaviyo, MailerLite, Optifai, WebFX, Plezi — retrieved Sept 2026); open-rate
+        benchmarks everywhere are inflated by Apple Mail Privacy Protection, so treat any open figure as
+        approximate. Conversion-rate pre-fills remain unsourced estimates.
       </p>
     </div>
   </section>
@@ -165,13 +167,8 @@ const metadata = {
 
   <CallToAction
     actions={[
-      {
-        variant: 'primary',
-        target: '_blank',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/~0151852008049f31c2',
-      },
-      { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
+      { variant: 'primary', text: 'Book a free consultation', href: '/contact' },
+      { variant: 'secondary', text: 'Explore free tools', href: '/tools' },
     ]}
     title="Seeing a number you don't like?"
     subtitle="An email nobody opens earns exactly as much as one that never arrived — nothing. Both are fixable."
@@ -223,25 +220,61 @@ const metadata = {
 </Layout>
 
 <script>
-  // Rough placeholder pre-fill figures — replace with sourced benchmarks
-  // before promoting this beyond draft. Values are % .
+  // --- Industry pre-fill rates ---------------------------------------------------
+  // Sourced 12 Sept 2026 from published platform benchmark reports. Figures
+  // marked [DERIVED] are arithmetic combinations of two published figures
+  // (e.g. CTOR = published CTR / published open rate) — platforms publish
+  // open and click rate, not click-as-%-of-opens, so the conversion from
+  // one to the other is ours. Figures marked [PLACEHOLDER] remain
+  // unsourced. Review before the next content pass.
+  //
+  //  retail   open 30   — Klaviyo 2026 benchmark (183,000+ brands, ecommerce
+  //                        campaigns): 31% open, 1.69% click rate.
+  //           click 5.5 — [DERIVED] 1.69 / 31 (Klaviyo 2026).
+  //           conv  9   — Klaviyo 2025: click-to-conversion 9% overall,
+  //                        up 53% year-on-year.
+  //  saas     open 23   — Optifai Sales Ops Benchmark 2026 (939 B2B
+  //                        companies): SaaS open 23%.
+  //           click 14   — [DERIVED] 42 Agency B2B benchmarks 2026: SaaS CTR
+  //                        3.2% / open 23%.
+  //           conv  5    — [PLACEHOLDER] no sourced per-industry figure found.
+  //  agency   open 21   — Optifai 2026: consulting open 21%.
+  //           click 11   — Plezi research (B2B services/finance/consulting):
+  //                        average CTOR 11.35%.
+  //           conv  5    — [PLACEHOLDER].
+  //  nonprofit open 25  — WebFX 2026 industry benchmarks: nonprofits 25.2%
+  //                        open (higher figures elsewhere, e.g. ClickDimensions
+  //                        53%, are Apple-MPP-inflated; treat with caution).
+  //           click 6.8  — MailerLite 2025 (3.6M campaigns): average
+  //                        click-to-open rate 6.81% (all industries).
+  //           conv  5    — [PLACEHOLDER].
+  //  other    open 28   — MPP-adjusted all-industry real open rate; platform
+  //                        averages of 42-43% (MailerLite, HubSpot) are
+  //                        MPP-inflated by roughly 15 points.
+  //           click 6.8  — MailerLite 2025 all-industry CTOR 6.81%.
+  //           conv  5    — [PLACEHOLDER].
   const INDUSTRY_PREFILL: Record<string, { open: number; click: number; conversion: number }> = {
-    retail: { open: 20, click: 2.5, conversion: 2.2 },
-    saas: { open: 23, click: 2.7, conversion: 3.0 },
-    agency: { open: 25, click: 3.5, conversion: 5.0 },
-    nonprofit: { open: 26, click: 2.5, conversion: 1.5 },
-    other: { open: 22, click: 2.5, conversion: 2.0 },
+    retail: { open: 30, click: 5.5, conversion: 9 },
+    saas: { open: 23, click: 14, conversion: 5 },
+    agency: { open: 21, click: 11, conversion: 5 },
+    nonprofit: { open: 25, click: 6.8, conversion: 5 },
+    other: { open: 28, click: 6.8, conversion: 5 },
   };
 
-  // Placeholder "achievable open rate" figures — what a strong performer
-  // in each industry might sustain. Replace with sourced numbers in the
-  // review pass. Values are % .
+  // --- Achievable open rates -----------------------------------------------------
+  // "Strong performer" targets. No source publishes a clean per-industry
+  // top-decile open rate, so these are each industry benchmark + ~15-20%
+  // relative uplift, anchored to the ecommerce campaign upper bound
+  // (Darkroom 2026: ecommerce campaigns 18-25% open, flows 40-60%) and the
+  // Sona 2026 guidance that an MPP-adjusted 30%+ open rate signals solid
+  // placement and subject-line performance. Derived targets, not sourced
+  // top-decile figures.
   const ACHIEVABLE_OPEN: Record<string, number> = {
-    retail: 28,
-    saas: 30,
-    agency: 35,
-    nonprofit: 34,
-    other: 29,
+    retail: 35,
+    saas: 28,
+    agency: 25,
+    nonprofit: 30,
+    other: 33,
   };
 
   const DEFAULT_INBOX_LOSS = 15;
@@ -274,7 +307,10 @@ const metadata = {
 
   function setBenchmarkNote() {
     const achievable = achievableOpen();
-    fields.benchmarkNote.textContent = `A strong performer in this industry typically sustains around ${achievable}% opens (placeholder figure, not a sourced benchmark).`;
+    fields.benchmarkNote.textContent =
+      "A well-run programme in this industry typically targets around " +
+      achievable +
+      "% opens. Note: platform-reported open rates are inflated by Apple Mail Privacy Protection, so treat both your figure and the benchmark as approximate.";
   }
 
   function applyPrefill() {
@@ -292,6 +328,7 @@ const metadata = {
     if (fields.unknownLoss.checked) fields.inboxLoss.value = String(DEFAULT_INBOX_LOSS);
   });
 
+  applyPrefill();
   setBenchmarkNote();
 
   function num(el: HTMLInputElement, fallback: number): number {
