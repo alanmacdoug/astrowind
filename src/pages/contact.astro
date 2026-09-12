@@ -5,6 +5,8 @@ import Content from '~/components/widgets/Content.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
+import { getPermalink } from '~/utils/permalinks';
+
 import contactDoor from '~/assets/images/contact-door.jpg';
 
 const metadata = {
@@ -25,12 +27,7 @@ const metadata = {
         text: 'Email me direct',
         href: 'mailto:alan@macdougallsystems.com',
       },
-      {
-        variant: 'secondary',
-        target: '_blank',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/~0151852008049f31c2',
-      },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
   />
 
@@ -45,14 +42,14 @@ const metadata = {
       {
         title: 'Email',
         description:
-          'alan@macdougallsystems.com — for retainers, managed hosting and everything booked direct. I aim to reply within one working day.',
+          'alan@macdougallsystems.com — for consultations, retainers, managed hosting and everything booked direct. I aim to reply within one working day.',
         icon: 'tabler:mail',
       },
       {
-        title: 'Upwork',
+        title: 'Free tools',
         description:
-          'Preferred for fixed-scope project work — audits, deliverability rescues and migrations. Contracts, payments and messaging in one place.',
-        icon: 'tabler:briefcase',
+          "Run a free check on your own domain's authentication records first — results in seconds, nothing to book.",
+        icon: 'tabler:tool',
       },
       {
         title: 'What happens next',
@@ -65,8 +62,8 @@ const metadata = {
     <Fragment slot="content">
       <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">How to reach me</h3>
       <p>
-        Two doors. Project work goes through Upwork; everything else — retainers, managed Mautic hosting,
-        consulting — comes straight to me. Either way you get the same person and the same standard of work.
+        One door, no middlemen. Everything comes straight to me — consultations, audits, retainers, managed Mautic
+        hosting — and you work with the same person throughout, start to finish.
       </p>
     </Fragment>
 
@@ -82,12 +79,7 @@ const metadata = {
         text: 'Email me direct',
         href: 'mailto:alan@macdougallsystems.com',
       },
-      {
-        variant: 'secondary',
-        target: '_blank',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/~0151852008049f31c2',
-      },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
     title="A conversation is free"
     subtitle="Describe the problem. If I can fix it, you'll know what it costs before you commit."
