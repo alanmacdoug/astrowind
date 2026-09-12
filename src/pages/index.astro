@@ -30,11 +30,10 @@ const metadata = {
     actions={[
       {
         variant: 'primary',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
-        target: '_blank',
+        text: 'Free consultation',
+        href: getPermalink('/contact'),
       },
-      { variant: 'secondary', text: 'Get in touch', href: 'mailto:alan@macdougallsystems.com' },
+      { variant: 'secondary', text: 'Email me directly', href: 'mailto:alan@macdougallsystems.com' },
     ]}
   >
     <Fragment slot="subtitle">
@@ -58,17 +57,8 @@ const metadata = {
       {
         icon: 'tabler:mail',
         callToAction: {
-          target: '_blank',
           text: 'Email me',
           href: 'mailto:alan@macdougallsystems.com',
-        },
-      },
-      {
-        icon: 'tabler:brand-upwork',
-        callToAction: {
-          target: '_blank',
-          text: 'Upwork profile',
-          href: 'https://www.upwork.com/freelancers/UPWORK_URL',
         },
       },
     ]}
@@ -189,9 +179,8 @@ const metadata = {
     actions={[
       {
         variant: 'primary',
-        text: 'Hire me on Upwork',
-        href: 'https://www.upwork.com/freelancers/UPWORK_URL',
-        target: '_blank',
+        text: 'Free consultation',
+        href: getPermalink('/contact'),
       },
       { variant: 'secondary', text: 'Email me direct', href: 'mailto:alan@macdougallsystems.com' },
     ]}
