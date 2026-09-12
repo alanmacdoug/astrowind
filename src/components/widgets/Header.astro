@@ -191,6 +191,35 @@ const persistKey = `header-${Array.from(
   aw-header {
     display: contents;
   }
+
+  /* Mobile menu: slide in the nav when the menu button is toggled. */
+  .expanded header[aria-expanded='true'] ~ nav,
+  .expanded ~ nav {
+    display: flex;
+  }
+
+  /* Dropdowns: open on hover/focus-within (desktop only) */
+  .dropdown:hover > .dropdown-menu,
+  .dropdown:focus-within > .dropdown-menu {
+    display: block;
+  }
+
+  /* Chevron rotation */
+  .dropdown:hover > button > svg,
+  .dropdown:focus-within > button > svg {
+    rotate: 180deg;
+  }
+
+  /* Chevron rotation transition */
+  .dropdown > button > svg {
+    transition: rotate 0.2s ease;
+  }
+</style>
+<style is:global>
+  /* Allow scrolling on the body only when the mobile menu is open. */
+  .expanded header {
+    overflow-y: auto;
+  }
 </style>
 
 <script>
