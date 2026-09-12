@@ -5,14 +5,20 @@ export const headerData = {
     { text: 'Services', href: getPermalink('/services') },
     { text: 'About', href: getPermalink('/about') },
     { text: 'Contact', href: getPermalink('/contact') },
-    { text: 'Tools', href: getPermalink('/tools') },
+    {
+      text: 'Tools',
+      items: [
+        { text: 'Authentication checker', href: getPermalink('/tools') },
+        { text: 'Cost calculator', href: getPermalink('/roi-calculator') },
+        { text: 'Mautic vs ESP comparison', href: getPermalink('/mautic-cost-comparison') },
+      ],
+    },
     { text: 'Blog', href: getBlogPermalink() },
   ],
   actions: [
     {
-      text: 'Hire me on Upwork',
-      href: 'https://www.upwork.com/freelancers/YOUR_PROFILE_ID',
-      target: '_blank',
+      text: 'Free Consultation',
+      href: getPermalink('/contact'),
     },
   ],
 };
