@@ -2,7 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "astrowind",
   "compatibility_date": "2026-09-08",
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./dist"
+  },
+  "vars": {
+    "CONTACT_TO": "alan@macdougallsystems.com",
+    "CONTACT_FROM": ""
   }
 }
