@@ -1,13 +1,11 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
-import Hero from '~/components/widgets/Hero.astro';
 import Content from '~/components/widgets/Content.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Features3 from '~/components/widgets/Features3.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
-import { getPermalink } from '~/utils/permalinks';
 
 import aboutPipes from '~/assets/images/about-pipes.jpg';
 
@@ -26,16 +24,15 @@ const metadata = {
   <Hero
     id="hero"
     tagline="Email Infrastructure & Deliverability"
-    title="Email that reaches the inbox. Every time."
+    title="Email that earns its place in the inbox."
     actions={[
-    
- { variant: 'primary', text: 'Free consultation', href: getPermalink('/contact') },
-{ variant: 'secondary', text: 'Free tools', href: getPermalink('/tools') },
+      { variant: 'primary', text: 'Free consultation', href: getPermalink('/contact') },
+      { variant: 'secondary', text: 'Free tools', href: getPermalink('/tools') },
     ]}
   >
     <Fragment slot="subtitle">
       <p>
-        Since 2006, I've built, authenticated and repaired email systems for clients across eight countries. SPF, DKIM, DMARC, sending reputation, marketing automation — if it affects whether your email lands, it's my trade.
+        Since 2006, I've designed, authenticated and repaired email systems. SPF, DKIM, DMARC, sending reputation, marketing automation — if it affects whether your email lands or earns its keep, it's my specialty.
       </p>
     </Fragment>
   </Hero>
@@ -61,16 +58,16 @@ const metadata = {
     ]}
   >
     <Fragment slot="content">
-      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Two decades in the pipes</h2>
+      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Twenty years in email infrastructure</h2>
       <p>
-        Email deliverability became a trade before most businesses knew it existed. I've spent my working life in the
-        infrastructure behind the inbox: DNS and authentication records, sending reputation, self-hosted marketing
+        Email deliverability became a trade before most businesses knew it existed. I've spent my working life on
+        DNS and authentication records, sending reputation, self-hosted marketing
         systems, and the automation platforms that depend on all of it working.
       </p>
       <br />
       <p>
         Between 2006 and my recent years of military service, I built and ran a managed hosting and consultancy business
-        serving clients in eight countries — servers, Mautic installations, authentication, SMS and messaging
+        serving clients across Europe — servers, Mautic installations, authentication, SMS and messaging
         integrations. That business closed because I was called away, not because it failed. It's now reopened under
         one name with sharper tools.
       </p>
@@ -175,7 +172,7 @@ const metadata = {
     subtitle="A conversation costs nothing, and a deliverability problem costs you quietly every single day."
     actions={[
       { variant: 'primary', text: 'Book a free consultation', href: getPermalink('/contact') },
-{ variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
     ]}
   />
 
