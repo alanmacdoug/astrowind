@@ -1,11 +1,13 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
+import Hero from '~/components/widgets/Hero.astro';
 import Content from '~/components/widgets/Content.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Features3 from '~/components/widgets/Features3.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import { getPermalink } from '~/utils/permalinks';
 
 import aboutPipes from '~/assets/images/about-pipes.jpg';
 
@@ -60,14 +62,14 @@ const metadata = {
     <Fragment slot="content">
       <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Twenty years in email infrastructure</h2>
       <p>
-        Email deliverability became a trade before most businesses knew it existed. I've spent my working life on
+        Email deliverability became a specialty before most businesses knew it existed. I've spent my working life on
         DNS and authentication records, sending reputation, self-hosted marketing
         systems, and the automation platforms that depend on all of it working.
       </p>
       <br />
       <p>
-        Between 2006 and my recent years of military service, I built and ran a managed hosting and consultancy business
-        serving clients across Europe — servers, Mautic installations, authentication, SMS and messaging
+        From 2006, I built and ran a managed hosting and consultancy business serving clients in the UK, Europe, US
+        and beyond — servers, Mautic installations, authentication, SMS and messaging
         integrations. That business closed because I was called away, not because it failed. It's now reopened under
         one name with sharper tools.
       </p>
