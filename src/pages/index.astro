@@ -2,14 +2,11 @@
 import Layout from '~/layouts/PageLayout.astro';
 
 import Hero from '~/components/widgets/Hero.astro';
-import Content from '~/components/widgets/Content.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Features3 from '~/components/widgets/Features3.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import { getPermalink } from '~/utils/permalinks';
-
-import aboutPipes from '~/assets/images/about-pipes.jpg';
 
 const metadata = {
   title: 'MacDougall Systems — Email Infrastructure & Deliverability',
@@ -39,51 +36,51 @@ const metadata = {
     </Fragment>
   </Hero>
 
-  <!-- About -->
+  <!-- Free tools showcase (slate-100 — replaces the About section, which now lives on the About page) -->
 
-  <Content
-    id="about"
-    columns={2}
-    image={{
-      src: aboutPipes,
-      alt: 'The rear of a network rack, neatly bundled cabling lit by soft indigo light',
-      aspect: 'auto',
-    }}
-    items={[
-      {
-        icon: 'tabler:mail',
-        callToAction: {
-          text: 'Email me',
-          href: 'mailto:alan@macdougallsystems.com',
-        },
-      },
-    ]}
-  >
-    <Fragment slot="content">
-      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Twenty years in email infrastructure</h2>
-      <p>
-        Email deliverability became a specialty before most businesses knew it existed. I've spent my working life on
-        DNS and authentication records, sending reputation, self-hosted marketing
-        systems, and the automation platforms that depend on all of it working.
-      </p>
-      <br />
-      <p>
-        From 2006, I built and ran a managed hosting and consultancy business serving clients in the UK, Europe, US
-        and beyond — servers, Mautic installations, authentication, SMS and messaging
-        integrations. That business closed because I was called away, not because it failed. It's now reopened under
-        one name with sharper tools.
-      </p>
-      <br />
-      <p>
-        Today the inbox providers have made proper email authentication mandatory for everyone — and most businesses
-        haven't caught up. That gap is what MacDougall Systems exists to close.
-      </p>
-    </Fragment>
+  <section id="free-tools" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-6xl">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
 
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
+    <div class="relative text-center mb-8">
+      <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl">
+        See for yourself, before you contact anyone
+      </h2>
+      <p class="mt-3 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        Inbox providers made proper email authentication mandatory — and most businesses haven't caught up. Check
+        where you stand with free, browser-based diagnostics. No signup, nothing sent or stored.
+      </p>
+    </div>
+
+    <div class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a
+        href="/tools"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Email authentication checker</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Check any domain's SPF, DKIM and DMARC — records shown, interpreted in plain English.
+        </p>
+      </a>
+      <a
+        href="/dmarc-report-viewer"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">DMARC report viewer</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Upload the aggregate report your inbox provider sends you — get plain English back on who's sending as you.
+        </p>
+      </a>
+      <a
+        href="/roi-calculator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Deliverability ROI calculator</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          What is better email performance worth to you? Honest numbers out, every assumption shown.
+        </p>
+      </a>
+    </div>
+  </section>
 
   <!-- Process: how engagements run -->
 
