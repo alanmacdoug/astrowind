@@ -10,6 +10,7 @@ export const headerData = {
       links: [
         { text: 'Authentication checker', href: getPermalink('/tools') },
         { text: 'DMARC report viewer', href: getPermalink('/dmarc-report-viewer') },
+        { text: 'Preflight checklist', href: getPermalink('/preflight-checklist') },
         { text: 'Cost calculator', href: getPermalink('/roi-calculator') },
         { text: 'Mautic vs ESP comparison', href: getPermalink('/mautic-cost-comparison') },
       ],
@@ -40,6 +41,7 @@ export const footerData = {
       links: [
         { text: 'Authentication checker', href: getPermalink('/tools') },
         { text: 'DMARC report viewer', href: getPermalink('/dmarc-report-viewer') },
+        { text: 'Preflight checklist', href: getPermalink('/preflight-checklist') },
         { text: 'Cost calculator', href: getPermalink('/roi-calculator') },
         { text: 'Mautic vs ESP comparison', href: getPermalink('/mautic-cost-comparison') },
       ],
