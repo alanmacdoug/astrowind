@@ -86,7 +86,7 @@ Two parts matter to most senders:
 
 Alignment is where the subtleties live: a message can pass SPF and DKIM
 individually and still fail DMARC if the domains involved do not align.
-Worth understanding before acting on a failing report.
+Worth understanding before acting on [a failing report](/understanding-dmarc-reports).
 
 ## Why this became non-negotiable
 
