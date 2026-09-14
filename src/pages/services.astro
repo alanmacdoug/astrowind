@@ -133,27 +133,38 @@ const metadata = {
 
   <!-- Process -->
 
-  <Steps
-    title="Every engagement, the same way"
-    subtitle="However large or small the job: Survey, Explain, Remediate, Verify, Engage."
-    columns={3}
+ <Steps
+    id="process"
+    title="How I work with every client"
+    subtitle="A defined process, agreed before anything changes — the same discipline for a one-off audit or for ongoing services."
     items={[
       {
-        title: 'Survey & Explain',
-        description: `Investigate first, then findings and a fixed price in plain English — agreed before anything changes.`,
+        title: 'Survey <span class="font-normal">— consultation & investigation</span>',
+        description: `We start with a conversation, then a technical survey of your current setup: DNS, authentication records, sending platforms, list hygiene. No proposals before diagnosis.`,
         icon: 'tabler:search',
       },
       {
-        title: 'Remediate',
-        description: `The agreed work, done properly and documented as it happens.`,
+        title: 'Explain <span class="font-normal">— findings in plain English</span>',
+        description: `You receive a clear picture of what's wrong, what it's costing you, and what fixing it involves. Scope and price are agreed before any changes are made.`,
+        icon: 'tabler:message-report',
+      },
+      {
+        title: 'Remediate <span class="font-normal">— implementation</span>',
+        description: `The agreed work, done properly: authentication records aligned, systems configured, deliverability repaired. Changes documented as they're made.`,
         icon: 'tabler:tools',
       },
       {
-        title: 'Verify & Engage',
-        description: `Proof it works — tests and reports you can see. Then, where it makes sense, the ongoing relationship.`,
+        title: 'Verify <span class="font-normal">— proof it works</span>',
+        description: `Tests and reports demonstrating the result — authenticated mail, passing checks, measurable improvement. You see the evidence, not just my word.`,
         icon: 'tabler:checkup-list',
       },
+      {
+        title: 'Engage <span class="font-normal">— ongoing relationship</span>',
+        description: `Where it makes sense: monitoring, maintenance and defined response windows, so problems are caught before your sender reputation pays for them.`,
+        icon: 'tabler:users',
+      },
     ]}
+    classes={{ container: 'max-w-3xl' }}
   >
     <Fragment slot="bg">
       <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
