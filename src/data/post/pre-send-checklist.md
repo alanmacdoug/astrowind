@@ -33,7 +33,7 @@ than five minutes to complete.
 SPF, DKIM and DMARC should not only exist; they should be actively
 valid. Authentication rot is real — DKIM keys expire, DNS changes from
 infrastructure migrations orphan old records, DMARC policies get
-published and forgotten. Verify all three on the sending domain before
+published and forgotten. [Verify all three](/email-authentication-basics) on the sending domain before
 any campaign, especially if the last send was months ago.
 
 ## 2. DNS lookups under the SPF limit
