@@ -29,7 +29,7 @@ Three metrics move the needle on email revenue:
 
 **Open rate** — if 30 per cent of your sends end up in the spam folder,
 you have already lost 30 per cent of potential engagement before anyone
-reads a single word. Authentication issues, sender reputation problems
+reads a single word. [Authentication issues](/email-authentication-basics), sender reputation problems
 or bad list hygiene can all contribute.
 
 **Click-through rate** — once in the inbox, does the content compel
