@@ -1,0 +1,319 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'Preflight Checklist',
+  description:
+    'Ten checks to run before every email campaign send — authentication, list hygiene, consent and content. Verified in minutes, before your sender reputation pays for the mistakes.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Tools"
+    title="Preflight your email before you send"
+    subtitle="Ten checks that decide whether your campaign arrives or dies on the runway — authentication, list hygiene, consent, content. Tick them off before every send; it takes minutes."
+  />
+
+  <!-- The checklist (slate-100) -->
+
+  <section id="preflight" class="relative bg-slate-100 dark:bg-transparent">
+    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+      <div
+        class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+      >
+        <!-- Verdict bar -->
+
+        <div
+          id="verdict"
+          class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6 text-center"
+        >
+          <p id="verdict-title" class="font-bold text-lg dark:text-white">0 of 10 checks verified</p>
+          <p id="verdict-sub" class="text-sm text-slate-600 dark:text-slate-300 mt-1">
+            Work down the list — unticked boxes aren't failures, just things not yet verified.
+          </p>
+        </div>
+
+        <!-- Checklist -->
+
+        <div class="divide-y divide-slate-100 dark:divide-slate-800">
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">SPF covers every platform that sends as your domain</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Every sending service — ESP, CRM, helpdesk, billing system — must be in your SPF record or its mail
+                  fails authentication. And SPF is capped at 10 DNS lookups: too many includes silently breaks the
+                  whole record.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">DKIM signs mail from every sending platform</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  DKIM is the only authentication mechanism that survives forwarding, and the one the big inbox
+                  providers weight most heavily. Missing or weak signatures are a fast track to the spam folder.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">DMARC published, with reports going somewhere you read</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Even at p=none, DMARC reports tell you who is sending as your domain and whether their mail aligns.
+                  A record nobody monitors is a smoke alarm with no battery.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">From domain aligns with your authenticated domains</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  DMARC only passes when the visible From domain matches the domain your SPF or DKIM authenticated.
+                  Sending marketing from a subdomain keeps any reputation damage away from your corporate mail.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">Unsubscribe link present, one click, and working</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Legally required (GDPR, CAN-SPAM and equivalents), and a broken or buried unsubscribe converts
+                  annoyed recipients into spam complaints — the single worst signal you can send a mailbox provider.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">List-Unsubscribe headers implemented (one-click, RFC 8058)</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Gmail and Yahoo require working one-click unsubscribe headers for bulk senders. It also gives
+                  unhappy subscribers an exit that doesn't involve the spam button.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">List hygiene done — bounces, complainers and inactives suppressed</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Bounce rate and complaint rate are the two metrics mailbox providers weigh hardest. Sending to
+                  addresses that haven't opened anything in two years is a slow bleed on your reputation.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">Every address has a documented, provable opt-in source</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  Consent protects you legally and reputationally. Purchased or scraped lists are the single fastest
+                  route to the spam folder, and the hardest problem to walk back.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">Links checked — no shorteners, all https, redirects tested</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  URL shortener domains carry their own spam reputation, which yours inherits. Broken links and
+                  mixed http URLs are classic filter triggers and a terrible first click for a real customer.
+                </p>
+              </details>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 py-4 cursor-pointer">
+            <input type="checkbox" class="pf-check mt-1 h-4 w-4" />
+            <span>
+              <span class="block font-medium dark:text-white">Volume and cadence consistent — no sudden spikes</span>
+              <details class="mt-1">
+                <summary class="text-sm text-primary cursor-pointer select-none">Why it matters</summary>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  A quiet account suddenly sending 50,000 emails looks like a compromised mailbox to a filter.
+                  New or rested infrastructure needs gradual warm-up; established senders need steady rhythms.
+                </p>
+              </details>
+            </span>
+          </label>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-6">
+          <button
+            type="button"
+            id="reset-btn"
+            class="btn btn-primary font-medium rounded-lg px-6 py-3"
+          >
+            Reset checklist
+          </button>
+        </div>
+      </div>
+
+      <p class="relative text-center text-xs text-slate-600 dark:text-slate-400 mt-4">
+        Runs entirely in your browser — nothing is sent or stored, and your ticks vanish on refresh. A checklist
+        reduces risk before you send; it can't guarantee placement, because nobody controls that.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      { variant: 'primary', text: 'Book a free consultation', href: '/contact' },
+      { variant: 'secondary', text: 'Explore free tools', href: '/tools' },
+    ]}
+    title="Boxes you couldn't tick?"
+    subtitle="The checks you skip are usually where deliverability problems start. Book a consultation and find out what's behind them — before your next send makes it worse."
+  />
+
+  <!-- More tools (white — alternates against the checklist's slate-100) -->
+
+  <section id="more-tools" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold dark:text-white">More tools</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        Free, browser-based, nothing to sign up for.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <a
+        href="/tools"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Email authentication checker</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Check any domain's SPF, DKIM and DMARC — records shown, interpreted in plain English.
+        </p>
+      </a>
+      <a
+        href="/dmarc-report-viewer"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">DMARC report viewer</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Upload the aggregate report your inbox provider sends you — get plain English back on who's sending as you.
+        </p>
+      </a>
+      <a
+        href="/roi-calculator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Deliverability ROI calculator</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          What is better email performance worth to you? Honest numbers out, every assumption shown.
+        </p>
+      </a>
+      <a
+        href="/mautic-cost-comparison"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Mautic vs ESP cost comparison</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Managed Mautic against typical ESP pricing — find the subscriber count where the crossover happens.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Practical writing on email authentication, deliverability and marketing infrastructure — written from twenty years of fixing the same problems, usually for people who didn't know what was broken."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
+
+<script>
+  const verdict = document.getElementById('verdict') as HTMLDivElement;
+  const verdictTitle = document.getElementById('verdict-title') as HTMLParagraphElement;
+  const verdictSub = document.getElementById('verdict-sub') as HTMLParagraphElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('.pf-check'));
+
+  const TOTAL = checkboxes.length;
+
+  function updateVerdict() {
+    const checked = checkboxes.filter((c) => c.checked).length;
+    verdictTitle.textContent = `${checked} of ${TOTAL} checks verified`;
+
+    if (checked === TOTAL) {
+      verdict.className =
+        'rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-6 text-center';
+      verdictSub.textContent =
+        'Cleared for send. Every check verified — that is all anyone can honestly do before hitting send.';
+    } else if (checked >= TOTAL - 2) {
+      verdict.className =
+        'rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 mb-6 text-center';
+      verdictSub.textContent =
+        'Close — work through the remaining checks before this goes out. Unticked boxes are not failures, just things not yet verified.';
+    } else {
+      verdict.className =
+        'rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6 text-center';
+      verdictSub.textContent =
+        'Work down the list — unticked boxes are not failures, just things not yet verified.';
+    }
+  }
+
+  checkboxes.forEach((c) => c.addEventListener('change', updateVerdict));
+
+  resetBtn.addEventListener('click', () => {
+    checkboxes.forEach((c) => (c.checked = false));
+    updateVerdict();
+  });
+
+  updateVerdict();
+</script>
