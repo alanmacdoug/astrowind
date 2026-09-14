@@ -48,7 +48,7 @@ software, and everything else becomes your responsibility:
 Running Mautic does not send your email. The application generates the
 messages; something else has to deliver them. Self-hosters typically
 relay through a delivery service — SendGrid, Postmark, Amazon SES —
-because delivering bulk mail directly from a VPS IP address in 2026 is
+because [delivering bulk mail](/pre-send-checklist) from a VPS IP address in 2026 is
 an exercise in frustration. That mailbox provider does not know your
 fresh cloud IP, and it has no reason to trust it.
 
