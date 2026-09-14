@@ -84,43 +84,7 @@ const metadata = {
     </div>
   </section>
 
-  <!-- Process: how engagements run -->
-
-  <Steps
-    id="process"
-    title="How I work with every client"
-    subtitle="A defined process, agreed before anything changes — the same discipline for a one-off audit or an ongoing retainer."
-    items={[
-      {
-        title: 'Survey <span class="font-normal">— consultation & investigation</span>',
-        description: `We start with a conversation, then a technical survey of your current setup: DNS, authentication records, sending platforms, list hygiene. No proposals before diagnosis.`,
-        icon: 'tabler:search',
-      },
-      {
-        title: 'Explain <span class="font-normal">— findings in plain English</span>',
-        description: `You receive a clear picture of what's wrong, what it's costing you, and what fixing it involves. Scope and price are agreed before any changes are made.`,
-        icon: 'tabler:message-report',
-      },
-      {
-        title: 'Remediate <span class="font-normal">— implementation</span>',
-        description: `The agreed work, done properly: authentication records aligned, systems configured, deliverability repaired. Changes documented as they're made.`,
-        icon: 'tabler:tools',
-      },
-      {
-        title: 'Verify <span class="font-normal">— proof it works</span>',
-        description: `Tests and reports demonstrating the result — authenticated mail, passing checks, measurable improvement. You see the evidence, not just my word.`,
-        icon: 'tabler:checkup-list',
-      },
-      {
-        title: 'Engage <span class="font-normal">— ongoing relationship</span>',
-        description: `Where it makes sense: monitoring, maintenance and defined response windows, so problems are caught before your sender reputation pays for them.`,
-        icon: 'tabler:users',
-      },
-    ]}
-    classes={{ container: 'max-w-3xl' }}
-  />
-
-  <!-- Services -->
+    <!-- Services -->
 
   <Features3
     id="services"
@@ -160,24 +124,47 @@ const metadata = {
         icon: 'tabler:plug-connected',
       },
     ]}
+  />
+
+  <!-- Process: how engagements run -->
+
+  <Steps
+    id="process"
+    title="How I work with every client"
+    subtitle="A defined process, agreed before anything changes — the same discipline for a one-off audit or an ongoing retainer."
+    items={[
+      {
+        title: 'Survey <span class="font-normal">— consultation & investigation</span>',
+        description: `We start with a conversation, then a technical survey of your current setup: DNS, authentication records, sending platforms, list hygiene. No proposals before diagnosis.`,
+        icon: 'tabler:search',
+      },
+      {
+        title: 'Explain <span class="font-normal">— findings in plain English</span>',
+        description: `You receive a clear picture of what's wrong, what it's costing you, and what fixing it involves. Scope and price are agreed before any changes are made.`,
+        icon: 'tabler:message-report',
+      },
+      {
+        title: 'Remediate <span class="font-normal">— implementation</span>',
+        description: `The agreed work, done properly: authentication records aligned, systems configured, deliverability repaired. Changes documented as they're made.`,
+        icon: 'tabler:tools',
+      },
+      {
+        title: 'Verify <span class="font-normal">— proof it works</span>',
+        description: `Tests and reports demonstrating the result — authenticated mail, passing checks, measurable improvement. You see the evidence, not just my word.`,
+        icon: 'tabler:checkup-list',
+      },
+      {
+        title: 'Engage <span class="font-normal">— ongoing relationship</span>',
+        description: `Where it makes sense: monitoring, maintenance and defined response windows, so problems are caught before your sender reputation pays for them.`,
+        icon: 'tabler:users',
+      },
+    ]}
+    classes={{ container: 'max-w-3xl' }}
   >
     <Fragment slot="bg">
       <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
     </Fragment>
-  </Features3>
-
-  <!-- Call to action -->
-
-  <CallToAction
-    title="Stop guessing where your email lands"
-    subtitle="A conversation costs nothing, and a deliverability problem costs you quietly every single day."
-    actions={[
-      { variant: 'primary', text: 'Book a free consultation', href: getPermalink('/contact') },
-      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
-    ]}
-  />
-
-  <!-- Blog -->
+  </Steps>  <!-- Blog -->
 
   <BlogLatestPosts
     id="blog"
