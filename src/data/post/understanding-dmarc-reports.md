@@ -50,7 +50,7 @@ Read enough of these reports and the same patterns repeat.
 
 Your own CRM, invoicing system or marketing platform sends mail that
 fails SPF or DKIM — usually because someone connected a tool without
-adding its DNS records. Every failed message from a legitimate source
+adding its [DNS records](/email-authentication-basics). Every failed message from a legitimate source
 is a deliverability problem you can actually fix.
 
 ### 2. Senders you forgot about
