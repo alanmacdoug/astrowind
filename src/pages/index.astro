@@ -126,7 +126,7 @@ const metadata = {
     ]}
   />
 
-  <!-- Process: how engagements run -->
+   <!-- Process: how engagements run -->
 
   <Steps
     id="process"
@@ -164,7 +164,20 @@ const metadata = {
     <Fragment slot="bg">
       <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
     </Fragment>
-  </Steps>  <!-- Blog -->
+  </Steps>
+
+  <!-- Call to action -->
+
+  <CallToAction
+    title="Stop guessing where your email lands"
+    subtitle="A conversation costs nothing, and a deliverability problem costs you quietly every single day."
+    actions={[
+      { variant: 'primary', text: 'Book a free consultation', href: getPermalink('/contact') },
+      { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
+    ]}
+  />
+
+  <!-- Blog -->
 
   <BlogLatestPosts
     id="blog"
