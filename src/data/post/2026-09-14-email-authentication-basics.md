@@ -1,6 +1,6 @@
 ---
-draft: false
-title: Email Authentication Basics: SPF, DKIM and DMARC Without the Jargon
+draft: true
+title: "Email Authentication Basics: SPF, DKIM and DMARC Without the Jargon"
 excerpt: >-
   What SPF, DKIM and DMARC actually do, why the major inbox providers
   made them mandatory, and how to check your own domain in seconds.
