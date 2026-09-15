@@ -17,8 +17,8 @@ const metadata = {
     compact={true}
   />
 
-  <!-- Lookup counter + interview -->
-  <section class="bg-slate-100 py-8 md:py-12">
+  <!-- Entire tool: counter, interview, policy, output, upsell -->
+  <section class="bg-slate-100 py-8 md:py-12 dark:bg-slate-900">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="mb-8 text-center">
         <p class="text-muted">
@@ -43,13 +43,13 @@ const metadata = {
 
       <!-- Interview section -->
       <div id="interview-section" class="space-y-6 mb-8">
-        
+
         <!-- Question 1: Google Workspace -->
         <div id="question-google" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Does Google Workspace send email as your domain?</p>
           <div class="flex gap-4">
-            <button onclick="addGoogle()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
-            <button onclick="hideQuestion('question-google')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+            <button id="btn-google-yes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button id="btn-google-no" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
           </div>
         </div>
 
@@ -57,8 +57,8 @@ const metadata = {
         <div id="question-m365" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Does Microsoft 365 send email as your domain?</p>
           <div class="flex gap-4">
-            <button onclick="addM365()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
-            <button onclick="hideQuestion('question-m365')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+            <button id="btn-m365-yes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button id="btn-m365-no" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ const metadata = {
         <div id="question-marketing" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Does a marketing platform send email as your domain?</p>
           <div id="marketing-dropdown" class="mb-4 hidden">
-            <select onchange="addMarketingPlatform(this.value)" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700">
+            <select id="marketing-platform" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700">
               <option value="">Select a platform...</option>
               <option value="sendgrid|include:sendgrid.net|2">SendGrid</option>
               <option value="mailchimp|include:servers.mcsv.net|1">Mailchimp</option>
@@ -75,8 +75,8 @@ const metadata = {
             </select>
           </div>
           <div class="flex gap-4">
-            <button onclick="showMarketingDropdown()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
-            <button onclick="hideQuestion('question-marketing')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+            <button id="btn-marketing-yes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button id="btn-marketing-no" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
           </div>
         </div>
 
@@ -84,21 +84,16 @@ const metadata = {
         <div id="question-custom" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Do you have custom servers sending as your domain?</p>
           <input id="custom-ip" type="text" placeholder="Enter IP range (e.g., 192.0.2.0/24)" class="mb-4 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
-          <button id="confirm-custom" onclick="addCustomIP()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Confirm Custom IP</button>
+          <button id="btn-custom-confirm" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Confirm Custom IP</button>
         </div>
 
-        <!-- Question 5: Other services (informational, not adding entries) -->
+        <!-- Question 5: Other services (informational) -->
         <div id="question-other" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Are there any other services that send email as your domain?</p>
-          <textarea id="other-services" placeholder="List any other senders (e.g., helpdesk, CRM, transactional email) — note: you'll need to add these manually to your record if they're not in your platform list" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700"></textarea>
+          <textarea id="other-services" placeholder="Note any other senders (helpdesk, CRM, transactional email) — these will need manual entries if not covered above" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700"></textarea>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Policy choice + output + upsell -->
-  <section class="bg-white py-8 md:py-12 dark:bg-slate-900">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <!-- Policy choice -->
       <div id="policy-section" class="mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
         <h3 class="text-lg font-bold mb-4">What closing mechanism should your record use?</h3>
@@ -116,7 +111,7 @@ const metadata = {
             </span>
           </label>
         </div>
-        <button onclick="generateRecord()" class="mt-4 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded font-bold">Generate SPF Record</button>
+        <button id="btn-generate" class="mt-4 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded font-bold">Generate SPF Record</button>
       </div>
 
       <!-- Output section -->
@@ -125,7 +120,7 @@ const metadata = {
         <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded mb-4 font-mono text-sm break-all">
           <span id="spf-record-output">v=spf1 ...</span>
         </div>
-        <button onclick="copyToClipboard()" class="mb-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">Copy to Clipboard</button>
+        <button id="btn-copy" class="mb-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">Copy to Clipboard</button>
         <div class="border-t pt-4 dark:border-slate-700">
           <h4 class="font-bold mb-2">What each entry means:</h4>
           <ul id="record-explanation" class="space-y-2 text-sm text-muted"></ul>
@@ -144,75 +139,25 @@ const metadata = {
 </Layout>
 
 <script>
-//<![CDATA[
   const senderData = new Map();
-  const questionCounters = {
-    'google': 1,
-    'm365': 1,
-    'sendgrid': 2,
-    'mailchimp': 1,
-    'activecampaign': 2,
-    'custom': 0
-  };
 
   function hideQuestion(id) {
     document.getElementById(id).classList.add('hidden');
   }
 
-  function showMarketingDropdown() {
-    document.getElementById('marketing-dropdown').classList.remove('hidden');
-  }
-
-  function addGoogle() {
-    if (!senderData.has('google')) {
-      senderData.set('google', { entry: 'include:_spf.google.com', cost: 1 });
-      updateCounter();
-      hideQuestion('question-google');
-    }
-  }
-
-  function addM365() {
-    if (!senderData.has('m365')) {
-      senderData.set('m365', { entry: 'include:spf.protection.outlook.com', cost: 1 });
-      updateCounter();
-      hideQuestion('question-m365');
-    }
-  }
-
-  function addMarketingPlatform(value) {
-    if (!value || senderData.has('marketing')) return;
-    
-    const [name, entry, costStr] = value.split('|');
-    const cost = parseInt(costStr, 10);
-    
-    if (name === 'custom-ip') {
-      // Show the custom IP question
-      document.getElementById('question-custom').classList.remove('hidden');
-      document.getElementById('question-marketing').classList.add('hidden');
-      return;
-    }
-    
-    senderData.set('marketing', { entry, cost });
+  function addSender(key, entry, cost) {
+    if (senderData.has(key)) return;
+    senderData.set(key, { entry, cost });
     updateCounter();
-    hideQuestion('question-marketing');
-  }
-
-  function addCustomIP() {
-    const ip = document.getElementById('custom-ip').value.trim();
-    if (!ip || senderData.has('custom-ip-added')) return;
-    
-    senderData.set('custom-ip-added', { entry: `ip4:${ip}`, cost: 0 });
-    updateCounter();
-    hideQuestion('question-custom');
   }
 
   function updateCounter() {
     let totalLookups = 0;
     let breakdownHTML = '';
-    
+
     senderData.forEach(({ entry, cost }, key) => {
       totalLookups += cost;
-      breakdownHTML += `<li><code>${entry}</code> — ${cost} lookup${cost !== 1 ? 's' : ''} (${key === 'custom-ip-added' ? 'free' : 'budget'})</li>`;
+      breakdownHTML += `<li><code>${entry}</code> — ${cost} lookup${cost !== 1 ? 's' : ''} (${cost === 0 ? 'free' : 'budget'})</li>`;
     });
 
     if (senderData.size === 0) {
@@ -224,7 +169,7 @@ const metadata = {
 
     const warning = document.getElementById('limit-warning');
     const exceeded = document.getElementById('limit-exceeded');
-    
+
     if (totalLookups >= 8 && totalLookups < 10) {
       warning.classList.remove('hidden');
       exceeded.classList.add('hidden');
@@ -237,25 +182,41 @@ const metadata = {
     }
   }
 
+  function addMarketingPlatform(value) {
+    if (!value || senderData.has('marketing')) return;
+
+    const [name, entry, costStr] = value.split('|');
+    const cost = parseInt(costStr, 10);
+
+    if (name === 'custom-ip') {
+      document.getElementById('question-marketing').classList.add('hidden');
+      return; // Custom IP question is already visible below
+    }
+
+    senderData.set('marketing', { entry, cost });
+    updateCounter();
+    hideQuestion('question-marketing');
+  }
+
   function generateRecord() {
-    const policy = document.querySelector('input[name="policy"]:checked').value;
-    let spfParts = ['v=spf1'];
-    
+    const policyEl = document.querySelector('input[name="policy"]:checked');
+    const policy = policyEl ? policyEl.value : '~all';
+    const spfParts = ['v=spf1'];
+
     senderData.forEach(({ entry }) => {
       spfParts.push(entry);
     });
-    
+
     spfParts.push(policy);
-    
-    const spfRecord = spfParts.join(' ');
-    document.getElementById('spf-record-output').textContent = spfRecord;
+
+    document.getElementById('spf-record-output').textContent = spfParts.join(' ');
     document.getElementById('output-section').classList.remove('hidden');
 
     const explanation = document.getElementById('record-explanation');
     explanation.innerHTML = '';
     senderData.forEach(({ entry }, key) => {
       let meaning = '';
-      switch(key) {
+      switch (key) {
         case 'google':
           meaning = 'authorises Google Workspace sending servers';
           break;
@@ -283,5 +244,41 @@ const metadata = {
       alert('Failed to copy. Please select and copy manually.');
     });
   }
-//]]>
+
+  // --- Event bindings (module scope; replaces all inline onclick) ---
+  document.getElementById('btn-google-yes').addEventListener('click', () => {
+    addSender('google', 'include:_spf.google.com', 1);
+    hideQuestion('question-google');
+  });
+  document.getElementById('btn-google-no').addEventListener('click', () => hideQuestion('question-google'));
+
+  document.getElementById('btn-m365-yes').addEventListener('click', () => {
+    addSender('m365', 'include:spf.protection.outlook.com', 1);
+    hideQuestion('question-m365');
+  });
+  document.getElementById('btn-m365-no').addEventListener('click', () => hideQuestion('question-m365'));
+
+  document.getElementById('btn-marketing-yes').addEventListener('click', () => {
+    document.getElementById('marketing-dropdown').classList.remove('hidden');
+  });
+  document.getElementById('btn-marketing-no').addEventListener('click', () => hideQuestion('question-marketing'));
+
+  document.getElementById('marketing-platform').addEventListener('change', (e) => {
+    addMarketingPlatform(e.target.value);
+  });
+
+  const customInput = document.getElementById('custom-ip');
+  const customBtn = document.getElementById('btn-custom-confirm');
+  customInput.addEventListener('input', () => {
+    customBtn.disabled = !customInput.value.trim();
+  });
+  customBtn.addEventListener('click', () => {
+    const ip = customInput.value.trim();
+    if (!ip) return;
+    addSender('custom-ip-added', `ip4:${ip}`, 0);
+    hideQuestion('question-custom');
+  });
+
+  document.getElementById('btn-generate').addEventListener('click', generateRecord);
+  document.getElementById('btn-copy').addEventListener('click', copyToClipboard);
 </script>
