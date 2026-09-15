@@ -106,7 +106,7 @@ platform tiers against self-hosted infrastructure plus delivery costs
 — so the comparison reflects your contact count and sending volume
 rather than generic assumptions.
 
-[Compare platform costs →](/mautic-cost-comparison)
+[Compare platform costs →](/tools/mautic-cost-comparison)
 
 One note on the figures inside: pricing tiers for hosted platforms
 change frequently. The calculator carries benchmark figures marked as
