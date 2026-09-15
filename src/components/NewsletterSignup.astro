@@ -1,0 +1,92 @@
+---
+// NewsletterSignup.astro — Field Notes signup, v1 (unwired)
+// Phase 2: wire POST to /api/contact with source marker "newsletter"
+// Placement: right column of footer, per footer layout decision
+---
+
+<section class="mx-auto max-w-xl">
+  <p class="text-sm font-semibold uppercase tracking-wider text-white">
+    Field Notes
+  </p>
+  <p class="mt-2 text-sm text-slate-300">
+    Practical email deliverability writing, roughly once a month.
+    No spam from a deliverability consultant.
+  </p>
+
+  <form
+    id="newsletter-signup"
+    action="#"
+    method="post"
+    class="mt-4 flex gap-2"
+    novalidate
+  >
+    <label for="newsletter-email" class="sr-only">Email address</label>
+    <input
+      id="newsletter-email"
+      name="email"
+      type="email"
+      required
+      placeholder="you@example.com"
+      autocomplete="email"
+      class="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
+    />
+    <!-- Honeypot for phase 2 — bots fill this, humans don't see it -->
+    <input
+      type="text"
+      name="company_website"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden"
+    />
+    <button
+      type="submit"
+      class="shrink-0 rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
+    >
+      Subscribe
+    </button>
+  </form>
+
+  <p
+    id="newsletter-status"
+    class="mt-2 hidden text-sm text-slate-400"
+    role="status"
+  >
+  </p>
+
+  <p class="mt-3 text-xs leading-relaxed text-slate-500">
+    Occasional recommendations for email tools and platforms. If I ever
+    include an affiliate link, you'll be told — the same disclosure standard
+    the site runs on. Unsubscribe any time.
+  </p>
+</section>
+
+<script>
+  const form = document.getElementById('newsletter-signup') as HTMLFormElement | null;
+  const status = document.getElementById('newsletter-status') as HTMLElement | null;
+
+  form?.addEventListener('submit', (event) => {
+    // Race-condition prevention: stop native submission first, always
+    event.preventDefault();
+
+    const input = form.querySelector<HTMLInputElement>('input[name="email"]');
+    const email = input?.value.trim() ?? '';
+
+    // Minimal client-side validation — v1 only
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!status) return;
+
+    if (!valid) {
+      status.textContent = 'Please enter a valid email address.';
+      status.classList.remove('hidden');
+      return;
+    }
+
+    // PHASE 2 GOES HERE: POST { email, source: "newsletter" } to /api/contact
+    // V1 stub — acknowledge without storing or sending anything
+    status.textContent =
+      'Noted — signups open soon. This address hasn\u2019t been stored or sent anywhere yet.';
+    status.classList.remove('hidden');
+    form.reset();
+  });
+</script>
