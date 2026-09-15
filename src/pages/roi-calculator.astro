@@ -402,19 +402,19 @@ compact={true}
       `Revenue this month: <strong>${gbp.format(revenueNow)}</strong> (${fmt(customers)} × ${gbp.format(value)})`,
     ];
 
-    const lossLines: string[] = [];
+        const lossLines: string[] = [];
     if (lossPct > 0) {
       lossLines.push(
-        `Lost to spam placement: <strong>${gbp.format(lostToPlacement)}/month</strong> — about ${fmt(Math.max(0, customersLostToPlacement))} customers who never saw the email`,
+        `Not reaching inboxes: <strong>${gbp.format(lostToPlacement)}/month</strong> — roughly ${fmt(Math.max(0, customersLostToPlacement))} recipients who never saw the email`,
       );
     }
     if (openGap > 0) {
       lossLines.push(
-        `Lost to emails nobody opened: <strong>${gbp.format(lostToOpens)}/month</strong> — about ${fmt(Math.max(0, customersLostToOpens))} customers, delivered fine but unclicked because unopened`,
+        `Below achievable open rate: <strong>${gbp.format(lostToOpens)}/month</strong> — roughly ${fmt(Math.max(0, customersLostToOpens))} recipients received the email but did not open`,
       );
     }
     if (lossLines.length === 0) {
-      lossLines.push('Neither hole is leaking at these numbers — full inbox placement and an open rate at or above the achievable benchmark.');
+      lossLines.push('No significant placement or engagement gaps detected at these numbers.');
     }
 
     let verdictHtml: string;
@@ -422,25 +422,25 @@ compact={true}
     if (lostRevenue >= 500) {
       verdictHtml = `
         <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
-          <p class="text-sm text-slate-600 dark:text-slate-300">Estimated revenue lost to poor email performance:</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Opportunity from improved inbox placement and engagement:</p>
           <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(lostRevenue)} <span class="text-base font-normal">/ month</span></p>
           <div class="text-sm text-slate-600 dark:text-slate-300 mt-3 space-y-1 text-left list-none mx-auto max-w-xl">
             ${lossLines.map((l) => `<div class="pl-1">•&nbsp; ${l}</div>`).join('')}
           </div>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A deliverability audit attacks both holes — getting your mail delivered <em>and</em> getting it opened. Fixing this starts at £150.</p>
-          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Get an audit — from £150</a>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A deliverability audit addresses both placement and engagement. Diagnostic work starts at £150.</p>
+          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Book a consultation</a>
         </div>`;
     } else if (openGap === 0 && lossPct > 0) {
       verdictHtml = `
         <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">Your open rate is already at the achievable benchmark — delivery is the only leak</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Estimated loss: ${gbp.format(lostRevenue)} per month, all of it spam placement. If your numbers are accurate, engagement isn't the problem — getting mail through is.</p>
+          <p class="font-semibold text-lg dark:text-white">Your open rate meets the achievable benchmark — improving delivery is the remaining opportunity</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Potential value: ${gbp.format(lostRevenue)} per month, all tied to inbox placement. If your numbers are accurate, engagement isn't the constraint.</p>
         </div>`;
     } else {
       verdictHtml = `
         <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">At these numbers, email performance is unlikely to be your bottleneck</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Estimated combined loss: ${gbp.format(lostRevenue)} per month. If your numbers are accurate, your list size or conversion rate probably matters more than placement or opens right now.</p>
+          <p class="font-semibold text-lg dark:text-white">At these numbers, email performance is unlikely to be your main constraint</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Potential value: ${gbp.format(lostRevenue)} per month. If your numbers are accurate, list size or conversion rate likely drives more revenue than placement or opens.</p>
         </div>`;
     }
 
