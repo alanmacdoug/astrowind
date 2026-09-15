@@ -64,11 +64,14 @@ const heroTextPadding = image ? 'pb-10 md:pb-16' : '';
         }
         <div class="max-w-3xl mx-auto">
           {
-            subtitle && (
-              <div
-                class="text-xl text-muted mb-12 dark:text-slate-300 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
-                set:html={subtitle}
-              />
+           subtitle && (
+  <div
+    class:list={[
+      'text-xl text-muted dark:text-slate-300 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
+      compact ? 'mb-6' : 'mb-12',
+    ]}
+    set:html={subtitle}
+  />
             )
           }
           {
