@@ -32,8 +32,8 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '' } = Ast
   <div
     class="relative max-w-7xl mx-auto px-4 sm:px-6 text-slate-300 intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
   >
-    <div class="grid grid-cols-12 gap-4 gap-y-8 sm:gap-8 py-8 md:py-12">
-      <div class="col-span-12 lg:col-span-3">
+    <div class="flex flex-col md:flex-row md:flex-wrap md:items-start md:justify-between gap-4 gap-y-8 sm:gap-8 py-8 md:py-12">
+      <div class="md:max-w-[220px]">
         <div class="mb-2">
           <a class="inline-block font-bold text-xl text-white" href={getHomePermalink()}>{SITE?.name}</a>
         </div>
@@ -54,7 +54,7 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '' } = Ast
       </div>
       {
         links.map(({ title, links }) => (
-          <div class="col-span-6 md:col-span-3 lg:col-span-2">
+          <div class="md:min-w-[150px]">
             <div class="text-white font-medium mb-2">{title}</div>
             {links && Array.isArray(links) && links.length > 0 && (
               <ul class="text-sm">
@@ -74,8 +74,8 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '' } = Ast
           </div>
         ))
       }
-      <!-- Field Notes newsletter signup — right quarter of footer (v1, unwired) -->
-      <div class="col-span-12 md:col-span-6 lg:col-span-3">
+      <!-- Field Notes newsletter signup — right side of footer (v1, unwired) -->
+      <div class="md:w-72">
         <NewsletterSignup />
       </div>
     </div>
