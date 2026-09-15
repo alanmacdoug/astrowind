@@ -120,9 +120,9 @@ you are rebuilding from scratch, the SPF generator walks the
 inventory-first process described above — every sender added
 deliberately, the lookup budget visible as you build.
 
-[Check your current SPF record](/tools)
+[Check your current SPF record](/tools/auth-checker)
 
-[Build an SPF record the deliberate way](/spf-generator)
+[Build an SPF record the deliberate way](/tools/spf-generator)
 
 The record you publish is a claim about your infrastructure. Make it
 a careful one.
