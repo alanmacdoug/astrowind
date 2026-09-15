@@ -102,7 +102,7 @@ platforms each bring theirs. A domain sending through four platforms
 typically has six to ten DKIM records scattered across different
 selectors, and each one matters only to the mail signed under it.
 
-The [authentication checker](/tools) probes the common selector names
+The [authentication checker](/tools/auth-checker) probes the common selector names
 and reports which resolve — a snapshot of what is live. For the
 complete inventory, your sending platforms' own settings pages
 remain the source of truth, because a valid selector with an unusual
