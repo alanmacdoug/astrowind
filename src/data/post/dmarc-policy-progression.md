@@ -106,13 +106,13 @@ impersonate you — and you receive the reports proving it happened.
 
 ## Watch your own progression
 
-The [DMARC report viewer](/dmarc-report-viewer) parses your aggregate
+The [DMARC report viewer](/tools/dmarc-report-viewer) parses your aggregate
 reports in-browser, plain-English verdicts per source — the same
 reading discipline this guide prescribes, minus the XML archaeology.
 Bring the reports to any policy change and read what the dials are
 about to affect.
 
-[Check your current DMARC policy](/tools)
+[Check your current DMARC policy](/tools/auth-checker)
 
 Enforcement is not a setting you publish; it is a journey your
 reports must clear first. Turn the dial only as fast as your own
