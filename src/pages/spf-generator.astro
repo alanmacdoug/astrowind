@@ -1,0 +1,273 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'SPF Record Generator — Build Your SPF Deliberately',
+  description:
+    'Build an SPF record from scratch, sender by sender. See the lookup budget in real time as you add each include.',
+};
+---
+
+<Layout metadata={metadata}>
+  <Hero
+    tagline="Tools"
+    title="Build your SPF record deliberately"
+    subtitle="Answer a few questions about what sends email for your domain. See the lookup budget in real time as you add each include. No auto-includes, no surprises."
+    compact={true}
+  />
+
+  <!-- Main tool section -->
+  <section class="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Introduction -->
+      <div class="mb-8 text-center">
+        <p class="text-muted">
+          Every sender confirmed here adds an entry to your SPF record. Watch the lookup budget climb as you go — 
+          the ten-lookup limit is where SPF breaks entirely.
+        </p>
+      </div>
+
+      <!-- Live lookup counter -->
+      <div id="counter-display" class="mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+        <h3 class="text-lg font-bold mb-4">Current SPF budget used: <span id="lookup-count">0</span>/10 lookups</h3>
+        <ul id="lookup-breakdown" class="space-y-2 text-sm">
+          <!-- Dynamically populated -->
+          <li class="text-muted italic">No senders added yet</li>
+        </ul>
+        <div id="limit-warning" class="hidden mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded text-sm">
+          Warning: You're approaching the lookup limit. Each platform may use additional lookups internally.
+        </div>
+        <div id="limit-exceeded" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded text-sm">
+          Alert: You've exceeded the SPF lookup limit (10). This record will fail evaluation.
+        </div>
+      </div>
+
+      <!-- Interview section -->
+      <div id="interview-section" class="space-y-6 mb-8">
+        
+        <!-- Question 1: Google Workspace -->
+        <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+          <p class="text-base font-medium mb-4">Does Google Workspace send email as your domain?</p>
+          <div class="flex gap-4">
+            <button onclick="addSender('google', '_spf.google.com', 1)" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button onclick="skipSender()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+          </div>
+        </div>
+
+        <!-- Question 2: Microsoft 365 -->
+        <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+          <p class="text-base font-medium mb-4">Does Microsoft 365 send email as your domain?</p>
+          <div class="flex gap-4">
+            <button onclick="addSender('m365', 'spf.protection.outlook.com', 1)" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button onclick="skipSender()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+          </div>
+        </div>
+
+        <!-- Question 3: Marketing platform -->
+        <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+          <p class="text-base font-medium mb-4">Does a marketing platform send email as your domain?</p>
+          <div id="marketing-dropdown" class="mb-4 hidden">
+            <select id="marketing-platform" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700">
+              <option value="">Select a platform...</option>
+              <option value="sendgrid|include:sendgrid.net|2">SendGrid</option>
+              <option value="mailchimp|include:servers.mcsv.net|1">Mailchimp</option>
+              <option value="activecampaign|include:emails.activecampaign.com|2">ActiveCampaign</option>
+              <option value="mautic|ip4 (custom)|0">Mautic (Custom SMTP)</option>
+              <option value="custom|ip4 (enter below)|0">Custom SMTP</option>
+              <option value="other|ask below|0">Other (enter below)</option>
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="toggleMarketing()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Yes</button>
+            <button onclick="skipSender()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">No</button>
+          </div>
+        </div>
+
+        <!-- Question 4: Custom IP ranges -->
+        <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+          <p class="text-base font-medium mb-4">Do you have custom servers sending as your domain?</p>
+          <input id="custom-ip" type="text" placeholder="Enter IP range (e.g., 192.0.2.0/24)" class="mb-4 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
+          <button onclick="addCustomIP()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Confirm Custom IP</button>
+        </div>
+
+        <!-- Question 5: Other services -->
+        <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+          <p class="text-base font-medium mb-4">Are there any other services that send email as your domain?</p>
+          <textarea id="other-services" placeholder="List any other senders (e.g., helpdesk, CRM, transactional email)" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700"></textarea>
+        </div>
+      </div>
+
+      <!-- Policy choice -->
+      <div id="policy-section" class="mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+        <h3 class="text-lg font-bold mb-4">What closing mechanism should your record use?</h3>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3">
+            <input type="radio" name="policy" value="~all" checked class="mt-1" />
+            <span>
+              <strong>~all (soft fail)</strong> — Recommended while testing. Unmatched mail is flagged but not rejected.
+            </span>
+          </label>
+          <label class="flex items-start gap-3">
+            <input type="radio" name="policy" value="-all" class="mt-1" />
+            <span>
+              <strong>-all (hard fail)</strong> — Only use when you're certain nothing legitimate is unaccounted for.
+            </span>
+          </label>
+        </div>
+        <button onclick="generateRecord()" class="mt-4 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded font-bold">Generate SPF Record</button>
+      </div>
+
+      <!-- Output section -->
+      <div id="output-section" class="hidden mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+        <h3 class="text-lg font-bold mb-4">Your SPF Record</h3>
+        <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded mb-4 font-mono text-sm break-all">
+          <span id="spf-record-output">v=spf1 ...</span>
+        </div>
+        <button onclick="copyToClipboard()" class="mb-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">Copy to Clipboard</button>
+        <div class="border-t pt-4 dark:border-slate-700">
+          <h4 class="font-bold mb-2">What each entry means:</h4>
+          <ul id="record-explanation" class="space-y-2 text-sm text-muted"></ul>
+        </div>
+      </div>
+
+      <!-- Upsell -->
+      <div class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+        <p class="text-muted">
+          Want to know if any of your active tools aren't listed here? An audit checks your live sending streams against your SPF record.
+          Fixed price £150, no further obligation. <a href="/contact" class="link font-medium">Book a free consultation.</a>
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Learn more section -->
+  <section class="px-4 py-8 sm:px-8 lg:px-12">
+    <div class="mx-auto max-w-4xl rounded-lg border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-xl font-bold">Want the theory behind the build?</h2>
+      <p class="text-muted">
+        Read <a href="/spf-record-deep-dive" class="link font-medium">the full guide to SPF structure and the lookup limit</a>.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const senderData = new Map();
+  const platformLookupCosts = {
+    google: 1,
+    m365: 1,
+    sendgrid: 2,
+    mailchimp: 1,
+    activecampaign: 2,
+  };
+
+  function addSender(platform, entry, lookupCost) {
+    if (!senderData.has(platform)) {
+      senderData.set(platform, { entry, lookupCost });
+      updateCounter();
+      hideInterviewStep(platform);
+    }
+  }
+
+  function skipSender() {
+    // Just continue to next question
+  }
+
+  function toggleMarketing() {
+    document.getElementById('marketing-dropdown').classList.toggle('hidden');
+  }
+
+  function addCustomIP() {
+    const ip = document.getElementById('custom-ip').value.trim();
+    if (ip && !senderData.has('custom')) {
+      senderData.set('custom', { entry: `ip4:${ip}`, lookupCost: 0 });
+      updateCounter();
+      document.querySelector('button[onclick="addCustomIP()"]').disabled = true;
+    }
+  }
+
+  function hideInterviewStep(id) {
+    // Hide the question after answering
+    const buttons = document.querySelectorAll(`button[onclick*="${id}"]`);
+    buttons.forEach(btn => btn.parentElement.classList.add('hidden'));
+  }
+
+  function updateCounter() {
+    let totalLookups = 0;
+    let breakdownHTML = '';
+    
+    senderData.forEach(({ entry, lookupCost }, key) => {
+      totalLookups += lookupCost;
+      breakdownHTML += `<li><code>${entry}</code> — ${lookupCost} lookup${lookupCost !== 1 ? 's' : ''} (${key === 'custom' ? 'free' : 'budget'})</li>`;
+    });
+
+    if (senderData.size === 0) {
+      breakdownHTML = '<li class="text-muted italic">No senders added yet</li>';
+    }
+
+    document.getElementById('lookup-count').textContent = totalLookups;
+    document.getElementById('lookup-breakdown').innerHTML = breakdownHTML;
+
+    const warning = document.getElementById('limit-warning');
+    const exceeded = document.getElementById('limit-exceeded');
+    
+    if (totalLookups >= 8 && totalLookups < 10) {
+      warning.classList.remove('hidden');
+      exceeded.classList.add('hidden');
+    } else if (totalLookups >= 10) {
+      warning.classList.add('hidden');
+      exceeded.classList.remove('hidden');
+    } else {
+      warning.classList.add('hidden');
+      exceeded.classList.add('hidden');
+    }
+  }
+
+  function generateRecord() {
+    const policy = document.querySelector('input[name="policy"]:checked').value;
+    let spfParts = ['v=spf1'];
+    
+    senderData.forEach(({ entry }) => {
+      spfParts.push(entry);
+    });
+    
+    spfParts.push(policy);
+    
+    const spfRecord = spfParts.join(' ');
+    document.getElementById('spf-record-output').textContent = spfRecord;
+    document.getElementById('output-section').classList.remove('hidden');
+
+    // Build explanation
+    const explanation = document.getElementById('record-explanation');
+    explanation.innerHTML = '';
+    senderData.forEach(({ entry, lookupCost }, key) => {
+      let meaning = '';
+      switch(key) {
+        case 'google':
+          meaning = 'authorises Google Workspace sending servers';
+          break;
+        case 'm365':
+          meaning = 'authorises Microsoft 365 sending servers';
+          break;
+        case 'custom':
+          meaning = 'authorises your custom server at this range (no lookup cost)';
+          break;
+        default:
+          meaning = `authorises ${key} sending service`;
+      }
+      explanation.innerHTML += `<li><code>${entry}</code> — ${meaning}</li>`;
+    });
+  }
+
+  function copyToClipboard() {
+    const text = document.getElementById('spf-record-output').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('SPF record copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy. Please select and copy manually.');
+    });
+  }
+</script>
