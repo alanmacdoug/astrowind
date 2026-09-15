@@ -104,7 +104,7 @@ includes to check the lookup count, probes the common DKIM selectors,
 and reads your DMARC policy — entirely in your browser, with nothing
 sent or stored anywhere.
 
-[Check your email authentication →](/tools)
+[Check your email authentication →](/tools/auth-checker)
 
 If the results surprise you, they are worth understanding before you
 act. A misconfigured fix is often worse than a known gap — and knowing
