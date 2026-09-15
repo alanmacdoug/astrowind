@@ -1,1 +1,112 @@
+---
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Hero from '~/components/widgets/Hero.astro';
+import Layout from '~/layouts/PageLayout.astro';
 
+import { getPermalink } from '~/utils/permalinks';
+
+const metadata = {
+  title: 'Free Email Tools',
+  description:
+    'Free, browser-based email tools: check domain authentication, view DMARC reports, calculate email ROI, build SPF records and compare platform costs. No signup, nothing stored.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Tools"
+    title="Free email tools, no signup"
+    subtitle="Every tool runs entirely in your browser — nothing is sent, nothing is stored. The same diagnostics and planning I run for paying clients, simplified for you to run yourself."
+    compact={true}
+  />
+
+  <!-- Tool cards -->
+
+  <section id="tool-grid" class="relative bg-slate-100 px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-6xl">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <a
+        href="/tools/auth-checker"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Email authentication checker</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Check any domain's SPF, DKIM and DMARC records — live DNS lookups, interpreted in plain English, with enforcement levels and the SPF lookup count explained.
+        </p>
+      </a>
+      <a
+        href="/tools/dmarc-report-viewer"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">DMARC report viewer</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Upload the aggregate report your inbox provider sends you — get a plain-English read on who's sending as your domain, what's passing, and what's failing.
+        </p>
+      </a>
+      <a
+        href="/tools/preflight-checklist"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Preflight checklist</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Ten checks to run before every campaign send — verified in minutes, before your sender reputation pays for the mistakes.
+        </p>
+      </a>
+      <a
+        href="/tools/roi-calculator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Email ROI calculator</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Enter your numbers and see what your email programme is worth today — and what improving open rates and inbox placement would add.
+        </p>
+      </a>
+      <a
+        href="/tools/mautic-cost-comparison"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Mautic vs ESP cost comparison</h3>
+        <p class="mt-sm mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Managed Mautic against typical ESP pricing — find the subscriber count where the crossover happens.
+        </p>
+      </a>
+      <a
+        href="/tools/spf-generator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">SPF record generator</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Build your SPF record sender by sender, with the ten-lookup budget visible as you add each include. No auto-includes, no surprises.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Book a free consultation',
+        href: getPermalink('/contact'),
+      },
+    ]}
+    title="Prefer to have it done for you?"
+    subtitle="These tools answer the common questions. When the diagnosis needs a human — interpretation, judgment, remediation — that's the consultancy."
+  />
+
+  <!-- Blog -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Straightforward guides and commentary on authentication, deliverability and overall strategy — the questions clients ask, answered in the blog."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+</Layout>
