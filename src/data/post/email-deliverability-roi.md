@@ -92,7 +92,7 @@ and estimate what small improvements would be worth. You control the
 inputs, so the results reflect your own business rather than industry
 averages that may not apply.
 
-[Calculate email ROI →](/roi-calculator)
+[Calculate email ROI →](/tools/roi-calculator)
 
 One caveat: the calculator shows potential, not certainty.
 Deliverability fixes cannot compensate for fundamentally weak offers or
