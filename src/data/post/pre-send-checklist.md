@@ -115,7 +115,7 @@ The preflight checklist below walks through each of these items with
 brief explanations and three-state verdicts. Run it before any
 significant send and save the output as your campaign audit trail.
 
-[Run the pre-flight checklist →](/preflight-checklist)
+[Run the pre-flight checklist →](/tools/preflight-checklist)
 
 Keep it simple. Run it consistently. The inbox rewards patience and
 punishes shortcuts, usually without giving you much warning either way.
