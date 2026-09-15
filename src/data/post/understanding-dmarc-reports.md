@@ -107,7 +107,7 @@ XML directly in your browser — plain-English verdicts per source,
 pass/fail breakdowns, and alignment results. Nothing is uploaded; the
 file never leaves your machine.
 
-[View your DMARC reports →](/dmarc-report-viewer)
+[View your DMARC reports →](/tools/dmarc-report-viewer)
 
 One honest caveat: a single day's report is a snapshot. The value is in
 the trend — the same senders appearing week after week, failures that
