@@ -20,11 +20,12 @@ export const headerData = {
     { text: 'Blog', href: getBlogPermalink() },
   ],
   actions: [
-    {
-      text: 'Free Consultation',
-      href: getPermalink('/contact'),
-    },
-  ],
+  {
+    text: 'Free Consultation',
+    href: getPermalink('/contact'),
+    variant: 'primary',
+  },
+],
 };
 
 export const footerData = {
