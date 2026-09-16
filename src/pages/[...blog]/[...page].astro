@@ -54,9 +54,12 @@ const metadata = {
   </Fragment>
   <Breadcrumbs bar items={breadcrumbs} />
   <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
-    <Headline subtitle="Practical email deliverability writing from twenty years behind the inbox">
-      The Blog
-    </Headline>
+    <Headline
+  subtitle="Email infrastructure and deliverability, in plain English."
+  classes={{ subtitle: 'mt-6' }}
+>
+  The Blog
+</Headline>
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
     <!--
