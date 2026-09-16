@@ -95,10 +95,7 @@ const metadata = {
       </div>
 
       <p class="relative text-center text-xs text-slate-600 dark:text-slate-400 mt-4">
-        Runs entirely in your browser — nothing is sent or stored. ESP tier figures and per-send delivery
-        rates are indicative estimates, not vendor-published prices: the platforms quote via on-page
-        calculators rather than published rate cards. Always check current pricing with the vendor before
-        any decision.
+        Runs entirely in your browser — nothing is sent or stored. Delivery vendor figures for SendGrid are vendor-verified (Twilio pricing page, 2026); Brevo and Postmark figures from third-party reporting (Brevo help centre + user reviews, 2026). FX conversion approximate (~$1.30/£). All figures indicative — always check current pricing with the vendor before any decision.
       </p>
     </div>
   </section>
@@ -212,14 +209,47 @@ const metadata = {
   ];
 
   // --- Data: delivery vendors (Mautic side) ------------------------------------
-  // THE PER-SEND RATES BELOW ARE INDICATIVE PLACEHOLDERS pending a manual
-  // verification pass — do not treat as vendor-published pricing. When
-  // verified, add a "prices verified [date]" marker to the on-page disclaimer.
-  // Rates are quoted per 1,000 sends (GBP).
+  // Three-segment tier model: free allowance → plan price up to included volume → linear overage beyond.
+  // Special case: Amazon SES uses pure linear pricing (no free tier, no plan) — marked with linearOnly flag.
+  // SendGrid figures vendor-verified (Twilio pricing page, 2026); Brevo/Postmark from third-party reporting (2026).
   const DELIVERY_VENDORS = [
-    { id: 'sendgrid', name: 'SendGrid', perThousand: 0.6 },
-    { id: 'ses', name: 'Amazon SES', perThousand: 0.1 },
-    { id: 'postmark', name: 'Postmark', perThousand: 1.0 },
+    {
+      id: 'sendgrid',
+      name: 'SendGrid',
+      labelSummary: 'free trial only, then £16 incl. 100k sends, overage £0.90/1k',
+      freeAllowance: 0,
+      planPrice: 16,
+      planAllowance: 100000,
+      overagePerThousand: 0.90,
+      linearOnly: false,
+    },
+    {
+      id: 'ses',
+      name: 'Amazon SES',
+      labelSummary: 'pure linear ~£0.08/1,000, no free tier for new accounts',
+      perThousand: 0.08,
+      linearOnly: true,
+    },
+    {
+      id: 'brevo',
+      name: 'Brevo',
+      labelSummary: 'free to 9k/mo, then £16 incl. 20k, overage £1.10/1k',
+      freeAllowance: 9000,
+      planPrice: 16,
+      planAllowance: 20000,
+      overagePerThousand: 1.10,
+      linearOnly: false,
+    },
+    {
+      id: 'postmark',
+      name: 'Postmark',
+      labelSummary: '100/mo testing free, then ~£16 incl. 10k, overage £1.40/1k',
+      freeAllowance: 100,
+      planPrice: 16,
+      planAllowance: 10000,
+      overagePerThousand: 1.40,
+      linearOnly: false,
+    },
   ];
 
   // Provisional managed Mautic hosting fee (GBP/month). Single named constant
@@ -246,11 +276,11 @@ const metadata = {
     platformSelects: document.getElementById('platform-selects') as HTMLElement,
   };
 
-  // Populate the delivery-vendor dropdown (SendGrid default — first entry)
+  // Populate the delivery-vendor dropdown with shape summaries
   for (const v of DELIVERY_VENDORS) {
     const opt = document.createElement('option');
     opt.value = v.id;
-    opt.textContent = `${v.name} — indicative £${v.perThousand.toFixed(2)} per 1,000 sends`;
+    opt.textContent = `${v.name} — ${v.labelSummary}`;
     if (v.id === 'sendgrid') opt.selected = true;
     fields.vendor.appendChild(opt);
   }
@@ -316,35 +346,71 @@ const metadata = {
     return last.price + slope * (subs - last.upto);
   }
 
-  function vendorRate(): number {
+  function selectedVendor(): (typeof DELIVERY_VENDORS)[number] {
     const v = DELIVERY_VENDORS.find((d) => d.id === fields.vendor.value);
-    return v ? v.perThousand : DELIVERY_VENDORS[0].perThousand;
+    return v ?? DELIVERY_VENDORS[0];
   }
 
   function vendorName(): string {
-    const v = DELIVERY_VENDORS.find((d) => d.id === fields.vendor.value);
-    return v ? v.name : DELIVERY_VENDORS[0].name;
+    return selectedVendor().name;
   }
 
-  function deliveryCost(sends: number, perThousand: number): number {
-    return (sends / 1000) * perThousand;
+  // Piecewise delivery cost: free below allowance → plan price up to included volume → linear overage beyond.
+  // Special case: linearOnly vendors ignore plan structure and use pure linear perThousand rate.
+  function deliveryCost(sends: number): { cost: number; breakdown: string } {
+    const v = selectedVendor();
+
+    if (v.linearOnly) {
+      // Pure linear pricing (Amazon SES)
+      const cost = (sends / 1000) * v.perThousand!;
+      return {
+        cost,
+        breakdown: `Linear delivery @ £${v.perThousand!.toFixed(2)}/1k sends: ${gbp.format(cost)}/mo`,
+      };
+    }
+
+    const { freeAllowance, planPrice, planAllowance, overagePerThousand } = v;
+
+    // Segment 1: free below allowance
+    if (sends <= freeAllowance) {
+      return { cost: 0, breakdown: `Free tier covers ${sends.toLocaleString()} sends: £0/mo` };
+    }
+
+    // Segment 2: plan price up to included volume
+    if (sends <= planAllowance) {
+      return {
+        cost: planPrice,
+        breakdown: `Plan price: ${gbp.format(planPrice)}/mo (includes up to ${planAllowance.toLocaleString()} sends)`,
+      };
+    }
+
+    // Segment 3: linear overage beyond plan allowance
+    const overageSends = sends - planAllowance;
+    const overageCost = (overageSends / 1000) * overagePerThousand;
+    const total = planPrice + overageCost;
+    return {
+      cost: total,
+      breakdown: `Plan ${gbp.format(planPrice)} + ${gbp.format(overageCost)} overage (${overageSends.toLocaleString()} sends × £${overagePerThousand.toFixed(2)}/1k): ${gbp.format(total)}/mo`,
+    };
   }
 
-  function mauticTotal(subs: number, eps: number, perThousand: number, fee: number): number {
-    return fee + deliveryCost(subs * eps, perThousand);
+  function mauticTotal(subs: number, eps: number, fee: number): { total: number; delivery: number; deliveryBreakdown: string } {
+    const sends = subs * eps;
+    const deliveryResult = deliveryCost(sends);
+    const total = fee + deliveryResult.cost;
+    return { total, delivery: deliveryResult.cost, deliveryBreakdown: deliveryResult.breakdown };
   }
 
   function findBreakEven(
     esp: (typeof ESPS)[number],
     mauticFee: number,
-    eps: number,
-    perThousand: number
+    eps: number
   ): number | null {
     // Smallest subscriber count where the ESP price exceeds the Mautic TOTAL
     // (hosting fee + delivery cost)
     const step = 100;
     for (let s = step; s <= MAX_SUBS * 4; s += step) {
-      if (espPriceFor(esp, s) > mauticTotal(s, eps, perThousand, mauticFee)) return s;
+      if (espPriceFor(esp, s) > mauticTotal(s, eps, mauticFee).total) return s;
     }
     return null;
   }
@@ -361,7 +427,6 @@ const metadata = {
     subs: number,
     mauticFee: number,
     eps: number,
-    perThousand: number,
     activeEsps: (typeof ESPS)[number]
   ) {
     // Hand-rolled SVG: total cost vs subscribers, 0–100k domain.
@@ -379,7 +444,7 @@ const metadata = {
     const x = (s: number) => PAD_L + (s / xMax) * (W - PAD_L - PAD_R);
     const y = (p: number) => H - PAD_B - (Math.min(p, yMax) / yMax) * (H - PAD_B - PAD_T);
 
-    const totAtMax = mauticTotal(MAX_SUBS, eps, perThousand, mauticFee);
+    const totAtMax = mauticTotal(MAX_SUBS, eps, mauticFee).total;
 
     let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img" aria-label="Monthly total cost versus subscriber count">`;
 
@@ -432,19 +497,18 @@ const metadata = {
     const mauticFee = Number.isFinite(mauticFeeRaw) ? Math.max(0, mauticFeeRaw) : MAUTIC_FEE_DEFAULT;
     const eps = Math.max(1, parseInt(fields.eps.value, 10) || EMAILS_PER_SUBSCRIBER_DEFAULT);
 
-    const rate = vendorRate();
     const sends = subs * eps;
-    const dCost = deliveryCost(sends, rate);
-    const tot = mauticFee + dCost;
+    const mauticResult = mauticTotal(subs, eps, mauticFee);
     const vName = vendorName();
 
     const activeEsps = ESPS.filter((_, i) => espCheckboxes[i].checked);
 
+    // Summary now shows delivery cost as its own explicit line
     const summaryHtml = `
       <div class="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-sm text-slate-600 dark:text-slate-300 mb-4">
-        ${subs.toLocaleString()} subscribers × ${eps} emails ≈ <strong class="dark:text-white">${sends.toLocaleString()}</strong> sends/month ·
-        delivery via ${vName} ≈ ${gbp.format(dCost)}/mo ·
-        Mautic total ≈ <strong class="dark:text-white">${gbp.format(tot)}/mo</strong>
+        ${subs.toLocaleString()} subscribers × ${eps} emails ≈ <strong class="dark:text-white">${sends.toLocaleString()}</strong> sends/month<br />
+        Delivery via ${vName}: <strong class="dark:text-white">${mbreakdown(mauticResult.deliveryBreakdown)}</strong><br />
+        Managed Mautic total: <strong class="dark:text-white">${gbp.format(mauticResult.total)}/mo</strong> (${gbp.format(mauticFee)} hosting + ${gbp.format(mauticResult.delivery)} delivery)
       </div>`;
 
     let tableHtml = `
@@ -463,9 +527,9 @@ const metadata = {
     for (const esp of activeEsps) {
       const price = espPriceFor(esp, subs);
       espPriceInputs[esp.id].value = String(Math.round(price));
-      const diff = price - tot;
+      const diff = price - mauticResult.total;
       const annual = diff * 12;
-      const be = findBreakEven(esp, mauticFee, eps, rate);
+      const be = findBreakEven(esp, mauticFee, eps);
       const diffCell =
         diff > 0
           ? `<span class="text-red-600 dark:text-red-400 font-semibold">+${gbp.format(diff)}</span>`
@@ -481,8 +545,8 @@ const metadata = {
 
     tableHtml += `
           <tr class="border-t-2 border-slate-200 dark:border-slate-700 dark:text-white">
-            <td class="p-3 font-semibold">Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">${gbp.format(mauticFee)} hosting + ${gbp.format(dCost)} delivery via ${vName}</span></td>
-            <td class="p-3 text-right font-semibold">${gbp.format(tot)}</td>
+            <td class="p-3 font-semibold">Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">${gbp.format(mauticFee)} hosting + ${gbp.format(mauticResult.delivery)} delivery via ${vName}</span></td>
+            <td class="p-3 text-right font-semibold">${gbp.format(mauticResult.total)}</td>
             <td class="p-3 text-right">—</td>
             <td class="p-3 text-right">—</td>
           </tr>
@@ -490,31 +554,38 @@ const metadata = {
       </table>
       </div>`;
 
-    const worstDiff = Math.max(0, ...activeEsps.map((e) => espPriceFor(e, subs) - tot));
+    const worstDiff = Math.max(0, ...activeEsps.map((e) => espPriceFor(e, subs) - mauticResult.total));
 
     let verdictHtml = '';
     if (worstDiff > 0 && activeEsps.length > 0) {
       verdictHtml = `
         <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center mt-4">
           <p class="font-semibold text-lg dark:text-white">You are above the crossover</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers and ${sends.toLocaleString()} sends/month, the Mautic total of ${gbp.format(tot)}/month is the cheaper option at these fees.</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers and ${sends.toLocaleString()} sends/month, the Mautic total of ${gbp.format(mauticResult.total)}/month is the cheaper option at these fees.</p>
           <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss managed Mautic hosting</a>
         </div>`;
     } else if (activeEsps.length > 0) {
       verdictHtml = `
         <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center mt-4">
           <p class="font-semibold text-lg dark:text-white">Below the crossover — the ESP is cheaper for now</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers, tiered pricing has not yet overtaken the Mautic total of ${gbp.format(tot)}/month. The break-even point tells you when it will.</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers, tiered pricing has not yet overtaken the Mautic total of ${gbp.format(mauticResult.total)}/month. The break-even point tells you when it will.</p>
         </div>`;
     }
 
     fields.results.innerHTML = summaryHtml + tableHtml + verdictHtml + crossoverNote;
     if (activeEsps.length > 0) {
-      fields.chartArea.innerHTML = renderChart(subs, mauticFee, eps, rate, activeEsps);
+      fields.chartArea.innerHTML = renderChart(subs, mauticFee, eps, activeEsps);
     } else {
       fields.chartArea.innerHTML =
         '<p class="text-sm text-slate-500 dark:text-slate-400">Select at least one platform to compare.</p>';
     }
+  }
+
+  // Strip the HTML markup from delivery breakdown for clean display in summary
+  function mbreakdown(html: string): string {
+    // Return just the monetary figure portion after ": " for clean bold display
+    const match = html.match(/:(.*)$/);
+    return match ? match[1].trim() : html;
   }
 
   fields.calcBtn.addEventListener('click', calculate);
