@@ -1,6 +1,7 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import Hero from '~/components/widgets/Hero.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 
 const metadata = {
   title: 'SPF Record Generator — Build Your SPF Deliberately',
@@ -22,7 +23,7 @@ const metadata = {
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="mb-8 text-center">
         <p class="text-muted">
-          Every sender confirmed here adds an entry to your SPF record. Watch the lookup budget climb as you go — 
+          Every sender confirmed here adds an entry to your SPF record. Watch the lookup budget climb as you go —
           the ten-lookup limit is where SPF breaks entirely.
         </p>
       </div>
@@ -137,36 +138,13 @@ const metadata = {
     </div>
   </section>
 
-  <!-- From the Blog section with white background to continue alternation -->
-  <section class="py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl px-6 sm:px-6">
-    <div class="mb-8">
-      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl sm:leading-none group font-heading mb-2 text-slate-900 dark:text-white">
-        From the blog
-      </h2>
-      <p class="text-slate-500 dark:text-slate-400 lg:text-sm lg:max-w-md">
-        Field notes from two decades of email infrastructure: authentication explained, deliverability debugged, and the occasional hard-won lesson committed to writing.
-      </p>
-      <a href="/blog" class="inline-block text-primary dark:text-blue-400 hover:text-primary-dark dark:hover:text-blue-300 transition mt-4">
-        View all posts »
-      </a>
-    </div>
+  <!-- Blog -->
 
-    <!-- Recent posts grid -- you can replace this with your actual blog widget if it exists -->
-    <div class="grid gap-6 md:grid-cols-2">
-      <article>
-        <a href="/spf-record-deep-dive" class="hover:underline">
-          <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white">Building an SPF Record: Structure, Includes and the Lookup Limit</h3>
-        </a>
-        <p class="text-slate-600 dark:text-slate-400">How SPF records actually work, why they break when they grow too large, and how to build one deliberately from scratch.</p>
-      </article>
-      <article>
-        <a href="/dmarc-policy-progression" class="hover:underline">
-          <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white">DMARC Policy Progression: Moving From none to quarantine to reject Safely</h3>
-        </a>
-        <p class="text-slate-600 dark:text-slate-400">The staged path from monitoring to enforcement that locks out spoofers without locking out your own invoices.</p>
-      </article>
-    </div>
-  </section>
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Straightforward guides and updates on authentication, deliverability and overall strategy."
+  />
 </Layout>
 
 <script>
