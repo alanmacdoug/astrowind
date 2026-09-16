@@ -8,7 +8,7 @@ import Hero from '~/components/widgets/Hero.astro';
 const metadata = {
   title: 'ROI Calculator',
   description:
-    'Estimate what poor email deliverability and weak open rates cost your business each month — list size, rates and customer value in, honest numbers out.',
+    'Model what your email programme earns today — and what improving open rates, click rates or conversions is worth to your business each month.',
 };
 ---
 
@@ -18,7 +18,7 @@ const metadata = {
  <Hero
     tagline="Tools"
     title="What is better email performance worth to you?"
-    subtitle="Enter your numbers and see what your email programme is worth today — and what small improvements to open rates and inbox placement would add. Conservative maths, every assumption shown."
+    subtitle="Enter your numbers and see what your email programme earns today — then test what improving each rate would be worth. Your numbers in, honest maths out."
 compact={true}
   />
 
@@ -30,20 +30,6 @@ compact={true}
         class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label class="sm:col-span-2 block">
-            <span class="block text-sm font-medium dark:text-white mb-1">Industry (pre-fills typical rates)</span>
-            <select
-              id="industry"
-              class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="other">Other / not sure</option>
-              <option value="retail">Retail & ecommerce</option>
-              <option value="saas">SaaS / software</option>
-              <option value="agency">Agency / consulting</option>
-              <option value="nonprofit">Nonprofit</option>
-            </select>
-          </label>
-
           <label class="block">
             <span class="block text-sm font-medium dark:text-white mb-1">List size (subscribers)</span>
             <input
@@ -67,7 +53,7 @@ compact={true}
             />
           </label>
 
-          <div class="sm:col-span-1">
+          <div>
             <label class="block">
               <span class="block text-sm font-medium dark:text-white mb-1">Open rate (%)</span>
               <input
@@ -80,7 +66,10 @@ compact={true}
                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </label>
-            <p id="open-benchmark-note" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5"></p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+              Platform-reported open rates are inflated by Apple Mail Privacy Protection — use your reported figure
+              and treat it as approximate.
+            </p>
           </div>
 
           <label class="block">
@@ -120,27 +109,23 @@ compact={true}
             />
           </label>
 
-          <label class="sm:col-span-2 flex items-start gap-3 mt-1">
-            <input id="unknown-loss" type="checkbox" class="mt-1 h-4 w-4" />
-            <span class="text-sm text-slate-600 dark:text-slate-300">
-              I don't know how much of my mail is going to spam — estimate it for me (uses an industry-typical 15%
-              inbox loss)
-            </span>
-          </label>
-
-          <div id="loss-input-wrapper" class="block">
+          <div>
             <label class="block">
-              <span class="block text-sm font-medium dark:text-white mb-1">Mail failing to reach the inbox (%)</span>
+              <span class="block text-sm font-medium dark:text-white mb-1">Bounce rate (%)</span>
               <input
-                id="inbox-loss"
+                id="bounce-rate"
                 type="number"
                 min="0"
                 max="100"
-                step="0.5"
-                value="15"
+                step="0.1"
+                value="2"
                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+              Bounced mail never arrives. This is kept to a minimum with good list hygiene — and a sustained high
+              bounce rate drags sender reputation, and everything above it, down with it.
+            </p>
           </div>
         </div>
 
@@ -156,10 +141,8 @@ compact={true}
       </div>
 
       <p class="relative text-center text-xs text-slate-600 dark:text-slate-400 mt-4">
-        Runs entirely in your browser — nothing is sent or stored. Pre-filled rates are drawn from published
-        platform benchmarks (Klaviyo, MailerLite, Optifai, WebFX, Plezi — retrieved Sept 2026); open-rate
-        benchmarks everywhere are inflated by Apple Mail Privacy Protection, so treat any open figure as
-        approximate. Conversion-rate pre-fills remain unsourced estimates.
+        Runs entirely in your browser — nothing is sent or stored. Default figures are generic starting points,
+        not benchmarks: replace them with your own numbers from your email platform's dashboard.
       </p>
     </div>
   </section>
@@ -171,7 +154,7 @@ compact={true}
       { variant: 'primary', text: 'Book a free consultation', href: '/contact' },
     ]}
     title="Seeing a number you don't like?"
-    subtitle="An email nobody opens earns exactly as much as one that never arrived — nothing. Both are fixable."
+    subtitle="The calculator works with the numbers your dashboard shows you. The problems that cost you money are often the ones it can't."
   />
 
   <!-- More tools -->
@@ -213,12 +196,12 @@ compact={true}
         </p>
       </a>
       <a
-        href="/tools/mautic-cost-comparison"
+        href="/tools/spf-generator"
         class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
       >
-        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">Mautic vs ESP cost comparison</h3>
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">SPF record generator</h3>
         <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Managed Mautic against typical ESP pricing — find the subscriber count where the crossover happens.
+          Build your SPF record sender by sender, watching the lookup budget as you go.
         </p>
       </a>
     </div>
@@ -238,64 +221,12 @@ compact={true}
 </Layout>
 
 <script>
-  // --- Industry pre-fill rates ---------------------------------------------------
-  // Sourced 12 Sept 2026 from published platform benchmark reports. Figures
-  // marked [DERIVED] are arithmetic combinations of two published figures
-  // (e.g. CTOR = published CTR / published open rate) — platforms publish
-  // open and click rate, not click-as-%-of-opens, so the conversion from
-  // one to the other is ours. Figures marked [PLACEHOLDER] remain
-  // unsourced. Review before the next content pass.
-  //
-  //  retail   open 30   — Klaviyo 2026 benchmark (183,000+ brands, ecommerce
-  //                        campaigns): 31% open, 1.69% click rate.
-  //           click 5.5 — [DERIVED] 1.69 / 31 (Klaviyo 2026).
-  //           conv  9   — Klaviyo 2025: click-to-conversion 9% overall,
-  //                        up 53% year-on-year.
-  //  saas     open 23   — Optifai Sales Ops Benchmark 2026 (939 B2B
-  //                        companies): SaaS open 23%.
-  //           click 14   — [DERIVED] 42 Agency B2B benchmarks 2026: SaaS CTR
-  //                        3.2% / open 23%.
-  //           conv  5    — [PLACEHOLDER] no sourced per-industry figure found.
-  //  agency   open 21   — Optifai 2026: consulting open 21%.
-  //           click 11   — Plezi research (B2B services/finance/consulting):
-  //                        average CTOR 11.35%.
-  //           conv  5    — [PLACEHOLDER].
-  //  nonprofit open 25  — WebFX 2026 industry benchmarks: nonprofits 25.2%
-  //                        open (higher figures elsewhere, e.g. ClickDimensions
-  //                        53%, are Apple-MPP-inflated; treat with caution).
-  //           click 6.8  — MailerLite 2025 (3.6M campaigns): average
-  //                        click-to-open rate 6.81% (all industries).
-  //           conv  5    — [PLACEHOLDER].
-  //  other    open 28   — MPP-adjusted all-industry real open rate; platform
-  //                        averages of 42-43% (MailerLite, HubSpot) are
-  //                        MPP-inflated by roughly 15 points.
-  //           click 6.8  — MailerLite 2025 all-industry CTOR 6.81%.
-  //           conv  5    — [PLACEHOLDER].
-  const INDUSTRY_PREFILL: Record<string, { open: number; click: number; conversion: number }> = {
-    retail: { open: 30, click: 5.5, conversion: 9 },
-    saas: { open: 23, click: 14, conversion: 5 },
-    agency: { open: 21, click: 11, conversion: 5 },
-    nonprofit: { open: 25, click: 6.8, conversion: 5 },
-    other: { open: 28, click: 6.8, conversion: 5 },
-  };
-
-  // --- Achievable open rates -----------------------------------------------------
-  // "Strong performer" targets. No source publishes a clean per-industry
-  // top-decile open rate, so these are each industry benchmark + ~15-20%
-  // relative uplift, anchored to the ecommerce campaign upper bound
-  // (Darkroom 2026: ecommerce campaigns 18-25% open, flows 40-60%) and the
-  // Sona 2026 guidance that an MPP-adjusted 30%+ open rate signals solid
-  // placement and subject-line performance. Derived targets, not sourced
-  // top-decile figures.
-  const ACHIEVABLE_OPEN: Record<string, number> = {
-    retail: 35,
-    saas: 28,
-    agency: 25,
-    nonprofit: 30,
-    other: 33,
-  };
-
-  const DEFAULT_INBOX_LOSS = 15;
+  // --- Configuration ------------------------------------------------------------
+  // Fee figures appear in site copy in several places (services page, this
+  // tool). If the package price or the trigger threshold changes, update here
+  // AND the services page in the same pass.
+  const PACKAGE_FEE = 199; // Audit + improvement plan package
+  const TRIGGER_THRESHOLD = 400; // Minimum modelled monthly upside (£) before the package CTA fires
 
   const gbp = new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -304,145 +235,219 @@ compact={true}
   });
 
   const fields = {
-    industry: document.getElementById('industry') as HTMLSelectElement,
     listSize: document.getElementById('list-size') as HTMLInputElement,
     sendFrequency: document.getElementById('send-frequency') as HTMLInputElement,
     openRate: document.getElementById('open-rate') as HTMLInputElement,
     clickRate: document.getElementById('click-rate') as HTMLInputElement,
     conversionRate: document.getElementById('conversion-rate') as HTMLInputElement,
     customerValue: document.getElementById('customer-value') as HTMLInputElement,
-    inboxLoss: document.getElementById('inbox-loss') as HTMLInputElement,
-    unknownLoss: document.getElementById('unknown-loss') as HTMLInputElement,
-    lossWrapper: document.getElementById('loss-input-wrapper') as HTMLElement,
-    benchmarkNote: document.getElementById('open-benchmark-note') as HTMLElement,
+    bounceRate: document.getElementById('bounce-rate') as HTMLInputElement,
     button: document.getElementById('calc-button') as HTMLButtonElement,
     results: document.getElementById('results') as HTMLElement,
   };
-
-  function achievableOpen(): number {
-    return ACHIEVABLE_OPEN[fields.industry.value] ?? ACHIEVABLE_OPEN.other;
-  }
-
-  function setBenchmarkNote() {
-    const achievable = achievableOpen();
-    fields.benchmarkNote.textContent =
-      "A well-run programme in this industry typically targets around " +
-      achievable +
-      "% opens. Note: platform-reported open rates are inflated by Apple Mail Privacy Protection, so treat both your figure and the benchmark as approximate.";
-  }
-
-  function applyPrefill() {
-    const preset = INDUSTRY_PREFILL[fields.industry.value] || INDUSTRY_PREFILL.other;
-    fields.openRate.value = String(preset.open);
-    fields.clickRate.value = String(preset.click);
-    fields.conversionRate.value = String(preset.conversion);
-    setBenchmarkNote();
-  }
-
-  fields.industry.addEventListener('change', applyPrefill);
-
-  fields.unknownLoss.addEventListener('change', () => {
-    fields.lossWrapper.style.display = fields.unknownLoss.checked ? 'none' : 'block';
-    if (fields.unknownLoss.checked) fields.inboxLoss.value = String(DEFAULT_INBOX_LOSS);
-  });
-
-  applyPrefill();
-  setBenchmarkNote();
 
   function num(el: HTMLInputElement, fallback: number): number {
     const v = parseFloat(el.value);
     return Number.isFinite(v) && v >= 0 ? v : fallback;
   }
 
+  // The funnel, computed from a single inputs object so sensitivity runs can
+  // substitute one variable at a time.
+  function funnel(inputs: {
+    list: number;
+    sends: number;
+    openPct: number;
+    clickPct: number;
+    convPct: number;
+    value: number;
+    bouncePct: number;
+  }) {
+    const emails = inputs.list * inputs.sends;
+    const delivered = emails * (1 - inputs.bouncePct / 100);
+    const opened = delivered * (inputs.openPct / 100);
+    const clicked = opened * (inputs.clickPct / 100);
+    const customers = clicked * (inputs.convPct / 100);
+    return { emails, delivered, opened, clicked, customers, revenue: customers * inputs.value };
+  }
+
+  // Last-calculated baseline, held for live re-running of the sensitivity
+  // block as the user edits the improvement fields.
+  let baseline: ReturnType<typeof funnel> | null = null;
+  let baselineInputs: Parameters<typeof funnel>[0] | null = null;
+
+  function recalculateSensitivities() {
+    if (!baseline || !baselineInputs) return;
+    const levers = [
+      { key: 'open', label: 'Open rate', current: baselineInputs.openPct },
+      { key: 'click', label: 'Click rate', current: baselineInputs.clickPct },
+      { key: 'conv', label: 'Conversion rate', current: baselineInputs.convPct },
+    ];
+    for (const lever of levers) {
+      const ppEl = document.getElementById(`sens-${lever.key}-pp`) as HTMLInputElement | null;
+      const outEl = document.getElementById(`sens-${lever.key}-result`) as HTMLElement | null;
+      if (!ppEl || !outEl) continue;
+      const pp = parseFloat(ppEl.value);
+      if (!Number.isFinite(pp) || pp <= 0) {
+        outEl.textContent = '—';
+        continue;
+      }
+      const mod = { ...baselineInputs };
+      if (lever.key === 'open') mod.openPct = Math.min(100, baselineInputs.openPct + pp);
+      if (lever.key === 'click') mod.clickPct = Math.min(100, baselineInputs.clickPct + pp);
+      if (lever.key === 'conv') mod.convPct = Math.min(100, baselineInputs.convPct + pp);
+      const run = funnel(mod);
+      const delta = run.revenue - baseline.revenue;
+      outEl.textContent = `${gbp.format(delta)}/month`;
+    }
+  }
+
   function calculate() {
-    const list = Math.max(0, num(fields.listSize, 0));
-    const sends = Math.max(0, num(fields.sendFrequency, 0));
-    const openPct = Math.min(100, num(fields.openRate, 0));
-    const clickPct = Math.min(100, num(fields.clickRate, 0));
-    const convPct = Math.min(100, num(fields.conversionRate, 0));
-    const value = Math.max(0, num(fields.customerValue, 0));
-    const lossPct = Math.min(100, num(fields.inboxLoss, DEFAULT_INBOX_LOSS));
-    const achievable = achievableOpen();
-
-    // Monthly funnel, with every step visible in the breakdown
-    const emails = list * sends;
-    const reached = emails * (1 - lossPct / 100);
-    const opened = reached * (openPct / 100);
-    const clicked = opened * (clickPct / 100);
-    const customers = clicked * (convPct / 100);
-    const revenueNow = customers * value;
-
-    // Hole 1: revenue from mail that never reaches the inbox.
-    // Assumes the lost mail would have performed at the sender's ACTUAL rates.
-    const lostToPlacement =
-      emails * (lossPct / 100) * (openPct / 100) * (clickPct / 100) * (convPct / 100) * value;
-    const customersLostToPlacement = emails * (lossPct / 100) * (openPct / 100) * (clickPct / 100) * (convPct / 100);
-
-    // Hole 2: revenue from delivered mail opened by nobody — the gap
-    // between the user's open rate and the achievable benchmark.
-    // Deliberately zero if they already meet or beat the benchmark.
-    const openGap = Math.max(0, achievable - openPct);
-    const lostToOpens = reached * (openGap / 100) * (clickPct / 100) * (convPct / 100) * value;
-    const customersLostToOpens = reached * (openGap / 100) * (clickPct / 100) * (convPct / 100);
-
-    const lostRevenue = lostToPlacement + lostToOpens;
+    const inputs = {
+      list: Math.max(0, num(fields.listSize, 0)),
+      sends: Math.max(0, num(fields.sendFrequency, 0)),
+      openPct: Math.min(100, num(fields.openRate, 0)),
+      clickPct: Math.min(100, num(fields.clickRate, 0)),
+      convPct: Math.min(100, num(fields.conversionRate, 0)),
+      value: Math.max(0, num(fields.customerValue, 0)),
+      bouncePct: Math.min(100, num(fields.bounceRate, 0)),
+    };
+    const run = funnel(inputs);
+    baseline = run;
+    baselineInputs = inputs;
 
     const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');
 
+    // Revenue forgone to bounced mail, at the sender's own rates — shown as a
+    // list-hygiene figure, not recoverable opportunity.
+    const bounced = run.emails * (inputs.bouncePct / 100);
+    const lostToBounces = bounced * (inputs.openPct / 100) * (inputs.clickPct / 100) * (inputs.convPct / 100) * inputs.value;
+
     const rows: string[] = [
-      `Emails sent per month: <strong>${fmt(emails)}</strong> (${fmt(list)} subscribers × ${sends} sends)`,
-      `Reaching the inbox: <strong>${fmt(reached)}</strong> (${100 - lossPct}% inbox placement)`,
-      `Opened: <strong>${fmt(opened)}</strong> (${openPct}% open rate${
-        openGap > 0
-          ? `, against an achievable <strong>${achievable}%</strong> — roughly ${fmt(reached * (achievable / 100))} opens were available`
-          : ''
-      })`,
-      `Clicked: <strong>${fmt(clicked)}</strong> (${clickPct}% of opens)`,
-      `Converted: <strong>${fmt(customers)}</strong> customers (${convPct}% of clicks)`,
-      `Revenue this month: <strong>${gbp.format(revenueNow)}</strong> (${fmt(customers)} × ${gbp.format(value)})`,
+      `Emails sent per month: <strong>${fmt(run.emails)}</strong> (${fmt(inputs.list)} subscribers × ${inputs.sends} sends)`,
+      `Reaching an inbox: <strong>${fmt(run.delivered)}</strong> (${fmt(bounced)} bounced — a list-hygiene matter, not money better sending recovers)`,
+      `Opened: <strong>${fmt(run.opened)}</strong> (${inputs.openPct}% open rate, treated as approximate)`,
+      `Clicked: <strong>${fmt(run.clicked)}</strong> (${inputs.clickPct}% of opens)`,
+      `Converted: <strong>${fmt(run.customers)}</strong> customers (${inputs.convPct}% of clicks)`,
+      `Revenue this month: <strong>${gbp.format(run.revenue)}</strong> (${fmt(run.customers)} × ${gbp.format(inputs.value)})`,
     ];
 
-        const lossLines: string[] = [];
-    if (lossPct > 0) {
-      lossLines.push(
-        `Not reaching inboxes: <strong>${gbp.format(lostToPlacement)}/month</strong> — roughly ${fmt(Math.max(0, customersLostToPlacement))} recipients who never saw the email`,
-      );
-    }
-    if (openGap > 0) {
-      lossLines.push(
-        `Below achievable open rate: <strong>${gbp.format(lostToOpens)}/month</strong> — roughly ${fmt(Math.max(0, customersLostToOpens))} recipients received the email but did not open`,
-      );
-    }
-    if (lossLines.length === 0) {
-      lossLines.push('No significant placement or engagement gaps detected at these numbers.');
-    }
+    const hygieneLine =
+      inputs.bouncePct > 0
+        ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Mail that bounced would have earned roughly ${gbp.format(lostToBounces)}/month at your current rates. That money comes back through cleaning the list, not through sending better — and a sustained high bounce rate damages the sender reputation everything above depends on.</p>`
+        : '';
 
-    let verdictHtml: string;
-
-    if (lostRevenue >= 500) {
-      verdictHtml = `
-        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
-          <p class="text-sm text-slate-600 dark:text-slate-300">Opportunity from improved inbox placement and engagement:</p>
-          <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(lostRevenue)} <span class="text-base font-normal">/ month</span></p>
-          <div class="text-sm text-slate-600 dark:text-slate-300 mt-3 space-y-1 text-left list-none mx-auto max-w-xl">
-            ${lossLines.map((l) => `<div class="pl-1">•&nbsp; ${l}</div>`).join('')}
+    // Sensitivity block: user-entered improvement in percentage points per
+    // lever, recalculated live against the stored baseline.
+    const sensRow = (key: string, label: string, current: number) => `
+      <tr>
+        <td class="py-2 pr-2 font-medium dark:text-white">${label}</td>
+        <td class="py-2 pr-2 text-slate-600 dark:text-slate-300">${current}%</td>
+        <td class="py-2 pr-2">
+          <div class="flex items-center gap-1">
+            <span class="text-slate-500 dark:text-slate-400">+</span>
+            <input
+              id="sens-${key}-pp"
+              type="number"
+              min="0.1"
+              step="0.5"
+              placeholder="5"
+              class="w-16 rounded border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <span class="text-slate-500 dark:text-slate-400 text-sm">points</span>
           </div>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A deliverability audit addresses both placement and engagement. Diagnostic work starts at £150.</p>
-          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Book a consultation</a>
-        </div>`;
-    } else if (openGap === 0 && lossPct > 0) {
-      verdictHtml = `
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">Your open rate meets the achievable benchmark — improving delivery is the remaining opportunity</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Potential value: ${gbp.format(lostRevenue)} per month, all tied to inbox placement. If your numbers are accurate, engagement isn't the constraint.</p>
-        </div>`;
-    } else {
-      verdictHtml = `
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center">
-          <p class="font-semibold text-lg dark:text-white">At these numbers, email performance is unlikely to be your main constraint</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Potential value: ${gbp.format(lostRevenue)} per month. If your numbers are accurate, list size or conversion rate likely drives more revenue than placement or opens.</p>
-        </div>`;
+        </td>
+        <td id="sens-${key}-result" class="py-2 text-right font-semibold dark:text-white whitespace-nowrap">—</td>
+      </tr>`;
+
+    const sensitivityHtml = `
+      <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mt-4">
+        <h3 class="font-bold text-lg dark:text-white mb-1">What would improvement be worth?</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">
+          Enter an improvement in percentage points for any rate and see what it earns at your numbers.
+          Each lever is tested alone.
+        </p>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <th class="pb-2">Lever</th>
+              <th class="pb-2">Current</th>
+              <th class="pb-2">Improve by</th>
+              <th class="pb-2 text-right">Extra revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sensRow('open', 'Open rate', inputs.openPct)}
+            ${sensRow('click', 'Click rate', inputs.clickPct)}
+            ${sensRow('conv', 'Conversion rate', inputs.convPct)}
+          </tbody>
+        </table>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">
+          These are your numbers, your assumptions — the calculator just does the arithmetic.
+        </p>
+      </div>`;
+
+    // Package trigger: fires only when the user's own modelled improvement on
+    // a single lever clears the threshold. Below it, no pitch at all.
+    let verdictHtml: string;
+    const modelledUpsides: { label: string; delta: number }[] = [];
+
+    const trial = (mutate: (m: Parameters<typeof funnel>[0]) => void) => {
+      const ppElKeys = { open: 'open', click: 'click', conv: 'conv' } as const;
+      const pp = parseFloat(
+        (document.getElementById(`sens-${''}-pp`) as HTMLInputElement)?.value || '',
+      );
+      return null; // placeholder, replaced below
+    };
+    // (trial helper unused — trigger is evaluated on input events below)
+    void trial;
+
+    // Evaluate current sensitivity entries for the trigger
+    const evaluateTrigger = (): { label: string; delta: number } | null => {
+      if (!baselineInputs) return null;
+      const defs = [
+        { key: 'open', label: 'open rate', apply: (m: Parameters<typeof funnel>[0], pp: number) => (m.openPct = Math.min(100, m.openPct + pp)) },
+        { key: 'click', label: 'click rate', apply: (m: Parameters<typeof funnel>[0], pp: number) => (m.clickPct = Math.min(100, m.clickPct + pp)) },
+        { key: 'conv', label: 'conversion rate', apply: (m: Parameters<typeof funnel>[0], pp: number) => (m.convPct = Math.min(100, m.convPct + pp)) },
+      ];
+      let best: { label: string; delta: number } | null = null;
+      for (const d of defs) {
+        const ppEl = document.getElementById(`sens-${d.key}-pp`) as HTMLInputElement | null;
+        if (!ppEl) continue;
+        const pp = parseFloat(ppEl.value);
+        if (!Number.isFinite(pp) || pp <= 0) continue;
+        const mod = { ...baselineInputs };
+        d.apply(mod, pp);
+        const delta = funnel(mod).revenue - run.revenue;
+        modelledUpsides.push({ label: d.label, delta });
+        if (!best || delta > best.delta) best = { label: d.label, delta };
+      }
+      return best;
+    };
+
+    const triggerEl = document.createElement('div');
+    triggerEl.id = 'package-trigger';
+
+    function renderVerdict(best: { label: string; delta: number } | null) {
+      const el = document.getElementById('package-trigger');
+      if (!el) return;
+      if (best && best.delta >= TRIGGER_THRESHOLD) {
+        el.innerHTML = `
+          <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center">
+            <p class="text-sm text-slate-600 dark:text-slate-300">Improving your ${esc(best.label)} by your assumed amount is worth</p>
+            <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(best.delta)} <span class="text-base font-normal">/ month</span></p>
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A £${PACKAGE_FEE} review and strategy package — the full audit plus a prioritised plan for your domain — can help you realise improvements like this in your bottom line.</p>
+            <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Enquire about the £${PACKAGE_FEE} package</a>
+          </div>`;
+      } else {
+        el.innerHTML = `
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mt-4">
+            At these numbers, modest improvements to individual rates don't move the needle much.
+            If email isn't earning its keep, list size or customer value is likely the bigger constraint.
+          </p>`;
+      }
     }
+
+    void evaluateTrigger;
 
     fields.results.innerHTML = `
       <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
@@ -450,8 +455,27 @@ compact={true}
         <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1 list-disc pl-5">
           ${rows.map((r) => `<li>${r}</li>`).join('')}
         </ul>
+        ${hygieneLine}
       </div>
-      <div class="mt-4">${verdictHtml}</div>`;
+      ${sensitivityHtml}
+      <div id="package-trigger" class="mt-4"></div>`;
+
+    // Wire live sensitivity recalculation and the trigger re-render
+    const sensInputs = document.querySelectorAll<HTMLInputElement>('input[id^="sens-"]');
+    sensInputs.forEach((el) => {
+      el.addEventListener('input', () => {
+        recalculateSensitivities();
+        renderVerdict(evaluateTrigger());
+      });
+    });
+    recalculateSensitivities();
+    renderVerdict(evaluateTrigger());
+  }
+
+  function esc(s: string): string {
+    return s.replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
+    );
   }
 
   fields.button.addEventListener('click', calculate);
