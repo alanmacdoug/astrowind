@@ -1,6 +1,6 @@
 ---
-title: 'What a Deliverability Audit Actually Contains: Scope, Timeline, Deliverable'
-description: 'A deliverability audit is not a report nobody reads. It is a diagnosis of where your email breaks, what it costs you, and how to fix it. Here is exactly what the work contains.'
+title: "What a Deliverability Audit Actually Contains: Scope, Timeline, Deliverable"
+description: "A deliverability audit is not a report nobody reads. It is a diagnosis of where your email breaks, what it costs you, and how to fix it. Here is exactly what the work contains."
 pubDate: false
 ---
 
