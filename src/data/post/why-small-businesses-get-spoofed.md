@@ -1,6 +1,6 @@
 ---
-title: 'Why Small Businesses Get Spoofed: Business Email Compromise in Plain English'
-description: 'Scammers do not need to break into your systems to steal from your customers and suppliers. They can send email as you instead. Here is how spoofing works and how DMARC shuts it down.'
+title: "Why Small Businesses Get Spoofed: Business Email Compromise in Plain English"
+description: "Scammers do not need to break into your systems to steal from your customers and suppliers. They can send email as you instead. Here is how spoofing works and how DMARC shuts it down."
 pubDate: false
 ---
 
