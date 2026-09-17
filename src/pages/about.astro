@@ -4,7 +4,6 @@ import CallToAction from '~/components/widgets/CallToAction.astro';
 import Content from '~/components/widgets/Content.astro';
 import Features2 from '~/components/widgets/Features2.astro';
 import Hero from '~/components/widgets/Hero.astro';
-import Steps2 from '~/components/widgets/Steps2.astro';
 import Layout from '~/layouts/PageLayout.astro';
 import Steps from '~/components/widgets/Steps.astro';
 
@@ -15,7 +14,7 @@ import aboutStory from '~/assets/images/about-story.jpg';
 const metadata = {
   title: 'About',
   description:
-    'Twenty years in email infrastructure. The story behind MacDougall Systems, and how the work has evolved from the wild-west days to the AI era.',
+    'Twenty years in email infrastructure. One consultant serving clients worldwide — authentication, deliverability and marketing automation, from the wild-west era of deliverability to the AI-driven present.',
 };
 ---
 
@@ -35,7 +34,8 @@ const metadata = {
     ]}
   >
     <Fragment slot="subtitle">
-      MacDougall Systems is an email consultancy business, based in Scotland and serving clients worldwide.
+      Email infrastructure and deliverability consultancy. Based in Scotland, working with clients worldwide.
+
     </Fragment>
   </Hero>
 
@@ -76,19 +76,18 @@ const metadata = {
       <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">About MacDougall Systems</h2>
       <p>
         I started in email marketing in 2006, when in comparison to more recent times, delivery was still the wild west. Over the
-        following years I built a managed hosting and consulting business, adapting to rapidly changing technological and legal landscapes. That has never been true than it is today, with AI significantly changing how email campaigns in particular are both sent and received. 
+        following years I built a managed hosting and consulting business, adapting to rapidly changing technological and legal landscapes. The pace of that change has never been faster, with AI reshaping how email campaigns are sent and received. 
 </p>
       <br />
       <p>
-I've worked with  clients in the UK, Europe, the US and beyond, specialising in delivery systems, email authentication,
+I've worked with clients in the UK, Europe, the US and beyond, specialising in delivery systems, email authentication,
         marketing automation and strategy. MacDougall Systems is the continuation of that work: same discipline, same specialities, modern tools.
       </p>
       <br />
       <p>
         Twenty years in, the fundamentals are unchanged: authenticated mail reaches the inbox, unauthenticated
         mail doesn't. Well-managed campaigns convert; poorly managed ones don't. The difference now is that the
-        enforcement mechanisms are unforgiving, and it's hard for businesses to keep up to date with the latest
-        best practices — that's where I come in; I deal with the headaches, so you don't have to.
+        enforcement mechanisms are unforgiving, and it's hard for businesses to keep up to date with the latest best practices — that's where I come in: keeping your systems current while you run your business.
       </p>
     </Fragment>
 
@@ -172,7 +171,7 @@ I've worked with  clients in the UK, Europe, the US and beyond, specialising in 
     actions={[
       {
         variant: 'primary',
-        text: 'Book a free consultation',
+        text: 'Free consultation',
         href: getPermalink('/contact'),
       },
       { variant: 'secondary', text: 'Explore free tools', href: getPermalink('/tools') },
