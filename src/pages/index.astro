@@ -9,7 +9,7 @@ import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
-  title: 'MacDougall Systems — Email Infrastructure & Deliverability',
+  title: 'Email Infrastructure & Deliverability',
   description:
     'Twenty years of email infrastructure expertise. SPF, DKIM and DMARC audits, managed email systems, and deliverability diagnostics.',
 };
@@ -31,7 +31,7 @@ const metadata = {
   >
     <Fragment slot="subtitle">
       <p>
-Since 2006, I've designed, authenticated and repaired email systems. Authentication, sending reputation, marketing automation or overall strategy - if it affects whether your email delivers or earns its keep, it's my speciality.      </p>
+Since 2006, I've designed, authenticated and repaired email systems. Authentication, sending reputation, marketing automation or overall strategy — if it affects whether your email delivers or earns its keep, it's my speciality.      </p>
     </Fragment>
   </Hero>
 
@@ -43,7 +43,7 @@ Since 2006, I've designed, authenticated and repaired email systems. Authenticat
     <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-6xl">
       <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl">
-          Self help email diagnostic tools
+          Free email diagnostic tools
         </h2>
         <p class="mt-3 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
           A selection of tools to help you understand exactly where improvements can be made. Check
@@ -97,23 +97,23 @@ Since 2006, I've designed, authenticated and repaired email systems. Authenticat
   <Features3
     id="services"
     title="What I do"
-    subtitle="Bespoke services you can rely on."
+    subtitle="Fixed scope. Clear deliverables."
     columns={3}
     defaultIcon="tabler:point-filled"
     items={[
       {
         title: 'Email authentication',
-        description: 'SPF, DKIM and DMARC set up, audited and enforced properly — the baseline major inbox providers now demand.',
+        description: 'SPF, DKIM and DMARC set up, audited and enforced properly — the baseline big inbox providers now demand.',
         icon: 'tabler:shield-lock',
       },
       {
         title: 'Deliverability rescue',
-        description: "Your email is going to spam and you don't know why. I can diagnose the issue and fix it.",
+        description: "Your email is going to spam and you don't know why. I can diagnose the cause and fix it.",
         icon: 'tabler:mail-forward',
       },
       {
         title: 'Managed Mautic hosting',
-        description: 'Self-hosted marketing automation, either build only or fully managed service.',
+        description: 'Self-hosted marketing automation — built for you, or built and managed.',
         icon: 'tabler:server',
       },
       {
@@ -123,7 +123,7 @@ Since 2006, I've designed, authenticated and repaired email systems. Authenticat
       },
       {
         title: 'Sending infrastructure',
-        description: 'Relay setup, IP reputation management and segmented sending — newsletters, drip campaigns and transactional mail that perform.',
+        description: 'Relay setup, IP reputation management and segmented sending — newsletters, drip campaigns and transactional mail that are separated cleanly.',
         icon: 'tabler:route',
       },
       {
@@ -178,9 +178,9 @@ Since 2006, I've designed, authenticated and repaired email systems. Authenticat
 
   <CallToAction
     title="Not sure what you need? Start here"
-    subtitle="Book your free consultation with me, or use the diagnostic tools to help understand what is wrong with your email process."
+    subtitle="Book your free consultation, or use the diagnostic tools to help understand what is wrong with your email process."
     actions={[
-      { variant: 'primary', text: 'Book a Free Consultation', href: getPermalink('/contact') },
+      { variant: 'primary', text: 'Free Consultation', href: getPermalink('/contact') },
       { variant: 'secondary', text: 'Explore Free Tools', href: getPermalink('/tools') },
     ]}
   />
