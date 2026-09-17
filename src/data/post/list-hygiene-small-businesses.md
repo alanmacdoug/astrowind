@@ -1,6 +1,6 @@
 ---
-title: 'List Hygiene for Small Businesses: Why Dead Addresses Are Worse Than No List at All'
-description: 'Bigger list, more sends — that used to be the whole logic of email marketing. It no longer works like that. How to prune a list, when to do it, and why keeping dead addresses hurts you.'
+title: "List Hygiene for Small Businesses: Why Dead Addresses Are Worse Than No List at All"
+description: "Bigger list, more sends — that used to be the whole logic of email marketing. It no longer works like that. How to prune a list, when to do it, and why keeping dead addresses hurts you."
 pubDate: false
 ---
 
