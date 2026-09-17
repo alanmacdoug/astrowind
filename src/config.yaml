@@ -9,7 +9,7 @@ metadata:
   title:
     default: MacDougall Systems — Email Infrastructure & Deliverability
     template: '%s — MacDougall Systems'
-  description: 'Email infrastructure and deliverability consultancy. SPF, DKIM and DMARC audits, managed email systems, and fix-it services that keep your email out of spam.'
+  description: 'Email infrastructure and deliverability consultancy — SPF, DKIM and DMARC audits, managed email systems, and deliverability diagnostics explained in plain English.'
   robots:
     index: true
     follow: true
