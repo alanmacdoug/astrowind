@@ -110,7 +110,7 @@ const metadata = {
       if (data.ok) {
         form.innerHTML = '<p class="text-xl">Message sent. Thanks — I will get back to you within one working day.</p>';
       } else if (data.notActive) {
-        setError(setError('Sending is not switched on yet — please use the WhatsApp button above for now.' );
+        setError(setError('Sending is not switched on yet — please use the WhatsApp button above for now.');
       } else if (data.error === 'email') {
         setError('That email address does not look right — please check it and try again.');
       } else {
