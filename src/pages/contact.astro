@@ -16,7 +16,7 @@ const metadata = {
     <Hero
     tagline="Contact"
     title="Describe the problem. I'll diagnose it."
-    subtitle="Describe the problem in a paragraph or two — what's going wrong and what platform you send from. I'll be in touch to arrange your consultation."
+    subtitle="A paragraph or two — what's going wrong and what platform you send from. I'll be in touch to arrange your consultation."
     actions={[
       { variant: 'primary', text: 'Message on WhatsApp', href: 'https://wa.me/YOUR_NUMBER' },
     ]}
@@ -29,7 +29,7 @@ const metadata = {
     <div class="mx-auto max-w-2xl px-4 md:px-6 pt-4 md:pt-8 pb-12 md:pb-16 text-default relative">
       <div class="mx-auto p-6 md:p-8 rounded-md shadow-xl bg-white dark:bg-transparent dark:border dark:border-slate-600 dark:shadow-none">
         <h2 id="contact-form-heading" class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Send a message</h2>
-        <p class="text-muted mt-4 mb-8 text-xl">Fill this in and it lands in my inbox — same one-working-day reply as email.</p>
+        <p class="text-muted mt-4 mb-8 text-xl">Contact me today and I'll be in touch to discuss your issues.</p>
         <form id="contact-form" class="grid gap-6" novalidate>
           <div class="grid gap-6 sm:grid-cols-2">
             <div>
@@ -110,11 +110,11 @@ const metadata = {
       if (data.ok) {
         form.innerHTML = '<p class="text-xl">Message sent. Thanks — I will get back to you within one working day.</p>';
       } else if (data.notActive) {
-        setError('Sending is not switched on yet. Please email alan@macdougallsystems.com directly for now.');
+        setError('Sending isn't switched on yet — please use the WhatsApp button above for now.');
       } else if (data.error === 'email') {
         setError('That email address does not look right — please check it and try again.');
       } else {
-        setError('Something went wrong sending that. Please email alan@macdougallsystems.com directly.');
+        setError('Something went wrong sending that. Please try again or use the WhatsApp button above for now.');
       }
     } catch {
       setError('Network problem — please try again, or email alan@macdougallsystems.com directly.');
