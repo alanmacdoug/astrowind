@@ -29,7 +29,7 @@ const metadata = {
     <div class="mx-auto max-w-2xl px-4 md:px-6 pt-4 md:pt-8 pb-12 md:pb-16 text-default relative">
       <div class="mx-auto p-6 md:p-8 rounded-md shadow-xl bg-white dark:bg-transparent dark:border dark:border-slate-600 dark:shadow-none">
         <h2 id="contact-form-heading" class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Send a message</h2>
-        <p class="text-muted mt-4 mb-8 text-xl">Contact me today and I'll be in touch to discuss your issues.</p>
+        <p class="text-muted mt-4 mb-8 text-xl">Fill this in and I'll be in touch to arrange your consultation.</p>
         <form id="contact-form" class="grid gap-6" novalidate>
           <div class="grid gap-6 sm:grid-cols-2">
             <div>
@@ -117,7 +117,7 @@ const metadata = {
         setError('Something went wrong sending that. Please try again or use the WhatsApp button above for now.');
       }
     } catch {
-      setError('Network problem — please try again, or email alan@macdougallsystems.com directly.');
+      setError('Network problem — please try again.');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send message';
