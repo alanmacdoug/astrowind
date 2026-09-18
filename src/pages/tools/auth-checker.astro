@@ -7,7 +7,7 @@ import Features3 from '~/components/widgets/Features3.astro';
 import Hero from '~/components/widgets/Hero.astro';
 
 const metadata = {
-  title: 'Tools',
+  title: 'Email Authentication Checker — SPF, DKIM & DMARC',
   description:
     'Free client-side email authentication checker. Enter a domain to see its SPF, DKIM and DMARC posture as the major inbox providers see it — with the raw DNS records included.',
 };
@@ -97,13 +97,13 @@ compact={true}
       {
         variant: 'primary',
         target: '_blank',
-        text: 'Book a free Consultation',
+        text: 'Book Your Free Consultation',
         href: '',
       },
    
     ]}
-   title="Seeing problems in the results?"
-    subtitle="These issues are exactly what an authentication audit resolves — fixed price from £150."
+   title="Bad results?"
+    subtitle="The audit starts at £150, and the first conversation is free."
   >
     <Fragment slot="bg">
       <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
@@ -502,7 +502,7 @@ compact={true}
         body += '<p>No <code>-all</code> enforcement at the end of the record — anything not matched may still pass.</p>';
       }
 
-      // Lookup depth (merged from the old separate card)
+      // Lookup depth 
       const lookups = r.spfWalk.lookups;
       body += `<p>DNS lookups required to evaluate this record: <strong>${lookups}</strong> of 10 allowed. Beyond 10, receivers stop evaluating the record entirely.</p>`;
       if (lookups > 10) {
