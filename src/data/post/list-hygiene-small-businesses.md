@@ -1,10 +1,12 @@
----
+ ---
+publishDate: 2026-09-16
 title: "List Hygiene for Small Businesses: Why Dead Addresses Are Worse Than No List at All"
-description: "Bigger list, more sends — that used to be the whole logic of email marketing. It no longer works like that. How to prune a list, when to do it, and why keeping dead addresses hurts you."
-pubDate: false
+excerpt: "Bigger list, more sends — that used to be the whole logic of email marketing. It no longer works like that. How to prune a list, when to do it, and why keeping dead addresses hurts you."
+category: Deliverability
+tags: [list-hygiene, bounces, deliverability, email-marketing]
+author: Alan MacDougall
+draft: false
 ---
-
-# List Hygiene for Small Businesses: Why Dead Addresses Are Worse Than No List at All
 
 For a long time, the logic of email marketing was simple: every address is an asset, a bigger list is a bigger asset, and you never voluntarily throw away assets.
 
