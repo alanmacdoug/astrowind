@@ -1,10 +1,12 @@
 ---
+publishDate: 2026-09-16
 title: "Bounce Types Explained: Hard vs Soft, and What They Actually Cost You"
-description: "A bounced email looks like one lost send. It isn't. Hard vs soft bounces explained in plain English — and why your sender reputation pays for every one of them."
-pubDate: false
+excerpt: "A bounced email looks like one lost send. It isn't. Hard vs soft bounces explained in plain English — and why your sender reputation pays for every one of them."
+category: Deliverability
+tags: [bounces, list-hygiene, deliverability, sender-reputation]
+author: Alan MacDougall
+draft: false
 ---
-
-# Bounce Types Explained: Hard vs Soft, and What They Actually Cost You
 
 A bounce looks like a small thing. One email, one address, one failure message buried in a report nobody reads.
 
