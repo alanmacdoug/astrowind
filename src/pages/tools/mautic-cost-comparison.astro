@@ -95,7 +95,7 @@ const metadata = {
       </div>
 
       <p class="relative text-center text-xs text-slate-600 dark:text-slate-400 mt-4">
-        Runs entirely in your browser — nothing is sent or stored. Delivery vendor figures for SendGrid are vendor-verified (Twilio pricing page, 2026); Brevo figures from Brevo's help centre, Postmark from third-party reporting (2026). FX conversion approximate (~$1.30/£). All figures indicative — always check current pricing with the vendor before any decision.
+        Runs entirely in your browser — nothing is sent or stored. Delivery vendor figures for SendGrid are vendor-verified (Twilio pricing page, 2026); Brevo figures from Brevo's help centre, Postmark from third-party reporting (2026). ESP tier prices (Mailchimp Standard, ActiveCampaign Starter) verified September 2026 against published vendor and third-party pricing, converted from USD at ~$1.30/£; ActiveCampaign figures are annual-billing rates. Above the largest verified tier the model extrapolates — confirm exact prices in each vendor's pricing calculator. All figures indicative — always check current pricing with the vendor before any decision.
       </p>
     </div>
   </section>
@@ -175,35 +175,34 @@ const metadata = {
 
 <script>
   // --- Data: editable ESP tier pricing -----------------------------------------
-  // THE TIER FIGURES BELOW ARE INDICATIVE PLACEHOLDERS, not vendor-published
-  // prices: both platforms quote via on-page calculators rather than rate
-  // cards. Load each vendor calculator at 500 / 1,000 / 5,000 / 10,000 /
-  // 25,000 / 50,000 / 100,000 contacts (GBP) and enter the quoted monthly
-  // prices here. Add a "prices verified [date]" marker to the on-page
-  // disclaimer once done.
+  // VERIFIED ANCHORS — September 2026, converted to GBP at ~$1.30/£:
+  //   Mailchimp Standard, monthly billing: $20 @ 500 contacts, $100 @ 5k,
+  //     ~$135 @ 10k (sources: mailchimp.com/pricing via EmailToolTester /
+  //     SAAS CRM Review / Groupmail, 2026).
+  //   ActiveCampaign Starter, annual billing: $15 @ 1k, $79 @ 5k contacts
+  //     (sources: activecampaign.com/pricing via RealCostLabs / CostBench,
+  //     2026). Monthly billing runs ~25% higher; Starter is not offered
+  //     above ~25k contacts.
+  // Above the largest verified tier the model extrapolates by slope (see
+  // espPriceFor) — vendors price larger lists via on-page calculators that
+  // do not publish static figures. Check those calculators before quoting
+  // prices above 10k contacts. Tier prices remain editable on the page.
   const ESPS = [
     {
       id: 'mailchimp',
       name: 'Mailchimp (Standard plan)',
       tiers: [
-        { upto: 1000, price: 25 },
-        { upto: 5000, price: 60 },
-        { upto: 10000, price: 110 },
-        { upto: 25000, price: 210 },
-        { upto: 50000, price: 380 },
-        { upto: 100000, price: 650 },
+        { upto: 500, price: 15 },
+        { upto: 5000, price: 77 },
+        { upto: 10000, price: 104 },
       ],
     },
     {
       id: 'activecampaign',
-      name: 'ActiveCampaign (Standard plan)',
+      name: 'ActiveCampaign (Starter plan)',
       tiers: [
-        { upto: 1000, price: 35 },
-        { upto: 5000, price: 85 },
-        { upto: 10000, price: 150 },
-        { upto: 25000, price: 280 },
-        { upto: 50000, price: 500 },
-        { upto: 100000, price: 900 },
+        { upto: 1000, price: 12 },
+        { upto: 5000, price: 61 },
       ],
     },
   ];
@@ -211,7 +210,8 @@ const metadata = {
   // --- Data: delivery vendors (Mautic side) ------------------------------------
   // Three-segment tier model: free allowance → plan price up to included volume → linear overage beyond.
   // Special case: Amazon SES uses pure linear pricing (no free tier, no plan) — marked with linearOnly flag.
-  // SendGrid figures vendor-verified (Twilio pricing page, 2026); Brevo/Postmark from third-party reporting (2026).
+  // SendGrid figures vendor-verified (Twilio pricing page, 2026); Brevo from Brevo's help centre
+  // (vendor source); Postmark from third-party reporting (2026).
   const DELIVERY_VENDORS = [
     {
       id: 'sendgrid',
@@ -476,122 +476,4 @@ const metadata = {
 
     // Subscriber marker
     svg += `<line x1="${x(subs)}" y1="${PAD_T}" x2="${x(subs)}" y2="${H - PAD_B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 4"/>`;
-    svg += `<text x="${x(subs)}" y="${PAD_T + 12}" text-anchor="middle" font-size="11" fill="#0ea5e9">Your list (${subs.toLocaleString()})</text>`;
-
-    svg += '</svg>';
-    return svg;
-  }
-
-  // --- Main calculation -------------------------------------------------------------
-
-  const crossoverNote = `
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-4">
-        Delivery cost rises linearly with sends, while tiered ESP pricing jumps in steps at contact
-        thresholds — so the gap between the two opens and closes at each boundary. Read the break-even
-        figure rather than assuming the gap only widens.
-      </p>`;
-
-  function calculate() {
-    const subs = Math.max(100, parseInt(fields.subs.value, 10) || 100);
-    const mauticFeeRaw = parseFloat(fields.mauticFee.value);
-    const mauticFee = Number.isFinite(mauticFeeRaw) ? Math.max(0, mauticFeeRaw) : MAUTIC_FEE_DEFAULT;
-    const eps = Math.max(1, parseInt(fields.eps.value, 10) || EMAILS_PER_SUBSCRIBER_DEFAULT);
-
-    const sends = subs * eps;
-    const mauticResult = mauticTotal(subs, eps, mauticFee);
-    const vName = vendorName();
-
-    const activeEsps = ESPS.filter((_, i) => espCheckboxes[i].checked);
-
-    // Summary now shows delivery cost as its own explicit line
-    const summaryHtml = `
-      <div class="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-sm text-slate-600 dark:text-slate-300 mb-4">
-        ${subs.toLocaleString()} subscribers × ${eps} emails ≈ <strong class="dark:text-white">${sends.toLocaleString()}</strong> sends/month<br />
-        Delivery via ${vName}: <strong class="dark:text-white">${mbreakdown(mauticResult.deliveryBreakdown)}</strong><br />
-        Managed Mautic total: <strong class="dark:text-white">${gbp.format(mauticResult.total)}/mo</strong> (${gbp.format(mauticFee)} hosting + ${gbp.format(mauticResult.delivery)} delivery)
-      </div>`;
-
-    let tableHtml = `
-      <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="text-left border-b border-slate-200 dark:border-slate-700 dark:text-slate-300">
-            <th class="p-3">Platform</th>
-            <th class="p-3 text-right">Monthly total at ${subs.toLocaleString()} subs</th>
-            <th class="p-3 text-right">vs Mautic total</th>
-            <th class="p-3 text-right">Annual difference</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-    for (const esp of activeEsps) {
-      const price = espPriceFor(esp, subs);
-      espPriceInputs[esp.id].value = String(Math.round(price));
-      const diff = price - mauticResult.total;
-      const annual = diff * 12;
-      const be = findBreakEven(esp, mauticFee, eps);
-      const diffCell =
-        diff > 0
-          ? `<span class="text-red-600 dark:text-red-400 font-semibold">+${gbp.format(diff)}</span>`
-          : `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">${gbp.format(diff)}</span>`;
-      tableHtml += `
-          <tr class="border-b border-slate-100 dark:border-slate-800">
-            <td class="p-3 dark:text-white">${esp.name}<br /><span class="text-xs text-slate-500 dark:text-slate-400">Break-even: ${be ? be.toLocaleString() + ' subscribers' : 'never at these fees'}</span></td>
-            <td class="p-3 text-right dark:text-white">${gbp.format(price)}</td>
-            <td class="p-3 text-right">${diffCell}</td>
-            <td class="p-3 text-right dark:text-white">${gbp.format(annual)}</td>
-          </tr>`;
-    }
-
-    tableHtml += `
-          <tr class="border-t-2 border-slate-200 dark:border-slate-700 dark:text-white">
-            <td class="p-3 font-semibold">Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">${gbp.format(mauticFee)} hosting + ${gbp.format(mauticResult.delivery)} delivery via ${vName}</span></td>
-            <td class="p-3 text-right font-semibold">${gbp.format(mauticResult.total)}</td>
-            <td class="p-3 text-right">—</td>
-            <td class="p-3 text-right">—</td>
-          </tr>
-        </tbody>
-      </table>
-      </div>`;
-
-    const worstDiff = Math.max(0, ...activeEsps.map((e) => espPriceFor(e, subs) - mauticResult.total));
-
-    let verdictHtml = '';
-    if (worstDiff > 0 && activeEsps.length > 0) {
-      verdictHtml = `
-        <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center mt-4">
-          <p class="font-semibold text-lg dark:text-white">You are above the crossover</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers and ${sends.toLocaleString()} sends/month, the Mautic total of ${gbp.format(mauticResult.total)}/month is the cheaper option at these fees.</p>
-          <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss managed Mautic hosting</a>
-        </div>`;
-    } else if (activeEsps.length > 0) {
-      verdictHtml = `
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center mt-4">
-          <p class="font-semibold text-lg dark:text-white">Below the crossover — the ESP is cheaper for now</p>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ${subs.toLocaleString()} subscribers, tiered pricing has not yet overtaken the Mautic total of ${gbp.format(mauticResult.total)}/month. The break-even point tells you when it will.</p>
-        </div>`;
-    }
-
-    fields.results.innerHTML = summaryHtml + tableHtml + verdictHtml + crossoverNote;
-    if (activeEsps.length > 0) {
-      fields.chartArea.innerHTML = renderChart(subs, mauticFee, eps, activeEsps);
-    } else {
-      fields.chartArea.innerHTML =
-        '<p class="text-sm text-slate-500 dark:text-slate-400">Select at least one platform to compare.</p>';
-    }
-  }
-
-  // Strip the HTML markup from delivery breakdown for clean display in summary
-  function mbreakdown(html: string): string {
-    // Return just the monetary figure portion after ": " for clean bold display
-    const match = html.match(/:(.*)$/);
-    return match ? match[1].trim() : html;
-  }
-
-  fields.calcBtn.addEventListener('click', calculate);
-  fields.subs.addEventListener('input', calculate);
-  fields.mauticFee.addEventListener('input', calculate);
-  fields.eps.addEventListener('input', calculate);
-  fields.vendor.addEventListener('change', calculate);
-  calculate(); // initial render with defaults
-</script>
+    svg += `<text x="${x(subs)}" y="${PAD_T + 12}" text-anchor="middle" font-size="11" fill="#0ea5e9">You
