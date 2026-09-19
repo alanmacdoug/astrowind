@@ -1,4 +1,4 @@
- ---
+---
 publishDate: 2026-09-16
 title: "List Hygiene for Small Businesses: Why Dead Addresses Are Worse Than No List at All"
 excerpt: "Bigger list, more sends — that used to be the whole logic of email marketing. It no longer works like that. How to prune a list, when to do it, and why keeping dead addresses hurts you."
