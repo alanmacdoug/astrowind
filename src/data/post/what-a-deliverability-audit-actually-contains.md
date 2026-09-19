@@ -1,10 +1,12 @@
 ---
+publishDate: 2026-09-16
 title: "What a Deliverability Audit Actually Contains: Scope, Timeline, Deliverable"
-description: "A deliverability audit is not a report nobody reads. It is a diagnosis of where your email breaks, what it costs you, and how to fix it. Here is exactly what the work contains."
-pubDate: false
+excerpt: "A deliverability audit is not a report nobody reads. It is a diagnosis of where your email breaks, what it costs you, and how to fix it. Here is exactly what the work contains."
+category: Deliverability
+tags: [deliverability-audit, consulting, authentication, sender-reputation]
+author: Alan MacDougall
+draft: false
 ---
-
-# What a Deliverability Audit Actually Contains: Scope, Timeline, Deliverable
 
 When you book a deliverability audit, you're buying diagnosis. Not a long PDF that explains what deliverability is, not a checklist somebody printed and handed back to you — a working investigation into where your email breaks, why it breaks there, and exactly what fixing it involves.
 
