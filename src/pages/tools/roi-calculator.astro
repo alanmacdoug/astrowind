@@ -388,18 +388,7 @@ compact={true}
 
     // Package trigger: fires only when the user's own modelled improvement on
     // a single lever clears the threshold. Below it, no pitch at all.
-    let verdictHtml: string;
-    const modelledUpsides: { label: string; delta: number }[] = [];
 
-    const trial = (mutate: (m: Parameters<typeof funnel>[0]) => void) => {
-      const ppElKeys = { open: 'open', click: 'click', conv: 'conv' } as const;
-      const pp = parseFloat(
-        (document.getElementById(`sens-${''}-pp`) as HTMLInputElement)?.value || '',
-      );
-      return null; // placeholder, replaced below
-    };
-    // (trial helper unused — trigger is evaluated on input events below)
-    void trial;
 
     // Evaluate current sensitivity entries for the trigger
     const evaluateTrigger = (): { label: string; delta: number } | null => {
@@ -424,8 +413,7 @@ compact={true}
       return best;
     };
 
-    const triggerEl = document.createElement('div');
-    triggerEl.id = 'package-trigger';
+    
 
     function renderVerdict(best: { label: string; delta: number } | null) {
       const el = document.getElementById('package-trigger');
