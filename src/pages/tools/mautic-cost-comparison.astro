@@ -208,10 +208,6 @@ const metadata = {
   ];
 
   // --- Data: delivery vendors (Mautic side) ------------------------------------
-  // Three-segment tier model: free allowance → plan price up to included volume → linear overage beyond.
-  // Special case: Amazon SES uses pure linear pricing (no free tier, no plan) — marked with linearOnly flag.
-  // SendGrid figures vendor-verified (Twilio pricing page, 2026); Brevo from Brevo's help centre
-  // (vendor source); Postmark from third-party reporting (2026).
   const DELIVERY_VENDORS = [
     {
       id: 'sendgrid',
@@ -252,42 +248,35 @@ const metadata = {
     },
   ];
 
-  // Provisional managed Mautic hosting fee (GBP/month). Single named constant
-  // so it is easy to change; the on-page input stays editable and its markup
-  // default (75) should match this figure. Confirm with the vendor.
   const MAUTIC_FEE_DEFAULT = 75;
-
-  // Default sending-frequency assumption (emails per subscriber per month).
-  // The on-page input stays editable; its markup default (4) should match.
   const EMAILS_PER_SUBSCRIBER_DEFAULT = 4;
-
   const MAX_SUBS = 100000;
 
   // --- DOM ---------------------------------------------------------------------
 
   const fields = {
-    subs: document.getElementById('subs') as HTMLInputElement,
-    mauticFee: document.getElementById('mautic-fee') as HTMLInputElement,
-    eps: document.getElementById('eps') as HTMLInputElement,
-    vendor: document.getElementById('vendor') as HTMLSelectElement,
-    calcBtn: document.getElementById('calc-btn') as HTMLButtonElement,
-    results: document.getElementById('results') as HTMLElement,
-    chartArea: document.getElementById('chart-area') as HTMLElement,
-    platformSelects: document.getElementById('platform-selects') as HTMLElement,
+    subs: document.getElementById('subs'),
+    mauticFee: document.getElementById('mautic-fee'),
+    eps: document.getElementById('eps'),
+    vendor: document.getElementById('vendor'),
+    calcBtn: document.getElementById('calc-btn'),
+    results: document.getElementById('results'),
+    chartArea: document.getElementById('chart-area'),
+    platformSelects: document.getElementById('platform-selects'),
   };
 
   // Populate the delivery-vendor dropdown with shape summaries
   for (const v of DELIVERY_VENDORS) {
     const opt = document.createElement('option');
     opt.value = v.id;
-    opt.textContent = `${v.name} — ${v.labelSummary}`;
+    opt.textContent = v.name + ' — ' + v.labelSummary;
     if (v.id === 'sendgrid') opt.selected = true;
     fields.vendor.appendChild(opt);
   }
 
   // Build editable platform checkboxes with a tier summary and price input
-  const espCheckboxes: HTMLInputElement[] = [];
-  const espPriceInputs: Record<string, HTMLInputElement> = {};
+  const espCheckboxes = [];
+  const espPriceInputs = {};
 
   for (const esp of ESPS) {
     const wrap = document.createElement('div');
@@ -311,7 +300,7 @@ const metadata = {
     const tierSummary = document.createElement('span');
     tierSummary.className = 'block text-xs mt-1';
     tierSummary.textContent = esp.tiers
-      .map((t) => `${t.upto.toLocaleString()}+: £${t.price}/mo`)
+      .map(function(t) { return t.upto.toLocaleString() + '+: £' + t.price + '/mo'; })
       .join(' · ');
 
     const priceInput = document.createElement('input');
@@ -334,9 +323,7 @@ const metadata = {
 
   // --- Pricing functions --------------------------------------------------------
 
-  function espPriceFor(esp: (typeof ESPS)[number], subs: number): number {
-    // Lowest tier that covers the subscriber count; above the largest tier,
-    // extrapolate using the last two tiers' slope.
+  function espPriceFor(esp, subs) {
     for (const t of esp.tiers) {
       if (subs <= t.upto) return t.price;
     }
@@ -346,68 +333,59 @@ const metadata = {
     return last.price + slope * (subs - last.upto);
   }
 
-  function selectedVendor(): (typeof DELIVERY_VENDORS)[number] {
-    const v = DELIVERY_VENDORS.find((d) => d.id === fields.vendor.value);
-    return v ?? DELIVERY_VENDORS[0];
+  function selectedVendor() {
+    const v = DELIVERY_VENDORS.find(function(d) { return d.id === fields.vendor.value; });
+    return v || DELIVERY_VENDORS[0];
   }
 
-  function vendorName(): string {
+  function vendorName() {
     return selectedVendor().name;
   }
 
-  // Piecewise delivery cost: free below allowance → plan price up to included volume → linear overage beyond.
-  // Special case: linearOnly vendors ignore plan structure and use pure linear perThousand rate.
-  function deliveryCost(sends: number): { cost: number; breakdown: string } {
+  function deliveryCost(sends) {
     const v = selectedVendor();
 
     if (v.linearOnly) {
-      // Pure linear pricing (Amazon SES)
-      const cost = (sends / 1000) * v.perThousand!;
+      const cost = (sends / 1000) * v.perThousand;
       return {
-        cost,
-        breakdown: `Linear delivery @ £${v.perThousand!.toFixed(2)}/1k sends: ${gbp.format(cost)}/mo`,
+        cost: cost,
+        breakdown: 'Linear delivery @ £' + v.perThousand.toFixed(2) + '/1k sends: £' + cost.toFixed(0) + '/mo',
       };
     }
 
-    const { freeAllowance, planPrice, planAllowance, overagePerThousand } = v;
+    const freeAllowance = v.freeAllowance;
+    const planPrice = v.planPrice;
+    const planAllowance = v.planAllowance;
+    const overagePerThousand = v.overagePerThousand;
 
-    // Segment 1: free below allowance
     if (sends <= freeAllowance) {
-      return { cost: 0, breakdown: `Free tier covers ${sends.toLocaleString()} sends: £0/mo` };
+      return { cost: 0, breakdown: 'Free tier covers ' + sends.toLocaleString() + ' sends: £0/mo' };
     }
 
-    // Segment 2: plan price up to included volume
     if (sends <= planAllowance) {
       return {
         cost: planPrice,
-        breakdown: `Plan price: ${gbp.format(planPrice)}/mo (includes up to ${planAllowance.toLocaleString()} sends)`,
+        breakdown: 'Plan price: £' + planPrice + '/mo (includes up to ' + planAllowance.toLocaleString() + ' sends)',
       };
     }
 
-    // Segment 3: linear overage beyond plan allowance
     const overageSends = sends - planAllowance;
     const overageCost = (overageSends / 1000) * overagePerThousand;
     const total = planPrice + overageCost;
     return {
       cost: total,
-      breakdown: `Plan ${gbp.format(planPrice)} + ${gbp.format(overageCost)} overage (${overageSends.toLocaleString()} sends × £${overagePerThousand.toFixed(2)}/1k): ${gbp.format(total)}/mo`,
+      breakdown: 'Plan £' + planPrice + ' + £' + overageCost.toFixed(0) + ' overage (' + overageSends.toLocaleString() + ' sends × £' + overagePerThousand.toFixed(2) + '/1k): £' + total.toFixed(0) + '/mo',
     };
   }
 
-  function mauticTotal(subs: number, eps: number, fee: number): { total: number; delivery: number; deliveryBreakdown: string } {
+  function mauticTotal(subs, eps, fee) {
     const sends = subs * eps;
     const deliveryResult = deliveryCost(sends);
     const total = fee + deliveryResult.cost;
-    return { total, delivery: deliveryResult.cost, deliveryBreakdown: deliveryResult.breakdown };
+    return { total: total, delivery: deliveryResult.cost, deliveryBreakdown: deliveryResult.breakdown };
   }
 
-  function findBreakEven(
-    esp: (typeof ESPS)[number],
-    mauticFee: number,
-    eps: number
-  ): number | null {
-    // Smallest subscriber count where the ESP price exceeds the Mautic TOTAL
-    // (hosting fee + delivery cost)
+  function findBreakEven(esp, mauticFee, eps) {
     const step = 100;
     for (let s = step; s <= MAX_SUBS * 4; s += step) {
       if (espPriceFor(esp, s) > mauticTotal(s, eps, mauticFee).total) return s;
@@ -423,14 +401,7 @@ const metadata = {
     maximumFractionDigits: 0,
   });
 
-  function renderChart(
-    subs: number,
-    mauticFee: number,
-    eps: number,
-    activeEsps: (typeof ESPS)[number]
-  ) {
-    // Hand-rolled SVG: total cost vs subscribers, 0–100k domain.
-    // The Mautic line now rises gently: hosting fee + linear delivery cost.
+  function renderChart(subs, mauticFee, eps, activeEsps) {
     const W = 640;
     const H = 320;
     const PAD_L = 48;
@@ -441,39 +412,149 @@ const metadata = {
     const xMax = MAX_SUBS;
     const yMax = 1000;
 
-    const x = (s: number) => PAD_L + (s / xMax) * (W - PAD_L - PAD_R);
-    const y = (p: number) => H - PAD_B - (Math.min(p, yMax) / yMax) * (H - PAD_B - PAD_T);
+    const x = function(s) { return PAD_L + (s / xMax) * (W - PAD_L - PAD_R); };
+    const y = function(p) { return H - PAD_B - (Math.min(p, yMax) / yMax) * (H - PAD_B - PAD_T); };
 
     const totAtMax = mauticTotal(MAX_SUBS, eps, mauticFee).total;
 
-    let svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img" aria-label="Monthly total cost versus subscriber count">`;
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto" role="img" aria-label="Monthly total cost versus subscriber count">';
 
-    // Grid lines and axis labels
     for (const s of [0, 25000, 50000, 75000, 100000]) {
-      svg += `<line x1="${x(s)}" y1="${PAD_T}" x2="${x(s)}" y2="${H - PAD_B}" stroke="currentColor" stroke-opacity="0.1"/>`;
-      svg += `<text x="${x(s)}" y="${H - PAD_B + 18}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">${s / 1000}k</text>`;
+      svg += '<line x1="' + x(s) + '" y1="' + PAD_T + '" x2="' + x(s) + '" y2="' + (H - PAD_B) + '" stroke="currentColor" stroke-opacity="0.1"/>';
+      svg += '<text x="' + x(s) + '" y="' + (H - PAD_B + 18) + '" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">' + (s / 1000) + 'k</text>';
     }
     for (const p of [0, 250, 500, 750, 1000]) {
-      svg += `<line x1="${PAD_L}" y1="${y(p)}" x2="${W - PAD_R}" y2="${y(p)}" stroke="currentColor" stroke-opacity="0.1"/>`;
-      svg += `<text x="${PAD_L - 6}" y="${y(p) + 4}" text-anchor="end" font-size="11" fill="currentColor" opacity="0.6">£${p}</text>`;
+      svg += '<line x1="' + PAD_L + '" y1="' + y(p) + '" x2="' + (W - PAD_R) + '" y2="' + y(p) + '" stroke="currentColor" stroke-opacity="0.1"/>';
+      svg += '<text x="' + (PAD_L - 6) + '" y="' + (y(p) + 4) + '" text-anchor="end" font-size="11" fill="currentColor" opacity="0.6">£' + p + '</text>';
     }
 
-    // Mautic total line (hosting + delivery, rising linearly)
-    svg += `<line x1="${x(0)}" y1="${y(mauticFee)}" x2="${x(MAX_SUBS)}" y2="${y(totAtMax)}" stroke="#6d4aff" stroke-width="2.5"/>`;
-    svg += `<text x="${x(MAX_SUBS)}" y="${y(totAtMax) - 6}" text-anchor="end" font-size="11" fill="#6d4aff">Mautic total (hosting + delivery)</text>`;
+    svg += '<line x1="' + x(0) + '" y1="' + y(mauticFee) + '" x2="' + x(MAX_SUBS) + '" y2="' + y(totAtMax) + '" stroke="#6d4aff" stroke-width="2.5"/>';
+    svg += '<text x="' + x(MAX_SUBS) + '" y="' + (y(totAtMax) - 6) + '" text-anchor="end" font-size="11" fill="#6d4aff">Mautic total (hosting + delivery)</text>';
 
-    // ESP step lines
     const espColours = ['#ef4444', '#f59e0b'];
-    activeEsps.forEach((esp, i) => {
+    activeEsps.forEach(function(esp, i) {
       const colour = espColours[i % espColours.length];
-      let path = `M ${x(0)} ${y(espPriceFor(esp, 1))}`;
+      let path = 'M ' + x(0) + ' ' + y(espPriceFor(esp, 1));
       for (let s = 0; s <= xMax; s += 500) {
-        path += ` L ${x(s)} ${y(espPriceFor(esp, s))}`;
+        path += ' L ' + x(s) + ' ' + y(espPriceFor(esp, s));
       }
-      svg += `<path d="${path}" fill="none" stroke="${colour}" stroke-width="2"/>`;
-      svg += `<text x="${x(1000)}" y="${y(espPriceFor(esp, 1000)) - 8}" font-size="11" fill="${colour}">${esp.name}</text>`;
+      svg += '<path d="' + path + '" fill="none" stroke="' + colour + '" stroke-width="2"/>';
+      svg += '<text x="' + x(1000) + '" y="' + (y(espPriceFor(esp, 1000)) - 8) + '" font-size="11" fill="' + colour + '">' + esp.name + '</text>';
     });
 
-    // Subscriber marker
-    svg += `<line x1="${x(subs)}" y1="${PAD_T}" x2="${x(subs)}" y2="${H - PAD_B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 4"/>`;
-    svg += `<text x="${x(subs)}" y="${PAD_T + 12}" text-anchor="middle" font-size="11" fill="#0ea5e9">You
+    svg += '<line x1="' + x(subs) + '" y1="' + PAD_T + '" x2="' + x(subs) + '" y2="' + (H - PAD_B) + '" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    svg += '<text x="' + x(subs) + '" y="' + (PAD_T + 12) + '" text-anchor="middle" font-size="11" fill="#0ea5e9">Your list (' + subs.toLocaleString() + ')</text>';
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  // --- Main calculation -------------------------------------------------------------
+
+  const crossoverNote =
+    '<p class="text-xs text-slate-500 dark:text-slate-400 mt-4">' +
+    'Delivery cost rises linearly with sends, while tiered ESP pricing jumps in steps at contact' +
+    'thresholds — so the gap between the two opens and closes at each boundary. Read the break-even' +
+    'figure rather than assuming the gap only widens.' +
+    '</p>';
+
+  function calculate() {
+    const subs = Math.max(100, parseInt(fields.subs.value, 10) || 100);
+    const mauticFeeRaw = parseFloat(fields.mauticFee.value);
+    const mauticFee = Number.isFinite(mauticFeeRaw) ? Math.max(0, mauticFeeRaw) : MAUTIC_FEE_DEFAULT;
+    const eps = Math.max(1, parseInt(fields.eps.value, 10) || EMAILS_PER_SUBSCRIBER_DEFAULT);
+
+    const sends = subs * eps;
+    const mauticResult = mauticTotal(subs, eps, mauticFee);
+    const vName = vendorName();
+
+    const activeEsps = ESPS.filter(function(_, i) { return espCheckboxes[i].checked; });
+
+    const summaryHtml =
+      '<div class="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-sm text-slate-600 dark:text-slate-300 mb-4">' +
+      subs.toLocaleString() + ' subscribers × ' + eps + ' emails ≈ <strong class="dark:text-white">' + sends.toLocaleString() + '</strong> sends/month<br />' +
+      'Delivery via ' + vName + ': <strong class="dark:text-white">' + mbreakdown(mauticResult.deliveryBreakdown) + '</strong><br />' +
+      'Managed Mautic total: <strong class="dark:text-white">' + gbp.format(mauticResult.total) + '/mo</strong> (' + gbp.format(mauticFee) + ' hosting + ' + gbp.format(mauticResult.delivery) + ' delivery)' +
+      '</div>';
+
+    let tableHtml =
+      '<div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">' +
+      '<table class="w-full text-sm">' +
+      '<thead>' +
+      '<tr class="text-left border-b border-slate-200 dark:border-slate-700 dark:text-slate-300">' +
+      '<th class="p-3">Platform</th>' +
+      '<th class="p-3 text-right">Monthly total at ' + subs.toLocaleString() + ' subs</th>' +
+      '<th class="p-3 text-right">vs Mautic total</th>' +
+      '<th class="p-3 text-right">Annual difference</th>' +
+      '</tr>' +
+      '</thead>' +
+      '<tbody>';
+
+    for (const esp of activeEsps) {
+      const price = espPriceFor(esp, subs);
+      espPriceInputs[esp.id].value = String(Math.round(price));
+      const diff = price - mauticResult.total;
+      const annual = diff * 12;
+      const be = findBreakEven(esp, mauticFee, eps);
+      const diffCell = diff > 0
+        ? '<span class="text-red-600 dark:text-red-400 font-semibold">+' + gbp.format(diff) + '</span>'
+        : '<span class="text-emerald-600 dark:text-emerald-400 font-semibold">' + gbp.format(diff) + '</span>';
+      tableHtml +=
+        '<tr class="border-b border-slate-100 dark:border-slate-800">' +
+        '<td class="p-3 dark:text-white">' + esp.name + '<br /><span class="text-xs text-slate-500 dark:text-slate-400">Break-even: ' + (be ? be.toLocaleString() + ' subscribers' : 'never at these fees') + '</span></td>' +
+        '<td class="p-3 text-right dark:text-white">' + gbp.format(price) + '</td>' +
+        '<td class="p-3 text-right">' + diffCell + '</td>' +
+        '<td class="p-3 text-right dark:text-white">' + gbp.format(annual) + '</td>' +
+        '</tr>';
+    }
+
+    tableHtml +=
+      '<tr class="border-t-2 border-slate-200 dark:border-slate-700 dark:text-white">' +
+      '<td class="p-3 font-semibold">Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">' + gbp.format(mauticFee) + ' hosting + ' + gbp.format(mauticResult.delivery) + ' delivery via ' + vName + '</span></td>' +
+      '<td class="p-3 text-right font-semibold">' + gbp.format(mauticResult.total) + '</td>' +
+      '<td class="p-3 text-right">—</td>' +
+      '<td class="p-3 text-right">—</td>' +
+      '</tr>' +
+      '</tbody>' +
+      '</table>' +
+      '</div>';
+
+    const worstDiff = Math.max(0, ...activeEsps.map(function(e) { return espPriceFor(e, subs) - mauticResult.total; }));
+
+    let verdictHtml = '';
+    if (worstDiff > 0 && activeEsps.length > 0) {
+      verdictHtml =
+        '<div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center mt-4">' +
+        '<p class="font-semibold text-lg dark:text-white">You are above the crossover</p>' +
+        '<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ' + subs.toLocaleString() + ' subscribers and ' + sends.toLocaleString() + ' sends/month, the Mautic total of ' + gbp.format(mauticResult.total) + '/month is the cheaper option at these fees.</p>' +
+        '<a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss managed Mautic hosting</a>' +
+        '</div>';
+    } else if (activeEsps.length > 0) {
+      verdictHtml =
+        '<div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-4 text-center mt-4">' +
+        '<p class="font-semibold text-lg dark:text-white">Below the crossover — the ESP is cheaper for now</p>' +
+        '<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ' + subs.toLocaleString() + ' subscribers, tiered pricing has not yet overtaken the Mautic total of ' + gbp.format(mauticResult.total) + '/month. The break-even point tells you when it will.</p>' +
+        '</div>';
+    }
+
+    fields.results.innerHTML = summaryHtml + tableHtml + verdictHtml + crossoverNote;
+    if (activeEsps.length > 0) {
+      fields.chartArea.innerHTML = renderChart(subs, mauticFee, eps, activeEsps);
+    } else {
+      fields.chartArea.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Select at least one platform to compare.</p>';
+    }
+  }
+
+  function mbreakdown(html) {
+    const match = html.match(/:(.*)$/);
+    return match ? match[1].trim() : html;
+  }
+
+  fields.calcBtn.addEventListener('click', calculate);
+  fields.subs.addEventListener('input', calculate);
+  fields.mauticFee.addEventListener('input', calculate);
+  fields.eps.addEventListener('input', calculate);
+  fields.vendor.addEventListener('change', calculate);
+  calculate();
+</script>
+       
