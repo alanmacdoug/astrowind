@@ -3,8 +3,6 @@ import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
-import { getPermalink } from '~/utils/permalinks';
-
 const metadata = {
   title: 'Contact',
   description:
@@ -18,7 +16,7 @@ const metadata = {
     title="Describe the problem. I'll diagnose it."
     subtitle="A paragraph or two — what's going wrong and what platform you send from. I'll be in touch to arrange your consultation."
     actions={[
-      { variant: 'primary', text: 'Message on WhatsApp', href: 'https://wa.me/YOUR_NUMBER' },
+      { variant: 'primary', text: 'Send a message', href: '#contact-form-section' },
     ]}
   />
 
@@ -44,7 +42,7 @@ const metadata = {
             </div>
           </div>
           <div>
-            <label for="cf-message" class="block text-sm font-medium mb-2">Message</label>
+            <label for="cf-message" class="block text-sm mb-2">Message</label>
             <textarea id="cf-message" name="message" rows="6" required maxlength="5000"
               class="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
           </div>
@@ -84,6 +82,9 @@ const metadata = {
       email: String(fd.get('email') ?? '').trim(),
       message: String(fd.get('message') ?? '').trim(),
       website: String(fd.get('website') ?? ''),
+      // Source marker: identifies this form as the intake point
+      source: 'contact-form',
+      page: window.location.pathname,
     };
 
     const setError = (msg: string) => {
@@ -110,11 +111,11 @@ const metadata = {
       if (data.ok) {
         form.innerHTML = '<p class="text-xl">Message sent. Thanks — I will get back to you within one working day.</p>';
       } else if (data.notActive) {
-        setError("Sending is not switched on yet — please use the WhatsApp button above for now.");
+        setError('Sending is not switched on yet — please try again soon.');
       } else if (data.error === 'email') {
         setError('That email address does not look right — please check it and try again.');
       } else {
-        setError('Something went wrong sending that. Please try again or use the WhatsApp button above for now.');
+        setError('Something went wrong sending that. Please try again.');
       }
     } catch {
       setError('Network problem — please try again.');
