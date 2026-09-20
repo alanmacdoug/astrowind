@@ -5,7 +5,7 @@ layout: '~/layouts/MarkdownLayout.astro'
 
 _Last updated_: September 12, 2026
 
-These terms govern your use of this website, operated by MacDougall Systems (sole trader, based in Scotland). By using the site you accept them.
+These terms govern your use of this website, operated by MacDougall Email (sole trader, based in Scotland). By using the site you accept them.
 
 ## Use of the Site
 
