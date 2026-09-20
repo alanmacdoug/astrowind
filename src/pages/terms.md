@@ -41,4 +41,4 @@ I may update these terms; the "Last updated" date changes accordingly. Continued
 
 ## Contact
 
-Questions about these terms: **info@macdougallsystems.com**
+Questions about these terms: **info@macdougallemail.com**
