@@ -7,11 +7,12 @@ import Hero from '~/components/widgets/Hero.astro';
 const metadata = {
   title: 'The Brief',
   description:
-    'The MacDougall Email newsletter — a free weekly brief on email deliverability, plus paid tiers for tactical reporting and direct advisory access.',
+    'The MacDougall Email newsletter — a free weekly brief on email deliverability, plus a paid tier for operators who need the monthly tactical detail.',
 };
 
 // Tier data lives here so pricing/copy edits happen in one place.
 // Payment links (Stripe/Gumroad) are TODO — CTAs point to /contact until wired.
+// Wingman tier moved to services-pricing (Sept 2026) — advisory service, not newsletter content.
 const tiers = [
   {
     name: 'Free Weekly',
@@ -33,133 +34,4 @@ const tiers = [
     price: '£15',
     cadence: 'per month',
     summary:
-      'Everything in the free brief, plus a monthly tactical report for operators who need the detail.',
-    features: [
-      'Monthly deep report — benchmarks, case studies and worked configurations',
-      'The free weekly brief as standard',
-      'Cancel any time, keep what you have learned',
-    ],
-    ctaText: 'Get the Tactical Report',
-    ctaHref: '/contact', // TODO: payment link (Stripe/Gumroad)
-    highlight: true,
-  },
-  {
-    name: 'Wingman',
-    price: '£149',
-    cadence: 'per month',
-    summary:
-      'Direct WhatsApp access to an experienced email infrastructure consultant. Advice, not implementation — the decisions stay yours.',
-    features: [
-      'Ask me anything on WhatsApp about your sending, authentication or platform',
-      'Advice and guidance only — I do not log in and change your systems',
-      'Priority replies — typically same working day',
-      'Everything in the Tactical Report tier',
-    ],
-    ctaText: 'Apply for Wingman',
-    ctaHref: '/contact', // TODO: payment link or application flow — consider vetting rather than open sale
-    highlight: false,
-  },
-];
----
-
-<Layout metadata={metadata}>
-  <!-- Hero -->
-
-  <Hero
-    tagline="The Brief"
-    title="Email deliverability, without the noise"
-    subtitle="A weekly brief on what is actually happening to your email — authentication, deliverability and the infrastructure behind it. Written by someone who runs it for a living."
-    compact={true}
-  />
-
-  <!-- Tiers (slate-100) -->
-
-  <section id="tiers" class="relative bg-slate-100 dark:bg-transparent">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-5xl">
-      <div class="text-center mb-10">
-        <h2 class="text-2xl font-bold dark:text-white sm:text-3xl">Choose your level</h2>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Start free. Upgrade when the detail or the access is worth it to you.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {tiers.map((tier) => (
-          <div
-            class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
-              tier.highlight
-                ? 'bg-white dark:bg-slate-900 border-primary'
-                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
-            }`}
-          >
-            {tier.highlight && (
-              <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
-                Most Popular
-              </span>
-            )}
-            <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
-            <p class="mt-3">
-              <span class="text-3xl font-extrabold dark:text-white">{tier.price}</span>
-              <span class="text-sm text-slate-600 dark:text-slate-300"> {tier.cadence}</span>
-            </p>
-            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">{tier.summary}</p>
-            <ul class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300 flex-1">
-              {tier.features.map((feature) => (
-                <li class="flex gap-2">
-                  <span aria-hidden="true">&#10003;</span>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <a
-              href={tier.ctaHref}
-              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center`}
-            >
-              {tier.ctaText}
-            </a>
-          </div>
-        ))}
-      </div>
-
-      <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-6">
-        Prices in GBP. Payment links coming shortly — contact me in the meantime.
-      </p>
-    </div>
-  </section>
-
-  <!-- What to expect (white) -->
-
-  <section id="what-to-expect" class="relative">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">What every tier gets</h2>
-      <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
-        <p>
-          The Brief is written by me — I run email infrastructure and deliverability work daily, and
-          the newsletter is where the practical end of that work gets written down. No ghostwriters,
-          no recycled press releases.
-        </p>
-        <p>
-          Every issue connects to something you can act on: a free tool, a configuration change, a
-          check worth running. If a topic needs more depth than a weekly brief allows, that is what
-          the Tactical Report is for.
-        </p>
-        <p>
-          The Wingman tier exists because some problems do not need a project — they need someone
-          who knows the answer to tell you the answer. It is advice on WhatsApp. It is not
-          implementation, and it is not a managed service. The decisions, and the hands on the
-          keyboard, stay yours.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-
-  <CallToAction
-    actions={[
-      { variant: 'primary', text: 'Sign Up Free', href: '/contact' },
-    ]}
-    title="Start with the free weekly brief"
-    subtitle="One email a week. Useful or unsubscribe — no hard feelings either way."
-  />
-</Layout>
+      'Everything in the free
