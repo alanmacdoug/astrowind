@@ -5,7 +5,7 @@ layout: '~/layouts/MarkdownLayout.astro'
 
 _Last updated_: September 12, 2026
 
-MacDougall Systems ("I", "me") operates this website. This policy explains what personal data the site collects, why, and what your rights are. It is deliberately short, because the site's data collection is deliberately small.
+MacDougall Email ("I", "me") operates this website. This policy explains what personal data the site collects, why, and what your rights are. It is deliberately short, because the site's data collection is deliberately small.
 
 ## Summary
 
@@ -58,6 +58,6 @@ If this policy changes materially, the "Last updated" date above will change and
 
 ## Contact
 
-Questions about privacy: **info@macdougallsystems.com**
+Questions about privacy: **info@macdougallemail.com**
 
 MacDougall Systems
