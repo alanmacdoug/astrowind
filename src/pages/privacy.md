@@ -60,4 +60,4 @@ If this policy changes materially, the "Last updated" date above will change and
 
 Questions about privacy: **info@macdougallemail.com**
 
-MacDougall Systems
+MacDougall Email
