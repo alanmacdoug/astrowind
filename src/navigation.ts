@@ -2,7 +2,13 @@ import { getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
 
 export const headerData = {
   links: [
-    { text: 'Services', href: getPermalink('/services') },
+    {
+      text: 'Services',
+      links: [
+        { text: 'Services', href: getPermalink('/services') },
+        { text: 'Pricing', href: getPermalink('/services-pricing') },
+      ],
+    },
     { text: 'About', href: getPermalink('/about') },
     { text: 'Contact', href: getPermalink('/contact') },
     {
@@ -18,6 +24,7 @@ export const headerData = {
       ],
     },
     { text: 'Blog', href: getBlogPermalink() },
+    { text: 'The Brief', href: getPermalink('/brief') },
   ],
   actions: [
   {
@@ -34,9 +41,11 @@ export const footerData = {
       title: 'Site',
       links: [
         { text: 'Services', href: getPermalink('/services') },
+        { text: 'Pricing', href: getPermalink('/services-pricing') },
         { text: 'About', href: getPermalink('/about') },
         { text: 'Contact', href: getPermalink('/contact') },
         { text: 'Blog', href: getBlogPermalink() },
+        { text: 'The Brief', href: getPermalink('/brief') },
       ],
     },
     {
