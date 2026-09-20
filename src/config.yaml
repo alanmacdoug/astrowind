@@ -1,20 +1,20 @@
 site:
-  name: MacDougall Systems
-  site: 'https://astrowind.main-0dc.workers.dev'
+  name: MacDougall Email
+  site: 'https://macdougallemail.com'
   base: '/'
   trailingSlash: false
 
 # Default SEO metadata
 metadata:
   title:
-    default: MacDougall Systems — Email Infrastructure & Deliverability
-    template: '%s — MacDougall Systems'
+    default: MacDougall Email — Email Infrastructure & Deliverability
+    template: '%s — MacDougall Email'
   description: 'Email infrastructure and deliverability consultancy — SPF, DKIM and DMARC audits, managed email systems, and deliverability diagnostics explained in plain English.'
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: MacDougall Systems
+    site_name: MacDougall Email
     images:
       - url: '~/assets/images/default.png'
         width: 1200
