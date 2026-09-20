@@ -1,0 +1,154 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Hero from '~/components/widgets/Hero.astro';
+
+const metadata = {
+  title: 'Pricing',
+  description:
+    'Transparent pricing for MacDougall Systems email deliverability services — from a single-record check to ongoing advisory support.',
+};
+
+// Tier data lives here so pricing edits happen in one place. ROUGH DRAFT ONLY —
+// tier names, inclusions and prices are placeholders pending proper definition.
+// NOTE: if the final tier structure changes the £199 audit/package figure,
+// update the ROI calculator constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the
+// same pass — they are cross-referenced in that tool's config comment.
+const tiers = [
+  {
+    name: 'Tier One',
+    price: '£49',
+    cadence: 'one-off',
+    summary: 'Entry-level check. Placeholder description pending tier definition.',
+    features: [
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+    ],
+    highlight: false,
+  },
+  {
+    name: 'Tier Two',
+    price: '£99',
+    cadence: 'one-off',
+    summary: 'Placeholder description pending tier definition.',
+    features: [
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+    ],
+    highlight: false,
+  },
+  {
+    name: 'Tier Three',
+    price: '£149',
+    cadence: 'one-off',
+    summary: 'Placeholder description pending tier definition.',
+    features: [
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+      'Placeholder inclusion',
+    ],
+    highlight: true,
+  },
+  {
+    name: 'Advisory',
+    price: 'PoA',
+    cadence: 'ongoing',
+    summary: 'Consulting and advisory work scoped to your requirements — priced on application.',
+    features: [
+      'Scoped to your requirements',
+      'Direct working relationship with the consultant',
+      'Quoted before any commitment',
+    ],
+    highlight: false,
+  },
+];
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero -->
+
+  <Hero
+    tagline="Pricing"
+    title="Straightforward pricing"
+    subtitle="No hourly meters, no surprise invoices. Pick the level of help you need — if it is not listed, the advisory tier covers it."
+    compact={true}
+  />
+
+  <!-- Tiers (slate-100) -->
+
+  <section id="pricing" class="relative bg-slate-100 dark:bg-transparent">
+    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-6xl">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {tiers.map((tier) => (
+          <div
+            class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
+              tier.highlight
+                ? 'bg-white dark:bg-slate-900 border-primary'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            {tier.highlight && (
+              <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
+                Most Popular
+              </span>
+            )}
+            <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
+            <p class="mt-3">
+              <span class="text-3xl font-extrabold dark:text-white">{tier.price}</span>
+              <span class="text-sm text-slate-600 dark:text-slate-300"> {tier.cadence}</span>
+            </p>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">{tier.summary}</p>
+            <ul class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300 flex-1">
+              {tier.features.map((feature) => (
+                <li class="flex gap-2">
+                  <span aria-hidden="true">&#10003;</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="/contact"
+              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center`}
+            >
+              Enquire
+            </a>
+          </div>
+        ))}
+      </div>
+
+      <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-6">
+        Pricing shown is indicative and under review — confirm the current structure before engaging.
+      </p>
+    </div>
+  </section>
+
+  <!-- What is not priced here (white) -->
+
+  <section class="relative">
+    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Also available</h2>
+      <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
+        <p>
+          The Brief, the free and paid newsletter, is priced separately — see <a href="/brief" class="underline">The Brief</a>.
+        </p>
+        <p>
+          Every engagement starts with a short conversation about what you are trying to achieve.
+          If a fixed tier does not fit, it gets quoted properly before you commit to anything.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+
+  <CallToAction
+    actions={[
+      { variant: 'primary', text: 'Book Your Free Consultation', href: '/contact' },
+    ]}
+    title="Not sure which tier fits?"
+    subtitle="Describe the problem — I will tell you which level of help it actually needs."
+  />
+</Layout>
