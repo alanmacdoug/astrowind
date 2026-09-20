@@ -222,11 +222,8 @@ compact={true}
 
 <script>
   // --- Configuration ------------------------------------------------------------
-  // Fee figures appear in site copy in several places (services page, this
-  // tool). If the package price or the trigger threshold changes, update here
-  // AND the services page in the same pass.
-  const PACKAGE_FEE = 199; // Audit + improvement plan package
-  const TRIGGER_THRESHOLD = 400; // Minimum modelled monthly upside (£) before the package CTA fires
+  const PACKAGE_FEE = 199;
+  const TRIGGER_THRESHOLD = 400;
 
   const gbp = new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -251,8 +248,6 @@ compact={true}
     return Number.isFinite(v) && v >= 0 ? v : fallback;
   }
 
-  // The funnel, computed from a single inputs object so sensitivity runs can
-  // substitute one variable at a time.
   function funnel(inputs: {
     list: number;
     sends: number;
@@ -270,8 +265,6 @@ compact={true}
     return { emails, delivered, opened, clicked, customers, revenue: customers * inputs.value };
   }
 
-  // Last-calculated baseline, held for live re-running of the sensitivity
-  // block as the user edits the improvement fields.
   let baseline: ReturnType<typeof funnel> | null = null;
   let baselineInputs: Parameters<typeof funnel>[0] | null = null;
 
@@ -317,8 +310,6 @@ compact={true}
 
     const fmt = (n: number) => Math.round(n).toLocaleString('en-GB');
 
-    // Revenue forgone to bounced mail, at the sender's own rates — shown as a
-    // list-hygiene figure, not recoverable opportunity.
     const bounced = run.emails * (inputs.bouncePct / 100);
     const lostToBounces = bounced * (inputs.openPct / 100) * (inputs.clickPct / 100) * (inputs.convPct / 100) * inputs.value;
 
@@ -336,8 +327,6 @@ compact={true}
         ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Mail that bounced would have earned roughly ${gbp.format(lostToBounces)}/month at your current rates. That money comes back through cleaning the list, not through sending better — and a sustained high bounce rate damages the sender reputation everything above depends on.</p>`
         : '';
 
-    // Sensitivity block: user-entered improvement in percentage points per
-    // lever, recalculated live against the stored baseline.
     const sensRow = (key: string, label: string, current: number) => `
       <tr>
         <td class="py-2 pr-2 font-medium dark:text-white">${label}</td>
@@ -366,31 +355,30 @@ compact={true}
           Enter an improvement in percentage points for any rate and see what it earns at your numbers.
           Each lever is tested alone.
         </p>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              <th class="pb-2">Lever</th>
-              <th class="pb-2">Current</th>
-              <th class="pb-2">Improve by</th>
-              <th class="pb-2 text-right">Extra revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sensRow('open', 'Open rate', inputs.openPct)}
-            ${sensRow('click', 'Click rate', inputs.clickPct)}
-            ${sensRow('conv', 'Conversion rate', inputs.convPct)}
-          </tbody>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <th class="pb-2">Lever</th>
+                <th class="pb-2">Current</th>
+                <th class="pb-2">Improve by</th>
+                <th class="pb-2 text-right">Extra revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sensRow('open', 'Open rate', inputs.openPct)}
+              ${sensRow('click', 'Click rate', inputs.clickPct)}
+              ${sensRow('conv', 'Conversion rate', inputs.convPct)}
+            </tbody>
+          </table>
+        </div>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">
           These are your numbers, your assumptions — the calculator just does the arithmetic.
         </p>
       </div>`;
 
-    // Package trigger: fires only when the user's own modelled improvement on
-    // a single lever clears the threshold. Below it, no pitch at all.
+    const modelledUpsides: { label: string; delta: number }[] = [];
 
-
-    // Evaluate current sensitivity entries for the trigger
     const evaluateTrigger = (): { label: string; delta: number } | null => {
       if (!baselineInputs) return null;
       const defs = [
@@ -413,8 +401,6 @@ compact={true}
       return best;
     };
 
-    
-
     function renderVerdict(best: { label: string; delta: number } | null) {
       const el = document.getElementById('package-trigger');
       if (!el) return;
@@ -435,8 +421,6 @@ compact={true}
       }
     }
 
-    void evaluateTrigger;
-
     fields.results.innerHTML = `
       <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
         <h3 class="font-bold text-lg dark:text-white mb-2">How the estimate is built</h3>
@@ -448,7 +432,6 @@ compact={true}
       ${sensitivityHtml}
       <div id="package-trigger" class="mt-4"></div>`;
 
-    // Wire live sensitivity recalculation and the trigger re-render
     const sensInputs = document.querySelectorAll<HTMLInputElement>('input[id^="sens-"]');
     sensInputs.forEach((el) => {
       el.addEventListener('input', () => {
