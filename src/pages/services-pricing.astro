@@ -10,11 +10,12 @@ const metadata = {
     'Transparent pricing for MacDougall Systems email deliverability services — from a single-record check to ongoing advisory support.',
 };
 
-// Tier data lives here so pricing edits happen in one place. ROUGH DRAFT ONLY —
-// tier names, inclusions and prices are placeholders pending proper definition.
-// NOTE: if the final tier structure changes the £199 audit/package figure,
-// update the ROI calculator constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the
-// same pass — they are cross-referenced in that tool's config comment.
+// Tier data lives here so pricing edits happen in one place.
+// Tier One and Tier Two are PLACEHOLDERS — names, inclusions and possibly
+// prices change when the tiers are properly defined.
+// Wingman (Tier Three, £149/mo) is defined; do not confuse with the PoA tier.
+// NOTE: if the £199 audit/package figures change, update the ROI calculator
+// constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the same pass.
 const tiers = [
   {
     name: 'Tier One',
@@ -41,14 +42,16 @@ const tiers = [
     highlight: false,
   },
   {
-    name: 'Tier Three',
+    name: 'Wingman',
     price: '£149',
-    cadence: 'one-off',
-    summary: 'Placeholder description pending tier definition.',
+    cadence: 'per month',
+    summary:
+      'Direct WhatsApp access to an experienced email infrastructure consultant. Advice, not implementation — the decisions stay yours.',
     features: [
-      'Placeholder inclusion',
-      'Placeholder inclusion',
-      'Placeholder inclusion',
+      'Ask me anything on WhatsApp about your sending, authentication or platform',
+      'Advice and guidance only — I do not log in and change your systems',
+      'Priority replies — typically same working day',
+      'Limited places — advice quality depends on my availability, so capacity is capped',
     ],
     highlight: true,
   },
@@ -56,11 +59,13 @@ const tiers = [
     name: 'Advisory',
     price: 'PoA',
     cadence: 'ongoing',
-    summary: 'Consulting and advisory work scoped to your requirements — priced on application.',
+    summary:
+      'Hands-on consulting and implementation work scoped to your requirements. Priced on application.',
     features: [
-      'Scoped to your requirements',
-      'Direct working relationship with the consultant',
-      'Quoted before any commitment',
+      'Scoped engagements with defined deliverables and timelines',
+      'Configuration work performed for you, not just advised on',
+      'Full quote provided before any commitment',
+      'Includes everything Wingman deliberately excludes',
     ],
     highlight: false,
   },
@@ -125,18 +130,25 @@ const tiers = [
     </div>
   </section>
 
-  <!-- What is not priced here (white) -->
+  <!-- Wingman vs Advisory (white) -->
 
   <section class="relative">
     <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Also available</h2>
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Wingman or Advisory?</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
         <p>
-          The Brief, the free and paid newsletter, is priced separately — see <a href="/brief" class="underline">The Brief</a>.
+          Wingman is advice on WhatsApp. It is a subscription: you ask, I answer, the decisions and
+          the hands on the keyboard stay with you. Best when you know roughly what to do and want
+          an experienced opinion before you do it.
         </p>
         <p>
-          Every engagement starts with a short conversation about what you are trying to achieve.
-          If a fixed tier does not fit, it gets quoted properly before you commit to anything.
+          Advisory is work. Requirements, configuration, implementation, documentation — scoped
+          properly, quoted before anything starts, delivered by me. Best when the problem needs
+          someone to actually fix it.
+        </p>
+        <p>
+          The Brief, the free and paid newsletter, is priced separately — see
+          <a href="/brief" class="underline">The Brief</a>.
         </p>
       </div>
     </div>
