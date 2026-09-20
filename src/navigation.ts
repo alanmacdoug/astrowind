@@ -66,6 +66,6 @@ export const footerData = {
   ],
   socialLinks: [],
   footNote: `
-    MacDougall Systems — Email Infrastructure & Deliverability · © ${new Date().getFullYear()} · All rights reserved.
+    MacDougall Email — Email Infrastructure & Deliverability · © ${new Date().getFullYear()} · All rights reserved.
   `,
 };
