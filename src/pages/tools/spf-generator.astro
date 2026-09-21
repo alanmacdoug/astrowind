@@ -150,6 +150,16 @@ const metadata = {
 <script>
   const senderData = new Map();
 
+  // Escape untrusted strings before inserting into innerHTML
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function hideQuestion(id) {
     document.getElementById(id).classList.add('hidden');
   }
@@ -166,7 +176,7 @@ const metadata = {
 
     senderData.forEach(({ entry, cost }, key) => {
       totalLookups += cost;
-      breakdownHTML += `<li><code>${entry}</code> — ${cost} lookup${cost !== 1 ? 's' : ''} (${cost === 0 ? 'free' : 'budget'})</li>`;
+      breakdownHTML += `<li><code>${escapeHtml(entry)}</code> — ${cost} lookup${cost !== 1 ? 's' : ''} (${cost === 0 ? 'free' : 'budget'})</li>`;
     });
 
     if (senderData.size === 0) {
@@ -241,7 +251,7 @@ const metadata = {
         default:
           meaning = 'authorises sending service';
       }
-      explanation.innerHTML += `<li><code>${entry}</code> — ${meaning}</li>`;
+      explanation.innerHTML += `<li><code>${escapeHtml(entry)}</code> — ${meaning}</li>`;
     });
   }
 
