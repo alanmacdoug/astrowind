@@ -160,7 +160,7 @@ compact={true}
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1.3 --------------------------------------
+  // --- DMARC Aggregate Report Parser — v1.4 --------------------------------------
   // Parses standard DMARC aggregate reports (RFC 7489).
   // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
   // v1.2: sending domains rendered per source; align_fail replaced with
@@ -170,6 +170,12 @@ compact={true}
   //       message/message_header_from (that element belongs to failure
   //       reports only). Removed rua from policy details — rua is a DNS
   //       record value, never present in aggregate report XML.
+  // v1.4: ZIP handling hardened — central directory is reverse-scanned from
+  //       the end of the archive (correct ZIP topology, immune to signature
+  //       bytes occurring in compressed data), archive entries are iterated
+  //       rather than assuming a single file, and a .xml filename is
+  //       validated (case-insensitive) before extraction. Stored entries
+  //       with a non-XML filename are skipped, not parsed.
 
   const fields = {
     file: document.getElementById('report-file') as HTMLInputElement,
@@ -209,44 +215,113 @@ compact={true}
     return decompressed;
   }
 
-  // Minimal ZIP unzip — extracts the first .xml file in the archive
+  // Minimal ZIP reader — v1.4 hardened.
+  // Reverse-scans for the End Of Central Directory record, walks the central
+  // directory entries from the last entry backwards, and returns the first
+  // entry whose filename ends with .xml. Entries whose filename is not .xml
+  // are skipped; entries that require decompression are skipped with a clear
+  // error only if no usable .xml entry exists at all.
   async function unzipFirstXml(buffer: ArrayBuffer): Promise<string> {
     const decoder = new TextDecoder();
     const view = new DataView(buffer);
 
-    let cdOffset = -1;
-    for (let offset = 4; offset < buffer.byteLength - 4; offset++) {
-      if (view.getUint32(offset, true) === 0x02014b50) {
-        cdOffset = offset;
+    // --- Locate End Of Central Directory (EOCD) by scanning backwards ---
+    // EOCD signature 0x06054b50 sits at the very end of the file (within
+    // the 22-byte record plus any trailing comment). Scanning backwards
+    // from the tail is robust against signature bytes appearing inside
+    // compressed data, and finds the real EOCD rather than a mimic.
+    const minEocdOffset = Math.max(0, buffer.byteLength - 22 - 65535); // EOCD + max comment
+    let eocdOffset = -1;
+    for (let offset = buffer.byteLength - 22; offset >= minEocdOffset; offset--) {
+      if (view.getUint32(offset, true) === 0x06054b50) {
+        eocdOffset = offset;
         break;
       }
     }
-
-    if (cdOffset === -1) {
-      throw new Error('ZIP structure not recognised');
+    if (eocdOffset === -1) {
+      throw new Error('ZIP structure not recognised (no end-of-central-directory record)');
     }
 
-    const fileNameLen = view.getUint16(cdOffset + 28, true);
-    const extraLen = view.getUint16(cdOffset + 30, true);
-    const localHeaderOffset = view.getUint32(cdOffset + 42, true);
+    // --- Read central directory location from EOCD ---
+    const entryCount = view.getUint16(eocdOffset + 10, true);
+    const cdOffset = view.getUint32(eocdOffset + 16, true);
 
-    const localSig = view.getUint32(localHeaderOffset, true);
-    if (localSig !== 0x04034b50) {
-      throw new Error('Local file header signature invalid');
+    // --- Walk central directory entries, validate filenames ---
+    // Central directory file header layout (PKZIP APPNOTE):
+    //   +0  signature 0x02014b50
+    //   +28 filename length
+    //   +30 extra field length
+    //   +32 comment length
+    //   +42 local header offset
+    //   +46 filename
+    const byteView = new Uint8Array(buffer);
+    let entryOffset = cdOffset;
+    let lastNonXmlReason = '';
+    let sawEntry = false;
+
+    for (let i = 0; i < entryCount; i++) {
+      if (entryOffset + 46 > buffer.byteLength ||
+          view.getUint32(entryOffset, true) !== 0x02014b50) {
+        throw new Error('ZIP central directory is corrupt or truncated');
+      }
+      sawEntry = true;
+
+      const fileNameLen = view.getUint16(entryOffset + 28, true);
+      const extraLen = view.getUint16(entryOffset + 30, true);
+      const commentLen = view.getUint16(entryOffset + 32, true);
+      const localHeaderOffset = view.getUint32(entryOffset + 42, true);
+
+      const fileName = decoder
+        .decode(byteView.subarray(entryOffset + 46, entryOffset + 46 + fileNameLen))
+        .toLowerCase();
+
+      // --- Filename validation: only .xml entries are extracted ---
+      if (fileName.endsWith('.xml')) {
+        // --- Jump to the local file header for this entry ---
+        // Local file header layout:
+        //   +0  signature 0x04034b50
+        //   +8  compression method
+        //   +22 uncompressed size
+        //   +26 filename length
+        //   +28 extra field length
+        //   +30 data begins
+        if (localHeaderOffset + 30 > buffer.byteLength ||
+            view.getUint32(localHeaderOffset, true) !== 0x04034b50) {
+          throw new Error('Local file header signature invalid');
+        }
+
+        const localFileNameLen = view.getUint16(localHeaderOffset + 26, true);
+        const localExtraLen = view.getUint16(localHeaderOffset + 28, true);
+        const localDataOffset = localHeaderOffset + 30 + localFileNameLen + localExtraLen;
+        const uncompressedSize = view.getUint32(localHeaderOffset + 22, true);
+        const compressionMethod = view.getUint16(localHeaderOffset + 8, true);
+
+        if (compressionMethod !== 0) {
+          lastNonXmlReason = 'compressed entries inside ZIP are not supported';
+          continue; // keep looking for a stored .xml entry
+        }
+
+        if (localDataOffset + uncompressedSize > buffer.byteLength) {
+          throw new Error('ZIP entry extends beyond the archive (corrupt file)');
+        }
+
+        const dataView = new Uint8Array(buffer, localDataOffset, uncompressedSize);
+        return decoder.decode(dataView);
+      }
+
+      // Advance to the next central directory entry
+      entryOffset += 46 + fileNameLen + extraLen + commentLen;
     }
 
-    const localFileNameLen = view.getUint16(localHeaderOffset + 26, true);
-    const localExtraLen = view.getUint16(localHeaderOffset + 28, true);
-    const localDataOffset = localHeaderOffset + 30 + localFileNameLen + localExtraLen;
-    const uncompressedSize = view.getUint32(localHeaderOffset + 22, true);
-    const compressionMethod = view.getUint16(localHeaderOffset + 8, true);
-
-    if (compressionMethod !== 0) {
-      throw new Error('Compressed file inside ZIP (stored only supported)');
+    // Reached the end without extracting anything.
+    if (!sawEntry) {
+      throw new Error('ZIP archive contains no readable entries');
     }
-
-    const dataView = new Uint8Array(buffer, localDataOffset, uncompressedSize);
-    return decoder.decode(dataView);
+    throw new Error(
+      lastNonXmlReason
+        ? 'No .xml file found in this ZIP (' + lastNonXmlReason + ')'
+        : 'No .xml file found in this ZIP archive'
+    );
   }
 
   // Extract XML content from file based on extension
