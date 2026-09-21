@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build && node scripts/generate-csp-hashes.js",
+    "build": "astro build && node scripts/generate-csp-hashes.cjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "npm run check:astro && npm run check:eslint && npm run check:prettier",
