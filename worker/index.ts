@@ -1,7 +1,10 @@
+import { CSP } from './csp-generated';
+
 export interface Env {
   SENDGRID_API_KEY?: string;
   CONTACT_FROM?: string;
   CONTACT_TO?: string;
+  ASSETS: Fetcher;
 }
 
 interface Payload {
@@ -21,7 +24,11 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (request.method === 'POST' && url.pathname === '/api/contact') {
+    if (url.pathname === '/api/contact') {
+      if (request.method !== 'POST') {
+        return json({ ok: false, error: 'method_not_allowed' }, 405);
+      }
+
       let body: Payload;
       try {
         body = await request.json();
@@ -64,6 +71,16 @@ export default {
       return json({ ok: true });
     }
 
-    return json({ ok: false, error: 'not_found' }, 404);
+    // Everything else: serve the static asset, stamp the CSP header on top.
+    // The CSP is assembled at build time (worker/csp-generated.ts) because the
+    // inline-script hash list exceeds the 2000-character _headers line limit.
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    headers.set('Content-Security-Policy', CSP);
+    return new Response(assetResponse.status === 204 ? null : assetResponse.body, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers,
+    });
   },
 };
