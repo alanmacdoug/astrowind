@@ -151,11 +151,9 @@ compact={true}
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1 scaffolding ---------------------------
+  // --- DMARC Aggregate Report Parser — v1.1 --------------------------------------
   // Parses standard DMARC XML aggregate reports (RFC 7489).
-  // Handles: .xml, .xml.gz, .zip (single XML per archive)
-  // No external libraries — vanilla DOMParser + DecompressionStream for gzip +
-  // minimal ZIP unzip for central directory parsing.
+  // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
 
   const fields = {
     file: document.getElementById('report-file') as HTMLInputElement,
@@ -165,6 +163,16 @@ compact={true}
     error: document.getElementById('error') as HTMLElement,
     errorText: document.getElementById('error-text') as HTMLElement,
   };
+
+  // Escape untrusted strings before inserting into innerHTML
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   // Basic validation — reject clearly non-matches early
   function validateFile(file: File): string | null {
@@ -181,18 +189,15 @@ compact={true}
   // Decompress gzip blob to text
   async function decompressGzip(blob: Blob): Promise<string> {
     const stream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
-    const compressed = await new Response(stream).text();
-    return compressed;
+    const decompressed = await new Response(stream).text();
+    return decompressed;
   }
 
   // Minimal ZIP unzip — extracts the first .xml file in the archive
-  // Uses the central directory at end-of-file — no need to scan entire archive
   async function unzipFirstXml(buffer: ArrayBuffer): Promise<string> {
     const decoder = new TextDecoder();
     const view = new DataView(buffer);
 
-    // Find Central Directory signature by scanning forward
-    // Central directory file header signature: 0x02014b50
     let cdOffset = -1;
     for (let offset = 4; offset < buffer.byteLength - 4; offset++) {
       if (view.getUint32(offset, true) === 0x02014b50) {
@@ -205,12 +210,10 @@ compact={true}
       throw new Error('ZIP structure not recognised');
     }
 
-    // Extract first file in central directory
     const fileNameLen = view.getUint16(cdOffset + 28, true);
     const extraLen = view.getUint16(cdOffset + 30, true);
     const localHeaderOffset = view.getUint32(cdOffset + 42, true);
 
-    // Read local file header
     const localSig = view.getUint32(localHeaderOffset, true);
     if (localSig !== 0x04034b50) {
       throw new Error('Local file header signature invalid');
@@ -256,7 +259,6 @@ compact={true}
       const parser = new DOMParser();
       const doc = parser.parseFromString(xmlStr, 'application/xml');
 
-      // Basic validation
       const feedback = doc.querySelector('feedback');
       if (!feedback) return null;
 
@@ -300,7 +302,7 @@ compact={true}
     }
   }
 
-  // Aggregate data by source domain/IP for summarised table
+  // Aggregate data by source IP for summarised table
   function summariseRecords(records: any[]) {
     const summary: Map<string, { total: number; spf_pass: number; dkim_pass: number; align_fail: number }> = new Map();
     for (const rec of records) {
@@ -309,11 +311,9 @@ compact={true}
       entry.total += rec.row.count;
       if (rec.row.policy_evaluated.spf === 'pass') entry.spf_pass += rec.row.count;
       if (rec.row.policy_evaluated.dkim === 'pass') entry.dkim_pass += rec.row.count;
-      // Simplified alignment check — full would require SPF/DKIM domains which aren't in aggregates
       if (rec.row.policy_evaluated.disposition === 'none') entry.align_fail += rec.row.count;
       summary.set(ip, entry);
     }
-    // Sort by volume descending
     return Array.from(summary.entries())
       .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 10);
@@ -350,7 +350,7 @@ compact={true}
     }
   }
 
-  // Render results block
+  // Render results block — all XML-derived values escaped
   function renderResults(parsed: { policy_published: any; records: any[] }) {
     const verdict = generateVerdict(parsed);
     const interpretation = generateInterpretation(parsed);
@@ -360,7 +360,7 @@ compact={true}
     let html = `
       <div class="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 mb-4">
         <h3 class="font-bold text-lg dark:text-white mb-2">Verdict</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300">${verdict}</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">${escapeHtml(verdict)}</p>
       </div>
 
       <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto mb-4">
@@ -381,7 +381,7 @@ compact={true}
       const dkimRate = data.total > 0 ? Math.round((data.dkim_pass / data.total) * 100) : 0;
       html += `
           <tr class="border-b border-slate-100 dark:border-slate-800">
-            <td class="p-3 dark:text-white">${ip}</td>
+            <td class="p-3 dark:text-white">${escapeHtml(ip)}</td>
             <td class="p-3 text-right dark:text-white">${data.total.toLocaleString()}</td>
             <td class="p-3 text-right ${dkimRate < 50 ? 'text-red-600 dark:text-red-400 font-semibold' : ''}">${dkimRate}%</td>
             <td class="p-3 text-right ${spfRate < 50 ? 'text-red-600 dark:text-red-400 font-semibold' : ''}">${spfRate}%</td>
@@ -396,16 +396,16 @@ compact={true}
 
       <div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 mb-4">
         <h3 class="font-bold text-lg dark:text-white mb-2">What this means</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300">${interpretation}</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">${escapeHtml(interpretation)}</p>
       </div>
 
       <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
         <h3 class="font-bold text-lg dark:text-white mb-2">Policy details</h3>
         <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1 list-disc pl-5">
-          <li>Domain: <strong>${policy.domain}</strong></li>
-          <li>Publish policy: <strong>${policy.p}</strong></li>
+          <li>Domain: <strong>${escapeHtml(policy.domain)}</strong></li>
+          <li>Publish policy: <strong>${escapeHtml(policy.p)}</strong></li>
           <li>Alignment mode: DKIM ${policy.adkim === 's' ? 'strict' : 'relaxed'}, SPF ${policy.aspf === 's' ? 'strict' : 'relaxed'}</li>
-          <li>Reporting URI: ${policy.rua.join(', ') || 'None configured'}</li>
+          <li>Reporting URI: ${policy.rua.length ? policy.rua.map(escapeHtml).join(', ') : 'None configured'}</li>
         </ul>
       </div>
     `;
