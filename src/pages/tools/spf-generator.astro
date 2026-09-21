@@ -84,14 +84,30 @@ const metadata = {
         <!-- Question 4: Custom IP ranges -->
         <div id="question-custom" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-4">Do you have custom servers sending as your domain?</p>
-          <input id="custom-ip" type="text" placeholder="Enter IP range (e.g., 192.0.2.0/24)" class="mb-4 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
+          <input id="custom-ip" type="text" placeholder="Enter IP range (e.g., 192.0.2.0/24)" class="mb-2 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
+          <p id="custom-ip-error" class="hidden mb-2 text-sm text-red-600 dark:text-red-400">
+            That doesn't look like a valid IP address or range. Expected format: 192.0.2.10 or 192.0.2.0/24.
+          </p>
           <button id="btn-custom-confirm" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Confirm Custom IP</button>
         </div>
 
-        <!-- Question 5: Other services (informational) -->
+        <!-- Question 5: Other services — add your own entries -->
         <div id="question-other" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
-          <p class="text-base font-medium mb-4">Are there any other services that send email as your domain?</p>
-          <textarea id="other-services" placeholder="Note any other senders (helpdesk, CRM, transactional email) — these will need manual entries if not covered above" class="w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700"></textarea>
+          <p class="text-base font-medium mb-2">Any other services sending as your domain?</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            Most businesses have a few. Enter each one exactly as your provider's documentation gives it —
+            for example <code>include:example.com</code>, <code>ip4:203.0.113.10</code> or <code>ip6:2001:db8::/32</code>.
+            <code>include:</code> entries cost one lookup each; IP entries are free.
+          </p>
+          <input id="custom-mechanism" type="text" placeholder="include:example.com" class="mb-2 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
+          <p id="custom-mechanism-error" class="hidden mb-2 text-sm text-red-600 dark:text-red-400">
+            Entries must start with include:, ip4: or ip6: — copy the entry exactly as your provider's documentation gives it.
+          </p>
+          <button id="btn-custom-mechanism" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Add Entry</button>
+          <p class="mt-4 text-sm text-muted italic">
+            Not sure what a sender needs? An audit finds your active sending streams and maps them to your record —
+            <a href="/contact" class="link font-medium">Book a Free Consultation.</a>
+          </p>
         </div>
       </div>
 
@@ -121,7 +137,10 @@ const metadata = {
         <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded mb-4 font-mono text-sm break-all">
           <span id="spf-record-output">v=spf1 ...</span>
         </div>
-        <button id="btn-copy" class="mb-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">Copy to Clipboard</button>
+        <div class="flex items-center mb-4">
+          <button id="btn-copy" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded">Copy to Clipboard</button>
+          <span id="copy-status" class="ml-3 text-sm text-green-600 dark:text-green-400" role="status"></span>
+        </div>
         <div class="border-t pt-4 dark:border-slate-700">
           <h4 class="font-bold mb-2">What each entry means:</h4>
           <ul id="record-explanation" class="space-y-2 text-sm text-muted"></ul>
@@ -149,9 +168,10 @@ const metadata = {
 
 <script>
   const senderData = new Map();
+  let customEntryCount = 0;
 
   // Escape untrusted strings before inserting into innerHTML
-  function escapeHtml(s: string): string {
+  function escapeHtml(s) {
     return s
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -201,6 +221,27 @@ const metadata = {
     }
   }
 
+  // --- Validation helpers ---------------------------------------------------
+
+  const IPV4_RE = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}(\/(\d|[12]\d|3[0-2]))?$/;
+
+  function isValidMechanism(v) {
+    if (v.startsWith('include:')) {
+      return /^include:([a-z0-9-]+\.)+[a-z]{2,}$/i.test(v);
+    }
+    if (v.startsWith('ip4:')) {
+      return ('ip4:' === v.slice(0, 4)) && IPV4_RE.test(v.slice(4));
+    }
+    if (v.startsWith('ip6:')) {
+      return /^ip6:[0-9a-fA-F:.]+(\/\d{1,3})?$/.test(v);
+    }
+    return false;
+  }
+
+  function mechanismCost(v) {
+    return v.startsWith('include:') ? 1 : 0;
+  }
+
   function addMarketingPlatform(value) {
     if (!value || senderData.has('marketing')) return;
 
@@ -208,8 +249,15 @@ const metadata = {
     const cost = parseInt(costStr, 10);
 
     if (name === 'custom-ip') {
-      document.getElementById('question-marketing').classList.add('hidden');
-      return; // Custom IP question is already visible below
+      // Route the user to the custom IP question instead of dead-ending
+      hideQuestion('question-marketing');
+      const q = document.getElementById('question-custom');
+      if (q) {
+        q.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        q.classList.add('ring-2', 'ring-primary', 'rounded-lg');
+        setTimeout(() => q.classList.remove('ring-2', 'ring-primary'), 2500);
+      }
+      return;
     }
 
     senderData.set('marketing', { entry, cost });
@@ -249,7 +297,9 @@ const metadata = {
           meaning = 'authorises your custom server at this range (no lookup cost)';
           break;
         default:
-          meaning = 'authorises sending service';
+          meaning = entry.startsWith('include:')
+            ? 'authorises the additional sending service you entered (one lookup)'
+            : 'authorises the sending range you entered (no lookup cost)';
       }
       explanation.innerHTML += `<li><code>${escapeHtml(entry)}</code> — ${meaning}</li>`;
     });
@@ -257,10 +307,13 @@ const metadata = {
 
   function copyToClipboard() {
     const text = document.getElementById('spf-record-output').textContent;
+    const status = document.getElementById('copy-status');
     navigator.clipboard.writeText(text).then(() => {
-      alert('SPF record copied to clipboard!');
+      status.textContent = 'Copied to clipboard.';
+      setTimeout(() => { status.textContent = ''; }, 3000);
     }).catch(() => {
-      alert('Failed to copy. Please select and copy manually.');
+      status.textContent = 'Copy failed — select the record above and copy manually.';
+      setTimeout(() => { status.textContent = ''; }, 4000);
     });
   }
 
@@ -286,16 +339,51 @@ const metadata = {
     addMarketingPlatform(e.target.value);
   });
 
+  // Question 4: custom IP with live validation
   const customInput = document.getElementById('custom-ip');
   const customBtn = document.getElementById('btn-custom-confirm');
+  const customError = document.getElementById('custom-ip-error');
   customInput.addEventListener('input', () => {
-    customBtn.disabled = !customInput.value.trim();
+    const v = customInput.value.trim();
+    if (v === '') {
+      customBtn.disabled = true;
+      customError.classList.add('hidden');
+      return;
+    }
+    const valid = IPV4_RE.test(v);
+    customBtn.disabled = !valid;
+    customError.classList.toggle('hidden', valid);
   });
   customBtn.addEventListener('click', () => {
     const ip = customInput.value.trim();
-    if (!ip) return;
+    if (!ip || !IPV4_RE.test(ip)) return;
     addSender('custom-ip-added', `ip4:${ip}`, 0);
     hideQuestion('question-custom');
+  });
+
+  // Question 5: repeatable custom entries (include:, ip4:, ip6:)
+  const mechInput = document.getElementById('custom-mechanism');
+  const mechBtn = document.getElementById('btn-custom-mechanism');
+  const mechError = document.getElementById('custom-mechanism-error');
+  mechInput.addEventListener('input', () => {
+    const v = mechInput.value.trim();
+    if (v === '') {
+      mechBtn.disabled = true;
+      mechError.classList.add('hidden');
+      return;
+    }
+    const valid = isValidMechanism(v);
+    mechBtn.disabled = !valid;
+    mechError.classList.toggle('hidden', valid);
+  });
+  mechBtn.addEventListener('click', () => {
+    const mech = mechInput.value.trim();
+    if (!mech || !isValidMechanism(mech)) return;
+    customEntryCount++;
+    addSender(`custom-entry-${customEntryCount}`, mech, mechanismCost(mech));
+    mechInput.value = '';
+    mechBtn.disabled = true;
+    mechInput.focus();
   });
 
   document.getElementById('btn-generate').addEventListener('click', generateRecord);
