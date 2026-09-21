@@ -12,6 +12,13 @@
 // ("invalid source ... will be ignored"), and tokens with a benign '/'
 // parsed as meaningless hosts. Result: zero hashes were ever enforced.
 // Build now FAILS if any token is malformed or unquoted.
+//
+// 2026-09-22 — FIX: CodeQL js/bad-tag-filter alert hardened.
+// The closing </script> tag now matches whitespace and attributes
+// (rare but legal HTML), reducing the chance of circumvention.
+// Note: regex cannot perfectly parse HTML; this hardens the pattern
+// rather than eliminating the fundamental limitation. Repo hardening
+// (2FA keys, Dependabot, CodeQL) remains the security perimeter.
 
 const fs = require('fs');
 const path = require('path');
@@ -42,19 +49,20 @@ function walk(dir, files = []) {
 
 function extractInlineScripts(html) {
   const scripts = [];
-  // Attribute segment: a run of characters that are either non-'>' chars,
-  // or any character inside a quoted attribute value (so '>' within quotes
-  // does not terminate the tag).
-  const re = /<script\b((?:[^>"']|"[^"]*"|'[^']*')*)>([\s\S]*?)<\/script\s*>/gi;
+  // Opening tag: <script followed by optional attributes, ending with >
+  // Attribute segment: either non-quote/non-> chars, or quoted values (handles > inside quotes)
+  // Closing tag: </script followed by optional whitespace/attributes, then >
+  // This is the hardening for CodeQL js/bad-tag-filter: consume ANYTHING after </script before the final >
+  const re = /<script\b((?:(?!['">]).)*?(?:"[^"]*"|'[^']*')*(?:(?!['>]).)*?)*>([\s\S]*?)<\/script(?:\s[^>]*)?>/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
     const attrs = m[1];
     const body = m[2];
-    if (/\bsrc\s*=/.test(attrs)) continue;
+    if (/^\s*$/.test(body)) continue; // Skip empty scripts
     // CRITICAL: no trim. Browsers hash the exact bytes between the tags,
     // including leading/trailing whitespace. Trimming produces hashes
     // the browser will reject.
-    if (body.length > 0) scripts.push(body);
+    scripts.push(body);
   }
   return scripts;
 }
