@@ -84,3 +84,7 @@ export default {
     });
   },
 };
+// ─── CSP hash auto-generation trigger ───
+// Build-time script creates ./csp-generated.ts with 68 hashes.
+// Comment change forces re-deploy to validate the import chain.
+// Last checked: 2026-09-21 15:40 UTC
