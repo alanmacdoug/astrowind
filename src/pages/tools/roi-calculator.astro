@@ -1,3 +1,4 @@
+
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
@@ -151,7 +152,7 @@ compact={true}
 
   <CallToAction
     actions={[
-      { variant: 'primary', text: 'Book a free consultation', href: '/contact' },
+      { variant: 'primary', text: 'Book Your Free Consultation', href: '/contact' },
     ]}
     title="Seeing a number you don't like?"
     subtitle="The problems that cost you money are often the ones your dashboard doesn't show you."
@@ -377,8 +378,6 @@ compact={true}
         </p>
       </div>`;
 
-    const modelledUpsides: { label: string; delta: number }[] = [];
-
     const evaluateTrigger = (): { label: string; delta: number } | null => {
       if (!baselineInputs) return null;
       const defs = [
@@ -395,7 +394,6 @@ compact={true}
         const mod = { ...baselineInputs };
         d.apply(mod, pp);
         const delta = funnel(mod).revenue - run.revenue;
-        modelledUpsides.push({ label: d.label, delta });
         if (!best || delta > best.delta) best = { label: d.label, delta };
       }
       return best;
@@ -410,7 +408,7 @@ compact={true}
             <p class="text-sm text-slate-600 dark:text-slate-300">Improving your ${esc(best.label)} by your assumed amount is worth</p>
             <p class="font-bold text-3xl dark:text-white mt-1">${gbp.format(best.delta)} <span class="text-base font-normal">/ month</span></p>
             <p class="text-sm text-slate-600 dark:text-slate-300 mt-3">A £${PACKAGE_FEE} review and strategy package — the full audit plus a prioritised plan for your domain — can help you realise improvements like this in your bottom line.</p>
-            <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Enquire about the £${PACKAGE_FEE} package</a>
+            <a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Enquire About the £${PACKAGE_FEE} Package</a>
           </div>`;
       } else {
         el.innerHTML = `
