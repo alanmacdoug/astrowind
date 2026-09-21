@@ -160,12 +160,16 @@ compact={true}
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1.2 --------------------------------------
-  // Parses standard DMARC XML aggregate reports (RFC 7489).
+  // --- DMARC Aggregate Report Parser — v1.3 --------------------------------------
+  // Parses standard DMARC aggregate reports (RFC 7489).
   // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
-  // v1.2: sending domains (message_header_from) rendered per source;
-  //       align_fail replaced with genuine enforcement-action counts
-  //       (quarantine/reject dispositions).
+  // v1.2: sending domains rendered per source; align_fail replaced with
+  //       genuine enforcement-action counts (quarantine/reject dispositions).
+  // v1.3: sending-domains selector fixed — aggregate reports carry identity
+  //       under identifiers/header_from and identifiers/envelope_from, not
+  //       message/message_header_from (that element belongs to failure
+  //       reports only). Removed rua from policy details — rua is a DNS
+  //       record value, never present in aggregate report XML.
 
   const fields = {
     file: document.getElementById('report-file') as HTMLInputElement,
@@ -259,12 +263,28 @@ compact={true}
     }
   }
 
+  // Collect distinct sending domains for a record — envelope_from is the
+  // SMTP-level source, header_from is the From: the recipient saw. Both are
+  // shown: when they differ, that difference is itself diagnostic.
+  function collectSendingDomains(rec: Element): string[] {
+    const domains = new Set<string>();
+    rec.querySelectorAll('identifiers > header_from').forEach(el => {
+      const v = el.textContent?.trim();
+      if (v) domains.add(v);
+    });
+    rec.querySelectorAll('identifiers > envelope_from').forEach(el => {
+      const v = el.textContent?.trim();
+      if (v) domains.add(v);
+    });
+    return Array.from(domains);
+  }
+
   // Parse DMARC aggregate XML — RFC 7489 structure
   function parseDmarcXml(xmlStr: string): {
-    policy_published: { domain: string; adkim: string; aspf: string; p: string; pct: number; rua: string[] };
+    policy_published: { domain: string; adkim: string; aspf: string; p: string; pct: number };
     records: Array<{
       row: { source_ip: string; count: number; policy_evaluated: { disposition: string; dkim: string; spf: string } };
-      header_from: string[];
+      sending_domains: string[];
     }>;
   } | null {
     try {
@@ -283,7 +303,6 @@ compact={true}
         aspf: policyPublished.querySelector('aspf')?.textContent || 'r',
         p: policyPublished.querySelector('p')?.textContent || 'none',
         pct: parseInt(policyPublished.querySelector('pct')?.textContent || '100', 10),
-        rua: Array.from(policyPublished.querySelectorAll('rua > uri')).map(uri => uri.textContent || ''),
       };
 
       const records: any[] = [];
@@ -300,9 +319,7 @@ compact={true}
                 spf: row.querySelector('policy_evaluated > spf')?.textContent || 'fail',
               },
             },
-            header_from: Array.from(rec.querySelectorAll('message > message_header_from'))
-              .map(el => el.textContent || '')
-              .filter(Boolean),
+            sending_domains: collectSendingDomains(rec),
           });
         }
       });
@@ -315,16 +332,16 @@ compact={true}
 
   // Aggregate data by source IP for summarised table
   function summariseRecords(records: any[]) {
-    const summary: Map<string, { total: number; spf_pass: number; dkim_pass: number; quarantined: number; rejected: number; header_from: Set<string> }> = new Map();
+    const summary: Map<string, { total: number; spf_pass: number; dkim_pass: number; quarantined: number; rejected: number; sending_domains: Set<string> }> = new Map();
     for (const rec of records) {
       const ip = rec.row.source_ip;
-      const entry = summary.get(ip) || { total: 0, spf_pass: 0, dkim_pass: 0, quarantined: 0, rejected: 0, header_from: new Set<string>() };
+      const entry = summary.get(ip) || { total: 0, spf_pass: 0, dkim_pass: 0, quarantined: 0, rejected: 0, sending_domains: new Set<string>() };
       entry.total += rec.row.count;
       if (rec.row.policy_evaluated.spf === 'pass') entry.spf_pass += rec.row.count;
       if (rec.row.policy_evaluated.dkim === 'pass') entry.dkim_pass += rec.row.count;
       if (rec.row.policy_evaluated.disposition === 'quarantine') entry.quarantined += rec.row.count;
       if (rec.row.policy_evaluated.disposition === 'reject') entry.rejected += rec.row.count;
-      for (const from of rec.header_from || []) entry.header_from.add(from);
+      for (const from of rec.sending_domains || []) entry.sending_domains.add(from);
       summary.set(ip, entry);
     }
     return Array.from(summary.entries())
@@ -340,11 +357,12 @@ compact={true}
     const passRate = totalMessages > 0 ? Math.round((passingCount / totalMessages) * 100) : 0;
     const quarantinedCount = parsed.records.reduce((sum, r) => sum + (r.row.policy_evaluated.disposition === 'quarantine' ? r.row.count : 0), 0);
     const rejectedCount = parsed.records.reduce((sum, r) => sum + (r.row.policy_evaluated.disposition === 'reject' ? r.row.count : 0), 0);
+    const sourceCount = new Set(parsed.records.map(r => r.row.source_ip)).size;
 
     const policyLabels = { none: 'monitoring', quarantine: 'quarantine suspicious mail', reject: 'reject failures' };
     const policyLabel = policyLabels[policy.p as keyof typeof policyLabels] || policy.p;
 
-    let verdict = `Policy is set to ${policyLabel} across ${parsed.records.length} reported sources. Approximately ${passRate}% of sampled messages pass authentication.`;
+    let verdict = `Policy is set to ${policyLabel} across ${sourceCount} reported sources. Approximately ${passRate}% of sampled messages pass authentication.`;
 
     if (quarantinedCount > 0 || rejectedCount > 0) {
       const actions: string[] = [];
@@ -404,7 +422,7 @@ compact={true}
     for (const [ip, data] of summary) {
       const spfRate = data.total > 0 ? Math.round((data.spf_pass / data.total) * 100) : 0;
       const dkimRate = data.total > 0 ? Math.round((data.dkim_pass / data.total) * 100) : 0;
-      const domains = data.header_from.size ? Array.from(data.header_from).join(', ') : 'Not reported';
+      const domains = data.sending_domains.size ? Array.from(data.sending_domains).join(', ') : 'Not reported';
       const actions: string[] = [];
       if (data.quarantined > 0) actions.push(`${data.quarantined.toLocaleString()} quarantined`);
       if (data.rejected > 0) actions.push(`${data.rejected.toLocaleString()} rejected`);
@@ -437,7 +455,6 @@ compact={true}
           <li>Domain: <strong>${escapeHtml(policy.domain)}</strong></li>
           <li>Publish policy: <strong>${escapeHtml(policy.p)}</strong></li>
           <li>Alignment mode: DKIM ${policy.adkim === 's' ? 'strict' : 'relaxed'}, SPF ${policy.aspf === 's' ? 'strict' : 'relaxed'}</li>
-          <li>Reporting URI: ${policy.rua.length ? policy.rua.map(escapeHtml).join(', ') : 'None configured'}</li>
         </ul>
       </div>
     `;
