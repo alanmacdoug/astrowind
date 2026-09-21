@@ -108,6 +108,15 @@ compact={true}
         </p>
       </a>
       <a
+        href="/tools/spf-generator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">SPF record generator</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Build your SPF record sender by sender, with the ten-lookup budget visible as you go.
+        </p>
+      </a>
+      <a
         href="/tools/preflight-checklist"
         class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
       >
@@ -151,9 +160,12 @@ compact={true}
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1.1 --------------------------------------
+  // --- DMARC Aggregate Report Parser — v1.2 --------------------------------------
   // Parses standard DMARC XML aggregate reports (RFC 7489).
   // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
+  // v1.2: sending domains (message_header_from) rendered per source;
+  //       align_fail replaced with genuine enforcement-action counts
+  //       (quarantine/reject dispositions).
 
   const fields = {
     file: document.getElementById('report-file') as HTMLInputElement,
@@ -252,7 +264,7 @@ compact={true}
     policy_published: { domain: string; adkim: string; aspf: string; p: string; pct: number; rua: string[] };
     records: Array<{
       row: { source_ip: string; count: number; policy_evaluated: { disposition: string; dkim: string; spf: string } };
-      message: { reporting_mailbox_id: string }[];
+      header_from: string[];
     }>;
   } | null {
     try {
@@ -262,7 +274,6 @@ compact={true}
       const feedback = doc.querySelector('feedback');
       if (!feedback) return null;
 
-      const org = feedback.querySelector('report_metadata > org_name')?.textContent || 'Unknown';
       const policyPublished = feedback.querySelector('policy_published');
       if (!policyPublished) return null;
 
@@ -289,9 +300,9 @@ compact={true}
                 spf: row.querySelector('policy_evaluated > spf')?.textContent || 'fail',
               },
             },
-            message: Array.from(rec.querySelectorAll('message')).map(msg => ({
-              reporting_mailbox_id: msg.querySelector('message_header_from')?.textContent || '',
-            })),
+            header_from: Array.from(rec.querySelectorAll('message > message_header_from'))
+              .map(el => el.textContent || '')
+              .filter(Boolean),
           });
         }
       });
@@ -304,14 +315,16 @@ compact={true}
 
   // Aggregate data by source IP for summarised table
   function summariseRecords(records: any[]) {
-    const summary: Map<string, { total: number; spf_pass: number; dkim_pass: number; align_fail: number }> = new Map();
+    const summary: Map<string, { total: number; spf_pass: number; dkim_pass: number; quarantined: number; rejected: number; header_from: Set<string> }> = new Map();
     for (const rec of records) {
       const ip = rec.row.source_ip;
-      const entry = summary.get(ip) || { total: 0, spf_pass: 0, dkim_pass: 0, align_fail: 0 };
+      const entry = summary.get(ip) || { total: 0, spf_pass: 0, dkim_pass: 0, quarantined: 0, rejected: 0, header_from: new Set<string>() };
       entry.total += rec.row.count;
       if (rec.row.policy_evaluated.spf === 'pass') entry.spf_pass += rec.row.count;
       if (rec.row.policy_evaluated.dkim === 'pass') entry.dkim_pass += rec.row.count;
-      if (rec.row.policy_evaluated.disposition === 'none') entry.align_fail += rec.row.count;
+      if (rec.row.policy_evaluated.disposition === 'quarantine') entry.quarantined += rec.row.count;
+      if (rec.row.policy_evaluated.disposition === 'reject') entry.rejected += rec.row.count;
+      for (const from of rec.header_from || []) entry.header_from.add(from);
       summary.set(ip, entry);
     }
     return Array.from(summary.entries())
@@ -325,17 +338,27 @@ compact={true}
     const totalMessages = parsed.records.reduce((sum, r) => sum + r.row.count, 0);
     const passingCount = parsed.records.filter(r => r.row.policy_evaluated.dkim === 'pass' || r.row.policy_evaluated.spf === 'pass').reduce((sum, r) => sum + r.row.count, 0);
     const passRate = totalMessages > 0 ? Math.round((passingCount / totalMessages) * 100) : 0;
+    const quarantinedCount = parsed.records.reduce((sum, r) => sum + (r.row.policy_evaluated.disposition === 'quarantine' ? r.row.count : 0), 0);
+    const rejectedCount = parsed.records.reduce((sum, r) => sum + (r.row.policy_evaluated.disposition === 'reject' ? r.row.count : 0), 0);
 
     const policyLabels = { none: 'monitoring', quarantine: 'quarantine suspicious mail', reject: 'reject failures' };
     const policyLabel = policyLabels[policy.p as keyof typeof policyLabels] || policy.p;
 
-    return `Policy is set to ${policyLabel} across ${parsed.records.length} reported sources. Approximately ${passRate}% of sampled messages pass authentication.`;
+    let verdict = `Policy is set to ${policyLabel} across ${parsed.records.length} reported sources. Approximately ${passRate}% of sampled messages pass authentication.`;
+
+    if (quarantinedCount > 0 || rejectedCount > 0) {
+      const actions: string[] = [];
+      if (quarantinedCount > 0) actions.push(`${quarantinedCount.toLocaleString()} message${quarantinedCount !== 1 ? 's' : ''} quarantined`);
+      if (rejectedCount > 0) actions.push(`${rejectedCount.toLocaleString()} message${rejectedCount !== 1 ? 's' : ''} rejected`);
+      verdict += ` Enforcement acted on ${actions.join(' and ')} in this report.`;
+    }
+
+    return verdict;
   }
 
   // Interpretation layer
   function generateInterpretation(parsed: { policy_published: any; records: any[] }): string {
     const policy = parsed.policy_published;
-    const summary = summariseRecords(parsed.records);
 
     if (policy.p === 'none') {
       return 'Your DMARC policy is set to monitor — the provider reports are informational, not enforcement. If you see unexpected sources in this report, that\'s the signal to tighten the policy once you\'ve identified them.';
@@ -367,10 +390,12 @@ compact={true}
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left border-b border-slate-200 dark:border-slate-700 dark:text-slate-300">
-              <th class="p-3">Domain/IP</th>
+              <th class="p-3">Source IP</th>
+              <th class="p-3">Sending domains</th>
               <th class="p-3 text-right">Messages</th>
               <th class="p-3 text-right">DKIM pass</th>
               <th class="p-3 text-right">SPF pass</th>
+              <th class="p-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -379,12 +404,19 @@ compact={true}
     for (const [ip, data] of summary) {
       const spfRate = data.total > 0 ? Math.round((data.spf_pass / data.total) * 100) : 0;
       const dkimRate = data.total > 0 ? Math.round((data.dkim_pass / data.total) * 100) : 0;
+      const domains = data.header_from.size ? Array.from(data.header_from).join(', ') : 'Not reported';
+      const actions: string[] = [];
+      if (data.quarantined > 0) actions.push(`${data.quarantined.toLocaleString()} quarantined`);
+      if (data.rejected > 0) actions.push(`${data.rejected.toLocaleString()} rejected`);
+      const actionsText = actions.length ? actions.join(', ') : 'None';
       html += `
           <tr class="border-b border-slate-100 dark:border-slate-800">
             <td class="p-3 dark:text-white">${escapeHtml(ip)}</td>
+            <td class="p-3 dark:text-white">${escapeHtml(domains)}</td>
             <td class="p-3 text-right dark:text-white">${data.total.toLocaleString()}</td>
             <td class="p-3 text-right ${dkimRate < 50 ? 'text-red-600 dark:text-red-400 font-semibold' : ''}">${dkimRate}%</td>
             <td class="p-3 text-right ${spfRate < 50 ? 'text-red-600 dark:text-red-400 font-semibold' : ''}">${spfRate}%</td>
+            <td class="p-3 text-right dark:text-white">${escapeHtml(actionsText)}</td>
           </tr>
       `;
     }
