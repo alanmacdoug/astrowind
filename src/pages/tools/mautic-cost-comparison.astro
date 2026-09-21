@@ -76,7 +76,7 @@ const metadata = {
 
           <fieldset class="sm:col-span-2">
             <legend class="text-sm font-medium dark:text-white mb-2">
-              Hosted ESP to compare (indicative tier pricing, editable)
+              Hosted ESP to compare (indicative tier pricing)
             </legend>
             <div id="platform-selects" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
           </fieldset>
@@ -157,6 +157,15 @@ const metadata = {
           What is better email performance worth to you? Honest numbers out, every assumption shown.
         </p>
       </a>
+      <a
+        href="/tools/spf-generator"
+        class="group block rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 hover:border-primary dark:hover:border-primary transition-colors"
+      >
+        <h3 class="font-bold text-lg dark:text-white group-hover:text-primary">SPF record generator</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Build your SPF record sender by sender, with the ten-lookup budget visible as you go.
+        </p>
+      </a>
     </div>
   </section>
 
@@ -174,7 +183,7 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- Data: editable ESP tier pricing -----------------------------------------
+  // --- Data: ESP tier pricing ---------------------------------------------------
   // VERIFIED ANCHORS — September 2026, converted to GBP at ~$1.30/£:
   //   Mailchimp Standard, monthly billing: $20 @ 500 contacts, $100 @ 5k,
   //     ~$135 @ 10k (sources: mailchimp.com/pricing via EmailToolTester /
@@ -186,7 +195,8 @@ const metadata = {
   // Above the largest verified tier the model extrapolates by slope (see
   // espPriceFor) — vendors price larger lists via on-page calculators that
   // do not publish static figures. Check those calculators before quoting
-  // prices above 10k contacts. Tier prices remain editable on the page.
+  // prices above 10k contacts. Price fields on the page are display-only,
+  // auto-filled from these tiers.
   const ESPS = [
     {
       id: 'mailchimp',
@@ -274,7 +284,7 @@ const metadata = {
     fields.vendor.appendChild(opt);
   }
 
-  // Build editable platform checkboxes with a tier summary and price input
+  // Build platform checkboxes with a tier summary and display-only price field
   const espCheckboxes = [];
   const espPriceInputs = {};
 
@@ -307,10 +317,12 @@ const metadata = {
     priceInput.type = 'number';
     priceInput.min = '0';
     priceInput.value = '';
+    priceInput.readOnly = true;
+    priceInput.tabIndex = -1;
     priceInput.title =
-      'Monthly price at the current subscriber count (auto-filled from tiers, editable)';
+      'Monthly price at the current subscriber count (auto-filled from the tier table)';
     priceInput.className =
-      'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary';
+      'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary opacity-80';
     espPriceInputs[esp.id] = priceInput;
 
     lbl.appendChild(nameSpan);
@@ -527,7 +539,7 @@ const metadata = {
         '<div class="rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 p-4 text-center mt-4">' +
         '<p class="font-semibold text-lg dark:text-white">You are above the crossover</p>' +
         '<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">At ' + subs.toLocaleString() + ' subscribers and ' + sends.toLocaleString() + ' sends/month, the Mautic total of ' + gbp.format(mauticResult.total) + '/month is the cheaper option at these fees.</p>' +
-        '<a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss managed Mautic hosting</a>' +
+        '<a href="/contact" class="btn btn-primary inline-block mt-3 px-5 py-2.5 rounded-lg font-medium">Discuss Managed Mautic Hosting</a>' +
         '</div>';
     } else if (activeEsps.length > 0) {
       verdictHtml =
@@ -557,4 +569,3 @@ const metadata = {
   fields.vendor.addEventListener('change', calculate);
   calculate();
 </script>
-       
