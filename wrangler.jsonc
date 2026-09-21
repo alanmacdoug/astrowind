@@ -8,8 +8,20 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "kv_namespaces": [
+    {
+      "binding": "CONTACT_KV",
+      "id": "a7346d88e0d64451bdb0933b7d86de40"
+    }
+  ],
   "vars": {
     "CONTACT_TO": "help@macdougallemail.com",
-    "CONTACT_FROM": ""
-  }
+    "CONTACT_FROM": "help@macdougallemail.com"
+  },
+  "send_email": [
+    {
+      "name": "NOTIFY",
+      "destination_addresses": ["amacmack@proton.me"]
+    }
+  ]
 }
