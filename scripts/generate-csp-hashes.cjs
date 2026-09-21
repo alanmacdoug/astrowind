@@ -5,6 +5,13 @@
 // The Worker imports that module and sets the header at runtime — the
 // 2000-character _headers line limit does not apply to Worker responses.
 // NOTE: the CSP directives below are now maintained HERE, not in _headers.
+//
+// 2026-09-21 — FIX: hash sources are now emitted as 'sha256-...' (single-
+// quoted). Previously they were unquoted, which Chrome parsed as host
+// sources: tokens containing '+' or '=' with no early '/' were rejected
+// ("invalid source ... will be ignored"), and tokens with a benign '/'
+// parsed as meaningless hosts. Result: zero hashes were ever enforced.
+// Build now FAILS if any token is malformed or unquoted.
 
 const fs = require('fs');
 const path = require('path');
@@ -20,6 +27,10 @@ const STATIC_CSP =
   "connect-src 'self' https://dns.google https://cloudflare-dns.com; font-src 'self'; " +
   "frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
 
+// A legal CSP hash source token, fully formed: single-quoted algorithm prefix,
+// 43 base64 characters (SHA-256 digest), terminating padding character.
+const HASH_TOKEN_RE = /^'sha256-[A-Za-z0-9+/]{43}='$/;
+
 function walk(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -31,16 +42,28 @@ function walk(dir, files = []) {
 
 function extractInlineScripts(html) {
   const scripts = [];
-  const re = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+  // Attribute segment: a run of characters that are either non-'>' chars,
+  // or any character inside a quoted attribute value (so '>' within quotes
+  // does not terminate the tag).
+  const re = /<script\b((?:[^>"']|"[^"]*"|'[^']*')*)>([\s\S]*?)<\/script\s*>/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
-    if (/\bsrc\s*=/.test(m[1])) continue;
+    const attrs = m[1];
+    const body = m[2];
+    if (/\bsrc\s*=/.test(attrs)) continue;
     // CRITICAL: no trim. Browsers hash the exact bytes between the tags,
     // including leading/trailing whitespace. Trimming produces hashes
     // the browser will reject.
-    if (m[2].length > 0) scripts.push(m[2]);
+    if (body.length > 0) scripts.push(body);
   }
   return scripts;
+}
+
+function sha256CspToken(text) {
+  const digest = crypto.createHash('sha256').update(text, 'utf-8').digest('base64');
+  // SINGLE QUOTES ARE MANDATORY. A hash source without quotes is parsed
+  // by browsers as a host source, silently voiding the hash.
+  return `'sha256-${digest}'`;
 }
 
 function main() {
@@ -60,12 +83,28 @@ function main() {
   for (const f of files) {
     const html = fs.readFileSync(f, 'utf-8');
     for (const s of extractInlineScripts(html)) {
-      hashes.add('sha256-' + crypto.createHash('sha256').update(s, 'utf-8').digest('base64'));
+      hashes.add(sha256CspToken(s));
     }
+  }
+
+  // Validation gate 1: every token must be a well-formed, quoted hash source.
+  const malformed = Array.from(hashes).filter(t => !HASH_TOKEN_RE.test(t));
+  if (malformed.length > 0) {
+    console.error(`CSP VALIDATION FAILURE: ${malformed.length} malformed hash token(s):`);
+    for (const t of malformed) console.error(`  ${JSON.stringify(t)}`);
+    process.exit(1);
   }
 
   const sorted = Array.from(hashes).sort();
   const csp = `script-src ${[BASE_DIRECTIVES, ...sorted].join(' ')}; ${STATIC_CSP}`;
+
+  // Validation gate 2: the assembled policy must not contain any UNQUOTED
+  // 'sha256-' occurrence (e.g. sha256- preceded/followed by a space or ;).
+  const unquotedRe = /(^|[\s;])sha256-/;
+  if (unquotedRe.test(csp)) {
+    console.error('CSP VALIDATION FAILURE: assembled policy contains an unquoted sha256- token. Aborting.');
+    process.exit(1);
+  }
 
   fs.writeFileSync(
     OUTPUT,
@@ -73,7 +112,7 @@ function main() {
     `// ${sorted.length} inline-script hashes harvested from ${files.length} pages.\n` +
     `export const CSP = ${JSON.stringify(csp)};\n`
   );
-  console.log(`Wrote ${sorted.length} inline-script hashes to worker/csp-generated.ts.`);
+  console.log(`Wrote ${sorted.length} inline-script hashes (quoted) to worker/csp-generated.ts.`);
 }
 
 main();
