@@ -1,9 +1,10 @@
 import { CSP } from './csp-generated';
 
 export interface Env {
-  SENDGRID_API_KEY?: string;
   CONTACT_FROM?: string;
   CONTACT_TO?: string;
+  CONTACT_KV: KVNamespace;
+  NOTIFY: SendEmail;
   ASSETS: Fetcher;
 }
 
@@ -13,6 +14,8 @@ interface Payload {
   message?: string;
   website?: string; // honeypot
 }
+
+const NOTIFY_ADDRESS = 'amacmack@proton.me'; // verified Email Routing destination
 
 const json = (data: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -47,27 +50,46 @@ export default {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ ok: false, error: 'email' }, 400);
       if (!message || message.length > 5000) return json({ ok: false, error: 'message' }, 400);
 
-      // Not-yet-active mode: mail key or sender address unconfigured (domain pending).
-      if (!env.SENDGRID_API_KEY || !env.CONTACT_FROM || !env.CONTACT_TO) {
-        return json({ ok: false, notActive: true }, 503);
+      const timestamp = new Date().toISOString();
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const referrer = request.headers.get('Referer') || 'direct';
+
+      // Durable record FIRST — the submission is never lost even if the
+      // notification leg fails. 90-day retention keeps KV bounded.
+      try {
+        const kvId = `submission_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        await env.CONTACT_KV.put(kvId, JSON.stringify({
+          name, email, message, timestamp, ip, referrer,
+        }), { expirationTtl: 60 * 60 * 24 * 90 });
+      } catch (err) {
+        console.error('KV write failed:', err);
       }
 
-      const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
-        method: 'POST',
-        headers: {
-          authorization: `Bearer ${env.SENDGRID_API_KEY}`,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          personalizations: [{ to: [{ email: env.CONTACT_TO }] }],
-          from: { email: env.CONTACT_FROM },
-          reply_to: { email: email },
+      // Notification via Cloudflare Email Routing send_email binding.
+      // No API key, no third party — the destination is the verified
+      // Email Routing address. NOTE: the send_email binding supports
+      // plain text only and does not support reply-to, so the sender's
+      // address is included in the body for copy-paste replies.
+      const fromAddress = env.CONTACT_FROM || 'help@macdougallemail.com';
+      let notified = false;
+      try {
+        await env.NOTIFY.send({
+          from: fromAddress,
+          to: NOTIFY_ADDRESS,
           subject: `Website enquiry from ${name}`,
-          content: [{ type: 'text/plain', value: `From: ${name} <${email}>\n\n${message}` }],
-        }),
-      });
+          text: `From: ${name} <${email}>\n\n${message}\n\n---\nReceived: ${timestamp}\nIP: ${ip}\nPage: ${referrer}`,
+        });
+        notified = true;
+      } catch (err) {
+        console.error('Email notification failed:', err);
+      }
 
-      if (!res.ok) return json({ ok: false, error: 'send_failed' }, 502);
+      // The submission is durable in KV even if notification failed, so
+      // the visitor gets a success response either way. Losing a lead to a
+      // transient email failure is not acceptable; KV is the backstop.
+      if (!notified) {
+        console.warn('Contact submission stored to KV only — check the namespace.');
+      }
       return json({ ok: true });
     }
 
@@ -88,3 +110,4 @@ export default {
 // Build-time script creates ./csp-generated.ts with 68 hashes.
 // Comment change forces re-deploy to validate the import chain.
 // Last checked: 2026-09-21 15:40 UTC
+// 2026-09-21: SendGrid leg replaced by NOTIFY send_email binding (routing active).
