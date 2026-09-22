@@ -12,6 +12,10 @@
     {
       "binding": "CONTACT_KV",
       "id": "a7346d88e0d64451bdb0933b7d86de40"
+    },
+    {
+      "binding": "SUBSCRIBERS_KV",
+      "id": "34f49d41f33f48dc92f8e66b52e6e8a5"
     }
   ],
   "vars": {
