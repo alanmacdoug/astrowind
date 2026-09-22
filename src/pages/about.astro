@@ -21,7 +21,7 @@ const metadata = {
 <Layout metadata={metadata}>
   <!-- Hero -->
 
-<Hero
+  <Hero
     tagline="About"
     title="Twenty years in email. From the wild west to AI."
     actions={[
@@ -34,8 +34,10 @@ const metadata = {
     ]}
   >
     <Fragment slot="subtitle">
-      Email infrastructure and deliverability consultancy. Based in Scotland, working with clients worldwide.
-
+      <p>
+        Independent consultancy, based in Scotland, working with clients worldwide. I design, authenticate
+        and repair the systems that decide whether your email lands — and whether it earns its keep.
+      </p>
     </Fragment>
   </Hero>
 
@@ -52,7 +54,7 @@ const metadata = {
     items={[
       {
         title: 'Direct, always',
-        description: 'You work with the person doing the work. No account managers, no outsourcing',
+        description: 'You work with the person doing the work. No account managers, no outsourcing.',
         icon: 'tabler:users',
       },
       {
@@ -72,22 +74,26 @@ const metadata = {
       },
     ]}
   >
-        <Fragment slot="content">
+    <Fragment slot="content">
       <h2 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">About MacDougall Email</h2>
       <p>
-        I started in email marketing in 2006, when in comparison to more recent times, delivery was still the wild west. Over the
-        following years I built a managed hosting and consulting business, adapting to rapidly changing technological and legal landscapes. The pace of that change has never been faster, with AI reshaping how email campaigns are sent and received. 
-</p>
-      <br />
-      <p>
-I've worked with clients in the UK, Europe, the US and beyond, specialising in delivery systems, email authentication,
-        marketing automation and strategy. MacDougall Email is the continuation of that work: same discipline, same specialities, modern tools.
+        I started in email marketing in 2006, when in comparison to more recent times, delivery was still the wild west.
+        Over the following years I built a managed hosting and consulting business, adapting to rapidly changing
+        technological and legal landscapes. The pace of that change has never been faster, with AI reshaping how email
+        campaigns are sent and received.
       </p>
       <br />
       <p>
-        Twenty years in, the fundamentals are unchanged: authenticated mail reaches the inbox, unauthenticated
-        mail doesn't. Well-managed campaigns convert; poorly managed ones don't. The difference now is that the
-        enforcement mechanisms are unforgiving, and it's hard for businesses to keep up to date with the latest best practices — that's where I come in: keeping your systems current while you run your business.
+        I've worked with clients in the UK, Europe, the US and beyond, specialising in delivery systems, email
+        authentication, marketing automation and strategy. MacDougall Email is the continuation of that work: same
+        discipline, same specialities, modern tools.
+      </p>
+      <br />
+      <p>
+        Twenty years in, the fundamentals are unchanged: authenticated mail reaches the inbox, unauthenticated mail
+        doesn't. Well-managed campaigns convert; poorly managed ones don't. The difference now is that the enforcement
+        mechanisms are unforgiving, and it's hard for businesses to keep up to date with the latest best practices —
+        that's where I come in: keeping your systems current while you run your business.
       </p>
     </Fragment>
 
@@ -96,7 +102,7 @@ I've worked with clients in the UK, Europe, the US and beyond, specialising in d
     </Fragment>
   </Content>
 
-   <!-- How I SERVE every client -->
+  <!-- How I SERVE every client -->
 
   <Steps
     id="process"
@@ -139,7 +145,7 @@ I've worked with clients in the UK, Europe, the US and beyond, specialising in d
   <!-- What's here now -->
 
   <Features2
-    title="3 types of help"
+    title="Three types of help"
     tagline="Using this site"
     columns={3}
     items={[
