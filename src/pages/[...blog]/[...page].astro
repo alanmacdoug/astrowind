@@ -8,7 +8,6 @@ import Pagination from '~/components/blog/Pagination.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
 import { getPermalink, getBlogPermalink } from '~/utils/permalinks';
-// import PostTags from "~/components/blog/Tags.astro";
 
 import { blogListRobots, getStaticPathsBlogList } from '~/utils/blog';
 
@@ -29,9 +28,6 @@ const breadcrumbs = [
     ? [{ text: 'Blog', href: getBlogPermalink() }, { text: `Page ${currentPage}` }]
     : [{ text: 'Blog' }]),
 ];
-
-// const allCategories = await findCategories();
-// const allTags = await findTags();
 
 const metadata = {
   title: `Blog${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
@@ -54,25 +50,19 @@ const metadata = {
   </Fragment>
   <Breadcrumbs bar items={breadcrumbs} />
   <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
-    <Headline subtitle="Practical email deliverability writing from twenty years behind the inbox">
-      The Blog
-    </Headline>
+    <Headline>The Blog</Headline>
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
-    <!--
-      <PostTags tags={allCategories} class="mb-2" title="Search by Categories:" isCategory />
-      <PostTags tags={allTags}  title="Search by Tags:" />
-    -->
   </section>
   <CallToAction
     actions={[
-     {
+      {
         variant: 'primary',
         text: 'Free consultation',
-        href: '/contact',
+        href: getPermalink('/contact'),
       },
     ]}
     title="Email that earns its place in the inbox."
-    subtitle="Practical writing on authentication, deliverability and the systems behind both — from twenty years of fixing the same problems."
+    subtitle="Think you need hands on help? Book your free consultation now"
   />
 </Layout>
