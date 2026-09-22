@@ -1,13 +1,15 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
-import CallToAction from '~/components/widgets/CallToAction.astro';
 import Hero from '~/components/widgets/Hero.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: 'The Brief',
   description:
-    'The MacDougall Email newsletter — a free weekly brief on email deliverability, plus a paid tier for operators who need the monthly tactical detail.',
+    'The MacDougall Email newsletter: a free weekly brief on email deliverability, plus a Premium tier with additional support including a monthly domain health check.',
 };
 
 // Tier data lives here so pricing/copy edits happen in one place.
@@ -21,28 +23,29 @@ const tiers = [
     summary:
       'One brief every week: what changed in deliverability, what it means, and one thing worth doing about it.',
     features: [
-      'Weekly email — authentication, deliverability and infrastructure in plain English',
+      'Weekly email covering authentication, deliverability and infrastructure in plain English',
       'First access to new tools and posts',
-      'No spam, no resale of your address — unsubscribe any time',
+      'No spam, no resale of your address. Unsubscribe any time',
     ],
     ctaText: 'Sign Up Free',
     ctaHref: '/contact',
     highlight: false,
   },
   {
-    name: 'Tactical Report',
+    name: 'Premium',
     price: '£15',
     cadence: 'per month',
     summary:
-      'Everything in the free brief, plus a monthly tactical report for operators who need the detail.',
+      'Everything in the free brief, plus additional support including a monthly domain health check.',
     features: [
-      'Monthly deep report — benchmarks, case studies and worked configurations',
+      'Monthly domain health check: SPF, DKIM and DMARC validation report',
       'The free weekly brief as standard',
       'Cancel any time, keep what you have learned',
     ],
-    ctaText: 'Get the Tactical Report',
-    ctaHref: '/contact',
+    ctaText: 'Coming Soon',
+    ctaHref: '#',
     highlight: true,
+    comingSoon: true,
   },
 ];
 ---
@@ -51,16 +54,20 @@ const tiers = [
   <!-- Hero -->
 
   <Hero
+    id="hero"
     tagline="The Brief"
     title="Email deliverability, without the noise"
-    subtitle="A weekly brief on what is actually happening to your email — authentication, deliverability and the infrastructure behind it. Written by someone who runs it for a living."
-    compact={true}
+    subtitle="A weekly brief on what is actually happening to your email: authentication, deliverability and the infrastructure behind it. Written by someone who runs it for a living."
+    actions={[
+      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
+      { variant: 'secondary', text: 'View Services', href: getPermalink('/services') },
+    ]}
   />
 
-  <!-- Tiers (slate-100) -->
+  <!-- Tiers (white) -->
 
-  <section id="tiers" class="relative bg-slate-100 dark:bg-transparent">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-5xl">
+  <section id="tiers" class="relative py-12 sm:py-16">
+    <div class="px-4 sm:px-6 mx-auto lg:px-8 max-w-5xl">
       <div class="text-center mb-10">
         <h2 class="text-2xl font-bold dark:text-white sm:text-3xl">Choose your level</h2>
         <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -73,13 +80,13 @@ const tiers = [
           <div
             class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
               tier.highlight
-                ? 'bg-white dark:bg-slate-900 border-primary'
+                ? 'bg-slate-100 dark:bg-slate-900 border-primary opacity-75'
                 : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
             }`}
           >
             {tier.highlight && (
               <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
-                Most Popular
+                Coming Soon
               </span>
             )}
             <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
@@ -98,7 +105,7 @@ const tiers = [
             </ul>
             <a
               href={tier.ctaHref}
-              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center`}
+              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center pointer-events-none ${tier.highlight ? '' : ''}`}
             >
               {tier.ctaText}
             </a>
@@ -107,38 +114,56 @@ const tiers = [
       </div>
 
       <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-6">
-        Prices in GBP. Payment links coming shortly — contact me in the meantime. Need direct advice instead? <a href="/services-pricing" class="underline">Wingman advisory is a service tier</a>.
+        Prices in GBP. Payment links coming shortly, so contact me in the meantime. Need direct advice instead? <a href="/services-pricing" class="underline">Wingman advisory is a service tier</a>.
       </p>
     </div>
   </section>
 
-  <!-- What to expect (white) -->
+  <!-- What to expect (slate-100) -->
 
-  <section id="what-to-expect" class="relative">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+  <section id="what-to-expect" class="relative py-12 sm:py-16">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+
+    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
       <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">What every tier gets</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
         <p>
-          The Brief is written by me — I run email infrastructure and deliverability work daily, and
+          The Brief is written by me. I run email infrastructure and deliverability work daily, and
           the newsletter is where the practical end of that work gets written down. No ghostwriters,
           no recycled press releases.
         </p>
         <p>
           Every issue connects to something you can act on: a free tool, a configuration change, a
-          check worth running. If a topic needs more depth than a weekly brief allows, that is what
-          the Tactical Report is for.
+          check worth running. If a topic needs more depth than a weekly brief allows, Premium will
+          provide it.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- Blog (white) -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Straightforward guides and updates on authentication, deliverability and overall strategy."
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </BlogLatestPosts>
+
+  <!-- Call to action (slate-100) -->
 
   <CallToAction
-    actions={[
-      { variant: 'primary', text: 'Sign Up Free', href: '/contact' },
-    ]}
     title="Start with the free weekly brief"
-    subtitle="One email a week. Useful or unsubscribe — no hard feelings either way."
-  />
+    subtitle="One email a week. Useful or unsubscribe, no hard feelings either way."
+    actions={[
+      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
+    ]}
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </CallToAction>
 </Layout>
