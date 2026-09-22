@@ -2,7 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import { SITE } from 'astrowind:config';
 import { getHomePermalink } from '~/utils/permalinks';
-import NewsletterSignup from '~/components/NewsletterSignup.astro';
+import { getPermalink } from '~/utils/permalinks';
 
 interface Link {
   text?: string;
@@ -74,9 +74,16 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '' } = Ast
           </div>
         ))
       }
-      <!-- Field Notes newsletter signup — right side of footer (v1, unwired) -->
+      <!-- Newsletter signup — right side of footer, button to /brief -->
       <div class="md:w-72">
-        <NewsletterSignup />
+        <div class="text-sm text-slate-300 mb-2">Subscribe to The Brief</div>
+        <a
+          href={getPermalink('/brief')}
+          class="btn btn-primary rounded-lg px-4 py-2.5 font-medium inline-block text-center"
+          aria-label="Sign up for the free weekly newsletter"
+        >
+          Sign Up Free
+        </a>
       </div>
     </div>
     <div class="md:flex md:items-center md:justify-between py-6 md:py-8">
