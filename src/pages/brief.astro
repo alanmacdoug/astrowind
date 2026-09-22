@@ -9,7 +9,7 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: 'The Brief',
   description:
-    'The MacDougall Email newsletter: a free weekly brief on email deliverability, plus a Premium tier with additional support including a monthly domain health check.',
+    'The MacDougall Email newsletter: a free weekly brief on email deliverability, plus a Premium tier with deeper monthly reports and a monthly domain health check.',
 };
 
 // Tier data lives here so pricing/copy edits happen in one place.
@@ -30,14 +30,16 @@ const tiers = [
     ctaText: 'Sign Up Free',
     ctaHref: '/contact',
     highlight: false,
+    comingSoon: false,
   },
   {
     name: 'Premium',
     price: '£15',
     cadence: 'per month',
     summary:
-      'Everything in the free brief, plus additional support including a monthly domain health check.',
+      'Everything in the free brief, plus detailed monthly reporting and analysis on top.',
     features: [
+      'Detailed monthly report: deeper analysis and insight than the weekly brief carries',
       'Monthly domain health check: SPF, DKIM and DMARC validation report',
       'The free weekly brief as standard',
       'Cancel any time, keep what you have learned',
@@ -51,7 +53,7 @@ const tiers = [
 ---
 
 <Layout metadata={metadata}>
-  <!-- Hero -->
+  <!-- Hero (default) -->
 
   <Hero
     id="hero"
@@ -64,10 +66,12 @@ const tiers = [
     ]}
   />
 
-  <!-- Tiers (white) -->
+  <!-- Tiers (slate-100) -->
 
   <section id="tiers" class="relative py-12 sm:py-16">
-    <div class="px-4 sm:px-6 mx-auto lg:px-8 max-w-5xl">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+
+    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-5xl">
       <div class="text-center mb-10">
         <h2 class="text-2xl font-bold dark:text-white sm:text-3xl">Choose your level</h2>
         <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -80,7 +84,7 @@ const tiers = [
           <div
             class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
               tier.highlight
-                ? 'bg-slate-100 dark:bg-slate-900 border-primary opacity-75'
+                ? 'bg-white dark:bg-slate-900 border-primary opacity-75'
                 : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
             }`}
           >
@@ -105,7 +109,8 @@ const tiers = [
             </ul>
             <a
               href={tier.ctaHref}
-              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center pointer-events-none ${tier.highlight ? '' : ''}`}
+              aria-disabled={tier.comingSoon ? 'true' : undefined}
+              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center ${tier.comingSoon ? 'pointer-events-none' : ''}`}
             >
               {tier.ctaText}
             </a>
@@ -119,11 +124,9 @@ const tiers = [
     </div>
   </section>
 
-  <!-- What to expect (slate-100) -->
+  <!-- What to expect (default) -->
 
   <section id="what-to-expect" class="relative py-12 sm:py-16">
-    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-
     <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
       <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">What every tier gets</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
@@ -134,14 +137,24 @@ const tiers = [
         </p>
         <p>
           Every issue connects to something you can act on: a free tool, a configuration change, a
-          check worth running. If a topic needs more depth than a weekly brief allows, Premium will
-          provide it.
+          check worth running. Premium subscribers get the same work in more depth, with detailed
+          monthly reports and analysis on their own domain's health.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Blog (white) -->
+  <!-- Call to action (default) -->
+
+  <CallToAction
+    title="Start with the free weekly brief"
+    subtitle="One email a week. Useful or unsubscribe, no hard feelings either way."
+    actions={[
+      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
+    ]}
+  />
+
+  <!-- Blog (slate-100, last before footer) -->
 
   <BlogLatestPosts
     id="blog"
@@ -152,18 +165,4 @@ const tiers = [
       <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
     </Fragment>
   </BlogLatestPosts>
-
-  <!-- Call to action (slate-100) -->
-
-  <CallToAction
-    title="Start with the free weekly brief"
-    subtitle="One email a week. Useful or unsubscribe, no hard feelings either way."
-    actions={[
-      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
-    ]}
-  >
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
-  </CallToAction>
 </Layout>
