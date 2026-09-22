@@ -13,7 +13,7 @@ const metadata = {
 };
 
 // Tier data lives here so pricing/copy edits happen in one place.
-// Payment links (Stripe/Gumroad) are TODO — CTAs point to /contact until wired.
+// Payment links (Stripe/Gumroad) are TODO — Premium CTA is disabled until launch.
 // Wingman tier moved to services-pricing — advisory service, not newsletter content.
 const tiers = [
   {
@@ -28,7 +28,7 @@ const tiers = [
       'No spam, no resale of your address. Unsubscribe any time',
     ],
     ctaText: 'Sign Up Free',
-    ctaHref: '/contact',
+    ctaHref: '#signup',
     highlight: false,
     comingSoon: false,
   },
@@ -61,7 +61,7 @@ const tiers = [
     title="Email deliverability, without the noise"
     subtitle="A weekly brief on what is actually happening to your email: authentication, deliverability and the infrastructure behind it. Written by someone who runs it for a living."
     actions={[
-      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
+      { variant: 'primary', text: 'Sign Up Free', href: '#signup' },
       { variant: 'secondary', text: 'View Services', href: getPermalink('/services') },
     ]}
   />
@@ -119,14 +119,69 @@ const tiers = [
       </div>
 
       <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-6">
-        Prices in GBP. Payment links coming shortly, so contact me in the meantime. Need direct advice instead? <a href="/services-pricing" class="underline">Wingman advisory is a service tier</a>.
+        Prices in GBP. Premium launches shortly. Need direct advice instead? <a href="/services-pricing" class="underline">Wingman advisory is a service tier</a>.
       </p>
     </div>
   </section>
 
-  <!-- What to expect (default) -->
+  <!-- Email signup (default) -->
+
+  <section id="signup" class="relative py-12 sm:py-16">
+    <div class="px-4 sm:px-6 mx-auto lg:px-8 max-w-xl">
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">
+        Get the free weekly brief
+      </h2>
+      <p class="mt-3 text-center text-sm text-slate-600 dark:text-slate-300">
+        One email a week. Plain English, no noise, unsubscribe any time.
+      </p>
+
+      <form id="subscribe-form" class="mt-8" novalidate>
+        <label for="subscribe-email" class="block text-sm font-medium dark:text-white sr-only">
+          Email address
+        </label>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            id="subscribe-email"
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="you@example.com"
+            class="flex-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
+          <!-- Honeypot: hidden from humans and screen readers -->
+          <div aria-hidden="true" class="hidden">
+            <label for="subscribe-website">Leave this field empty</label>
+            <input
+              id="subscribe-website"
+              type="text"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary rounded-lg px-5 py-2.5 font-medium text-center"
+          >
+            Sign Up Free
+          </button>
+        </div>
+        <p
+          id="subscribe-status"
+          role="status"
+          aria-live="polite"
+          class="mt-3 text-sm text-center text-slate-600 dark:text-slate-300"
+        ></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- What to expect (slate-100) -->
 
   <section id="what-to-expect" class="relative py-12 sm:py-16">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+
     <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
       <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">What every tier gets</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
@@ -150,7 +205,7 @@ const tiers = [
     title="Start with the free weekly brief"
     subtitle="One email a week. Useful or unsubscribe, no hard feelings either way."
     actions={[
-      { variant: 'primary', text: 'Sign Up Free', href: getPermalink('/contact') },
+      { variant: 'primary', text: 'Sign Up Free', href: '#signup' },
     ]}
   />
 
@@ -166,3 +221,62 @@ const tiers = [
     </Fragment>
   </BlogLatestPosts>
 </Layout>
+
+<script>
+  // Subscribe form — POSTs to /api/subscribe (Cloudflare Worker).
+  // Init is idempotent and listens for astro:page-load so the form
+  // survives View Transitions soft navigation without needing a
+  // hard refresh (the lesson from the DMARC parser race conditions).
+  function initSubscribeForm() {
+    const form = document.getElementById('subscribe-form');
+    if (!form || form.dataset.initialized) return;
+    form.dataset.initialized = 'true';
+
+    const statusEl = document.getElementById('subscribe-status');
+    const button = form.querySelector('button[type="submit"]');
+    const originalButtonText = button ? button.textContent : '';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const emailInput = document.getElementById('subscribe-email');
+      const email = emailInput ? emailInput.value.trim() : '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        statusEl.textContent = 'Please enter a valid email address.';
+        return;
+      }
+
+      const honeypot = form.querySelector('input[name="website"]');
+      const payload = {
+        email,
+        website: honeypot ? honeypot.value : '',
+        source: 'brief',
+      };
+
+      button.disabled = true;
+      statusEl.textContent = 'Signing you up\u2026';
+
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({ ok: false }));
+
+        if (response.ok && data.ok) {
+          statusEl.textContent = 'You are on the list. Watch your inbox for the first Brief.';
+          form.reset();
+        } else {
+          statusEl.textContent = 'That did not go through. Check the address and try again.';
+          button.disabled = false;
+        }
+      } catch (err) {
+        statusEl.textContent = 'Something went wrong on the network. Try again in a moment.';
+        button.disabled = false;
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', initSubscribeForm);
+  initSubscribeForm();
+</script>
