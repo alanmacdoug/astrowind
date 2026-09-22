@@ -1,4 +1,4 @@
-# Content Signals — how automated systems may use this site's content.
+# Content Signals - how automated systems may use this site's content.
 # Preferences, not enforcement: crawl control is handled separately
 # in Cloudflare AI Crawl Control.
 
