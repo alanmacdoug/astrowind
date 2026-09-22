@@ -201,7 +201,7 @@ const tiers = [
   />
 </Layout>
 
-<script data-astro-rerun>
+<script>
   // Signup reveal + form submit. Any "Join the Brief" CTA (hero button or
   // free-tier card) expands the hidden form under the tier boxes and
   // focuses the email field, then scrolls it into view.
@@ -220,21 +220,21 @@ const tiers = [
       });
     });
 
-    const form = document.getElementById('subscribe-form') as HTMLFormElement | null;
+    const form = document.getElementById('subscribe-form');
     const statusEl = document.getElementById('subscribe-status');
     const button = form?.querySelector('button[type="submit"]');
     if (!form) return;
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const emailInput = document.getElementById('subscribe-email') as HTMLInputElement | null;
+      const emailInput = document.getElementById('subscribe-email');
       const email = emailInput ? emailInput.value.trim() : '';
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         if (statusEl) statusEl.textContent = 'Please enter a valid email address.';
         return;
       }
 
-      const honeypot = form.querySelector('input[name="website"]') as HTMLInputElement | null;
+      const honeypot = form.querySelector('input[name="website"]');
       const payload = {
         email,
         website: honeypot ? honeypot.value : '',
@@ -242,7 +242,7 @@ const tiers = [
       };
 
       if (button) button.disabled = true;
-      if (statusEl) statusEl.textContent = 'Adding you\u2026';
+      if (statusEl) statusEl.textContent = 'Adding you…';
 
       try {
         const response = await fetch('/api/subscribe', {
@@ -266,6 +266,6 @@ const tiers = [
     });
   }
 
-  initSubscribeForm();
   document.addEventListener('astro:page-load', initSubscribeForm);
+  initSubscribeForm();
 </script>
