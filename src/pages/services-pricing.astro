@@ -3,6 +3,8 @@ import Layout from '~/layouts/PageLayout.astro';
 
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Hero from '~/components/widgets/Hero.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: 'Pricing',
@@ -11,33 +13,34 @@ const metadata = {
 };
 
 // Tier data lives here so pricing edits happen in one place.
-// Tier One and Tier Two are PLACEHOLDERS — names, inclusions and possibly
-// prices change when the tiers are properly defined.
-// Wingman (Tier Three, £149/mo) is defined; do not confuse with the PoA tier.
 // NOTE: if the £199 audit/package figures change, update the ROI calculator
 // constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the same pass.
 const tiers = [
   {
-    name: 'Tier One',
-    price: '£49',
+    name: 'Authentication Audit',
+    price: '£150',
     cadence: 'one-off',
-    summary: 'Entry-level check. Placeholder description pending tier definition.',
+    summary:
+      'Full diagnostic of your current authentication. What is published, what passes, what fails, and why.',
     features: [
-      'Placeholder inclusion',
-      'Placeholder inclusion',
-      'Placeholder inclusion',
+      'SPF, DKIM and DMARC records examined live against public DNS',
+      'Lookup budget calculated and reported',
+      'Plain-English summary of what is broken and what it costs you',
+      'Prioritised remediation plan you can execute yourself',
     ],
     highlight: false,
   },
   {
-    name: 'Tier Two',
-    price: '£99',
+    name: 'Deliverability Rescue',
+    price: '£250',
     cadence: 'one-off',
-    summary: 'Placeholder description pending tier definition.',
+    summary:
+      'Your email is going to spam and you do not know why. I diagnose and fix it.',
     features: [
-      'Placeholder inclusion',
-      'Placeholder inclusion',
-      'Placeholder inclusion',
+      'Complete investigation across all three layers',
+      'Authentication records aligned and published for you',
+      'Platform configuration corrected where required',
+      'Verification tests proving the result',
     ],
     highlight: false,
   },
@@ -56,7 +59,7 @@ const tiers = [
     highlight: true,
   },
   {
-    name: 'Advisory',
+    name: 'Custom Services',
     price: 'PoA',
     cadence: 'ongoing',
     summary:
@@ -73,19 +76,25 @@ const tiers = [
 ---
 
 <Layout metadata={metadata}>
-  <!-- Hero -->
+  <!-- Hero (default) -->
 
   <Hero
+    id="hero"
     tagline="Pricing"
     title="Straightforward pricing"
-    subtitle="No hourly meters, no surprise invoices. Pick the level of help you need — if it is not listed, the advisory tier covers it."
-    compact={true}
+    subtitle="No hourly meters, no surprise invoices. Pick the level of help you need — if it is not listed, the custom tier covers it."
+    actions={[
+      { variant: 'primary', text: 'Book Your Free Consultation', href: getPermalink('/contact') },
+      { variant: 'secondary', text: 'View Services', href: getPermalink('/services') },
+    ]}
   />
 
   <!-- Tiers (slate-100) -->
 
-  <section id="pricing" class="relative bg-slate-100 dark:bg-transparent">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-6xl">
+  <section id="pricing" class="relative py-12 sm:py-16">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+
+    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-6xl">
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         {tiers.map((tier) => (
           <div
@@ -125,16 +134,16 @@ const tiers = [
       </div>
 
       <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-6">
-        Pricing shown is indicative and under review — confirm the current structure before engaging.
+        Pricing shown is indicative. Confirm the current structure before engaging.
       </p>
     </div>
   </section>
 
-  <!-- Wingman vs Advisory (white) -->
+  <!-- Wingman vs Custom (default) -->
 
-  <section class="relative">
-    <div class="px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Wingman or Advisory?</h2>
+  <section class="relative py-12 sm:py-16">
+    <div class="px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Wingman or Custom?</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
         <p>
           Wingman is advice on WhatsApp. It is a subscription: you ask, I answer, the decisions and
@@ -142,7 +151,7 @@ const tiers = [
           an experienced opinion before you do it.
         </p>
         <p>
-          Advisory is work. Requirements, configuration, implementation, documentation — scoped
+          Custom is work. Requirements, configuration, implementation, documentation — scoped
           properly, quoted before anything starts, delivered by me. Best when the problem needs
           someone to actually fix it.
         </p>
@@ -154,13 +163,25 @@ const tiers = [
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- Call to action (slate-100) -->
 
   <CallToAction
-    actions={[
-      { variant: 'primary', text: 'Book Your Free Consultation', href: '/contact' },
-    ]}
     title="Not sure which tier fits?"
     subtitle="Describe the problem — I will tell you which level of help it actually needs."
+    actions={[
+      { variant: 'primary', text: 'Book Your Free Consultation', href: getPermalink('/contact') },
+    ]}
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+    </Fragment>
+  </CallToAction>
+
+  <!-- Blog (default, last before footer) -->
+
+  <BlogLatestPosts
+    id="blog"
+    title="From the blog"
+    information="Straightforward guides and updates on authentication, deliverability and overall strategy."
   />
 </Layout>
