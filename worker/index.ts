@@ -17,9 +17,10 @@ interface Payload {
 }
 
 interface SubscribePayload {
-  email: string;
+  email?: string;
   name?: string;
   source?: string; // page path or campaign identifier
+  website?: string; // honeypot
 }
 
 const NOTIFY_ADDRESS = 'amacmack@proton.me'; // verified Email Routing destination
@@ -116,7 +117,7 @@ export default {
       const name = (body.name ?? '').trim();
       const source = (body.source ?? 'brief').trim();
 
-      // Honeypot field: must be absent or empty
+      // Honeypot: same discipline as the contact form.
       if ((body.website ?? '') !== '') return json({ ok: true });
 
       if (!email) return json({ ok: false, error: 'email_required' }, 400);
@@ -127,64 +128,80 @@ export default {
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
       const referrer = request.headers.get('Referer') || 'direct';
 
-      // Generate confirmation token for future double opt-in (currently unused)
+      // Confirmation token reserved for the double opt-in leg (Email
+      // Sending binding, once graduated). Generated now so later
+      // activation needs no data migration.
       const confirmToken = `${Date.now()}_${Math.random().toString(36).slice(2, 16)}`;
 
-      // Check for existing subscriber with this email
+      // NOTE: subscriber records carry NO expirationTtl. Unlike contact
+      // submissions, these must persist indefinitely. Deleting subscribers
+      // silently after 90 days would be a data-loss defect.
       try {
         const existing = await env.SUBSCRIBERS_KV.get(email);
         if (existing) {
           const existingData = JSON.parse(existing);
-          // Already subscribed? Return success without creating duplicate
+          // Idempotent: an existing confirmed subscriber is not re-written.
+          // A re-signup of a confirmed address must NOT demote them.
           if (existingData.status === 'subscribed') {
             return json({ ok: true, already_subscribed: true });
           }
-          // Pending subscription? Update timestamp and return success
           if (existingData.status === 'pending') {
             await env.SUBSCRIBERS_KV.put(email, JSON.stringify({
               ...existingData,
-              subscribed_at: timestamp,
               source,
               ip,
               referrer,
               confirm_token: confirmToken,
-            }), { expirationTtl: 60 * 60 * 24 * 90 });
+              resubmitted_at: timestamp,
+            }));
             return json({ ok: true, already_pending: true });
+          }
+          if (existingData.status === 'unsubscribed') {
+            // Resubscription after unsubscribe: reopen as pending, keep history.
+            await env.SUBSCRIBERS_KV.put(email, JSON.stringify({
+              ...existingData,
+              status: 'pending',
+              confirm_token: confirmToken,
+              source,
+              ip,
+              referrer,
+              resubscribed_at: timestamp,
+            }));
+            return json({ ok: true, resubscribed: true });
           }
         }
       } catch (err) {
         console.error('Subscriber lookup failed:', err);
-        // Non-fatal: continue with insert
+        // Non-fatal: continue with fresh insert.
       }
 
-      // Durable record FIRST
+      // Durable record FIRST — same discipline as contact submissions.
       try {
         await env.SUBSCRIBERS_KV.put(email, JSON.stringify({
           email,
           name: name || null,
           source,
-          status: 'pending', // TODO: flip to 'subscribed' after double opt-in confirmation
-          confirm_token: confirmToken, // TODO: use for double opt-in email link
+          status: 'pending', // TODO: flip to 'subscribed' on confirmation once double opt-in leg ships
+          confirm_token: confirmToken,
           timestamp,
           ip,
           referrer,
-        }), { expirationTtl: 60 * 60 * 24 * 90 });
+        }));
       } catch (err) {
         console.error('KV write failed:', err);
         return json({ ok: false, error: 'internal_error' }, 500);
       }
 
-      // TODO: Send confirmation email via Email Sending binding when available
-      // For now, the subscribe endpoint records the intent but does not send
-      // the confirmation email. The admin can manually send welcomes or
-      // migrate to the Email Sending binding when ready.
+      // Operator notification via the existing send_email binding, same
+      // From address discipline as the contact path. Plain text only.
+      const fromAddress = env.CONTACT_FROM || 'help@macdougallemail.com';
       let notified = false;
       try {
         await env.NOTIFY.send({
-          from: 'notifications@macdougallemail.com',
+          from: fromAddress,
           to: NOTIFY_ADDRESS,
-          subject: `New brief subscriber: ${email}`,
-          text: `Email: ${email}\nName: ${name || '(none)'}\nSource: ${source}\nStatus: pending (awaiting confirmation)\nTimestamp: ${timestamp}\nIP: ${ip}\nReferrer: ${referrer}\nConfirm token: ${confirmToken}`,
+          subject: `New Brief subscriber: ${email}`,
+          text: `Email: ${email}\nName: ${name || '(none)'}\nSource: ${source}\nStatus: pending\nTimestamp: ${timestamp}\nIP: ${ip}\nReferrer: ${referrer}\nConfirm token: ${confirmToken}`,
         });
         notified = true;
       } catch (err) {
@@ -215,4 +232,5 @@ export default {
 // Comment change forces re-deploy to validate the import chain.
 // Last checked: 2026-09-21 15:40 UTC
 // 2026-09-21: SendGrid leg replaced by NOTIFY send_email binding (routing active).
-// 2026-09-22: Added /api/subscribe endpoint, SUBSCRIBERS_KV namespace required.
+// 2026-09-22: Added /api/subscribe endpoint. Requires SUBSCRIBERS_KV binding
+// in wrangler.jsonc. Subscriber records intentionally have NO TTL.
