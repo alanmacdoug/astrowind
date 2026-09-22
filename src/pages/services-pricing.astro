@@ -9,12 +9,15 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: 'Pricing',
   description:
-    'Transparent pricing for MacDougall Systems email deliverability services — from a single-record check to ongoing advisory support.',
+    'Transparent pricing for MacDougall Email deliverability services — from a single-record check to ongoing advisory support.',
 };
 
 // Tier data lives here so pricing edits happen in one place.
-// NOTE: if the £199 audit/package figures change, update the ROI calculator
+// NOTE: if the audit/package figures change, update the ROI calculator
 // constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the same pass.
+// TODO pre-launch: sub-£100 entry tier to be defined and inserted below.
+// TODO pre-launch: metadata tail ("single-record check", "advisory support")
+// to be rewritten when tier structure is final.
 const tiers = [
   {
     name: 'Authentication Audit',
@@ -106,7 +109,7 @@ const tiers = [
           >
             {tier.highlight && (
               <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
-                Most Popular
+                Subscription
               </span>
             )}
             <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
