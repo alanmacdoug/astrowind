@@ -76,13 +76,14 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '' } = Ast
       }
       <!-- Newsletter signup — right side of footer, button to /brief -->
       <div class="md:w-72">
-        <div class="text-sm text-slate-300 mb-2">Subscribe to The Brief</div>
+        <div class="text-sm text-white font-medium mb-2">Join the Brief</div>
+        <p class="text-xs text-slate-400 mb-3">One email a week on deliverability — plain English, no noise.</p>
         <a
           href={getPermalink('/brief')}
-          class="btn btn-primary rounded-lg px-4 py-2.5 font-medium inline-block text-center"
-          aria-label="Sign up for the free weekly newsletter"
+          class="inline-flex items-center justify-center w-full bg-primary hover:bg-primary/90 text-white font-medium rounded-lg px-4 py-2.5 transition-colors"
+          aria-label="Join The Brief newsletter"
         >
-          Sign Up Free
+          Join the Brief
         </a>
       </div>
     </div>
