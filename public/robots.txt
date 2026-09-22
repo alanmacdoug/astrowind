@@ -1,2 +1,9 @@
+# Content Signals — how automated systems may use this site's content.
+# Preferences, not enforcement: crawl control is handled separately
+# in Cloudflare AI Crawl Control.
+
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Disallow:
+
+Sitemap: https://macdougallemail.com/sitemap-index.xml
