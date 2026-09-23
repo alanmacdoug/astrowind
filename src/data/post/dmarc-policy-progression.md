@@ -15,7 +15,7 @@ tags:
 
 DMARC is the only one of the three authentication systems with teeth. SPF lists servers. DKIM signs messages. DMARC decides what happens to mail that fails both, and that decision is a dial, not a switch.
 
-The dial has three settings, and the businesses that struggle with DMARC almost always struggle for the same reason: they turned the dial too far, too fast, and burned their own legitimate mail in the process. This is the guide to moving it deliberately.
+The dial has three settings, and the businesses that struggle with DMARC almost always struggle for the same reason: they turned the dial too far, too fast, and burned their own legitimate mail in the process. This is the guide to moving it safely.
 
 ## The three policies
 
@@ -33,9 +33,9 @@ The progression exists because DMARC's job is protecting you from forgery, and f
 
 Before any policy movement, a prerequisite that shortens the whole journey: every legitimate sender must be authenticated. The mail server, the marketing platform, the invoicing system, the helpdesk, the notifications from that internal tool nobody remembers commissioning. All of them sending authenticated, aligned mail.
 
-The aggregate reports are how you know. They list every source sending as your domain, legitimate or not, and the authentication result of each. The methodology is unglamorous. Read the reports, identify every legitimate source, fix each one until nothing legitimate fails, then move the dial.
+The aggregate reports are how you know. They list every source sending as your domain, legitimate or not, and the authentication result of each. Read the reports, identify every legitimate source and fix each one until nothing legitimate fails, then move the dial.
 
-Skip that reading step and enforcement becomes a gamble on your own mail. Organisations that jump straight to `p=reject` are the ones who discover, via angry customers, that their invoices were being binned for a fortnight.
+Skip that reading step and enforcement becomes a gamble on your own mail. Organisations that jump straight to `p=reject` are the ones who discover that their invoices were being junked for a fortnight.
 
 ## The deliberate progression
 
@@ -45,7 +45,7 @@ Skip that reading step and enforcement becomes a gamble on your own mail. Organi
 
 **Stage three: `p=quarantine` at 100%.** A full dry run of rejection. Reports confirm total legitimate passage. Stay here until the reports are boring: the same senders, passing, week after week.
 
-**Stage four: `p=reject`.** The spoofers are now being dropped entirely. Keep the reports flowing. The work is not over, it is ongoing, because new tools get connected, senders drift, and the record needs re-reading whenever the infrastructure changes.
+**Stage four: `p=reject`.** The spoofers are now being dropped entirely. Keep the reports flowing. The work is not over, it is ongoing, because new tools get connected and senders drift, and the record needs re-reading whenever the infrastructure changes.
 
 Total elapsed time for a moderately complex domain: six to twelve weeks. Faster is possible. Faster is also where the burned invoices come from.
 
@@ -60,7 +60,3 @@ Two corners of DMARC practice worth knowing:
 ## Watch your own progression
 
 The [DMARC report viewer](/tools/dmarc-report-viewer) parses your aggregate reports in-browser, giving plain-English verdicts per source; the same reading discipline this guide prescribes, minus the XML archaeology. Bring the reports to any policy change and read what the dials are about to affect.
-
-[Check your current DMARC policy](/tools/auth-checker)
-
-Enforcement is not a setting you publish; it is a journey your reports must clear first. Turn the dial only as fast as your own mail has earned.
