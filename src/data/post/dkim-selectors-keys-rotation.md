@@ -29,16 +29,16 @@ The two halves each carry meaning:
 
 **The `_domainkey` suffix** is fixed. It marks the namespace. A record published anywhere else is decoration.
 
-The consequence of this scheme matters: DKIM does not exist or not exist for a domain. It exists *per selector*. A domain can have a perfectly valid key at `s1._domainkey` and nothing at `s2._domainkey`, and both statements are true. This is why checker tools probe a list of common selector names. An absent selector proves nothing on its own; it just means that name is not in use.
+The consequence of this scheme matters: DKIM does not exist or not exist for a domain. It exists *per selector*. A domain can have a perfectly valid key at `s1._domainkey` and nothing at `s2._domainkey`. Or, a domain can have a set of custom keys. This is why checker tools probe a list of common selector names. An absent selector proves nothing on its own; it just means that name is not in use.
 
 ## The private half
 
 For every published public key, the sending platform holds the matching private key and uses it to sign outgoing mail. The practical details that matter to senders:
 
 - **Key size.** 1024-bit is the de facto minimum; some providers now require 2048-bit. Undersized keys can be treated as failed verification
-- **The key's lifetime.** Private keys leak, get decommissioned with platforms, or outlive the DNS records they belong to. The public record should not outlive the platform that holds the private half. A stale record is harmless. A *missing* record is what breaks mail
+- **The key's lifetime.** Private keys leak; they are decommissioned with platforms, or they outlive the DNS records they belong to. The public record should not outlive the platform that holds the private half. A *missing* record is what breaks mail
 
-That last point is the failure mode worth internalising. DKIM breaks when the signature references a selector whose DNS record has gone missing, whether expired by the DNS provider's TTL policies, deleted during a migration, or never created because the setup was half-completed. The signing side believes everything is fine. The verifying side gets a lookup failure.
+That last point is the failure mode worth internalising. DKIM breaks when the signature references a selector whose DNS record has gone missing, whether expired by the DNS policies, deleted during a migration, or never created because the setup was half-completed. The signing side believes everything is fine. The verifying side gets a lookup failure.
 
 ## What rotation actually is
 
@@ -49,15 +49,15 @@ Key rotation means generating a new key pair, publishing the new public key at a
 3. Wait out the TTL of the old record, plus a margin covering in-flight mail
 4. Remove the old record only once no signatures still reference it
 
-The order matters. Rotating in the other direction, deleting first and publishing after, produces a window where every outgoing message carries a signature nothing can verify. Receivers do not forgive that window politely. Each failed verification is a reputation event.
+The order matters. Rotating in the other direction, deleting first and publishing after, produces a window where every outgoing message carries a signature nothing can verify. Each failed verification is a reputation event.
 
 How often to rotate is a matter of appetite rather than regulation. Common practice is annually. Security-conscious organisations rotate quarterly. The honest framing: rotation is cheap insurance against key compromise, and expensive only when done carelessly.
 
 ## Selectors in the wild
 
-If you have ever wondered why your DKIM "isn't set up" even though your platform swears it is, the answer is nearly always selectors. Each platform signs under its own selector name, often several. Google uses per-tenant selectors, SendGrid exposes its own, marketing platforms each bring theirs. A domain sending through four platforms typically has six to ten DKIM records scattered across different selectors, and each one matters only to the mail signed under it.
+If you have ever wondered why your DKIM "isn't set up" even though your platform swears it is, the answer is nearly always selectors. Each platform signs under its own selector name, often several. Google uses per-tenant selectors and SendGrid its own; marketing platforms each bring theirs. A domain sending through four platforms typically has six to ten DKIM records scattered across different selectors, and each one matters only to the mail signed under it.
 
-The [authentication checker](/tools/auth-checker) probes the common selector names and reports which resolve; it gives you a snapshot of what is live. For the complete inventory, your sending platforms' own settings pages remain the source of truth, because a valid selector with an unusual name is invisible to guessing.
+The [authentication checker](/tools/auth-checker) probes the common selector names and reports which resolve; it gives you a snapshot of what is live. For the complete inventory, your sending platforms' own settings pages remain the source of truth, because a valid selector with an unusual name is invisible to such tools.
 
 ## The maintenance discipline
 
@@ -67,5 +67,3 @@ DKIM does not need attention, until it does. The practice that prevents surprise
 - Keep a private record of which platform signs under which selector, for every domain you administer
 - Rotate on a schedule you will actually follow, in the order above
 - Confirm signatures end-to-end by testing to a real mailbox, not by trusting the platform's status page
-
-Twenty years in, the pattern is consistent. Nobody schedules DKIM maintenance, and the mail starts failing at the worst available moment. The selector scheme makes DKIM resilient, but only to the extent someone remembers it exists.
