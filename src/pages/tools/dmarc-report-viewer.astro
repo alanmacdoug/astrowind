@@ -19,7 +19,7 @@ const metadata = {
     tagline="Tools"
     title="Read the report your inbox provider sends you"
     subtitle="Upload a DMARC aggregate report and get plain English back — who sends as your domain, who passes, and what your policy actually means. Runs entirely in your browser."
-compact={true}
+    compact={true}
   />
 
   <!-- The viewer (slate-100) -->
@@ -160,7 +160,7 @@ compact={true}
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1.4 --------------------------------------
+  // --- DMARC Aggregate Report Parser — v1.5 --------------------------------------
   // Parses standard DMARC aggregate reports (RFC 7489).
   // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
   // v1.2: sending domains rendered per source; align_fail replaced with
@@ -176,14 +176,24 @@ compact={true}
   //       rather than assuming a single file, and a .xml filename is
   //       validated (case-insensitive) before extraction. Stored entries
   //       with a non-XML filename are skipped, not parsed.
+  // v1.5: View Transitions retrofit — DOM element acquisition and listener
+  //       binding moved into an init() function registered with the site-wide
+  //       window.pageInit helper (Layout.astro). Module scripts execute once
+  //       per full page load; ClientRouter soft navigations swap the DOM
+  //       without re-running them, which left the parse button dead after
+  //       internal navigation. init() re-acquires elements on every
+  //       astro:page-load; a dataset guard on the button prevents stacked
+  //       duplicate listeners when the event fires twice for one DOM.
 
-  const fields = {
-    file: document.getElementById('report-file') as HTMLInputElement,
-    parseBtn: document.getElementById('parse-btn') as HTMLButtonElement,
-    loading: document.getElementById('loading') as HTMLElement,
-    results: document.getElementById('results') as HTMLElement,
-    error: document.getElementById('error') as HTMLElement,
-    errorText: document.getElementById('error-text') as HTMLElement,
+  // DOM references, populated by init() — acquired fresh on every page load
+  // event so soft-navigated pages bind to their own (new) elements.
+  let fields: {
+    file: HTMLInputElement;
+    parseBtn: HTMLButtonElement;
+    loading: HTMLElement;
+    results: HTMLElement;
+    error: HTMLElement;
+    errorText: HTMLElement;
   };
 
   // Escape untrusted strings before inserting into innerHTML
@@ -581,5 +591,31 @@ compact={true}
     fields.error.classList.remove('hidden');
   }
 
-  fields.parseBtn.addEventListener('click', handleParse);
+  // --- View Transitions binding (v1.5) — see header comment -----------------------
+  function init() {
+    const parseBtn = document.getElementById('parse-btn') as HTMLButtonElement | null;
+    if (!parseBtn || parseBtn.dataset.initDone === 'true') return;
+    parseBtn.dataset.initDone = 'true';
+
+    fields = {
+      file: document.getElementById('report-file') as HTMLInputElement,
+      parseBtn,
+      loading: document.getElementById('loading') as HTMLElement,
+      results: document.getElementById('results') as HTMLElement,
+      error: document.getElementById('error') as HTMLElement,
+      errorText: document.getElementById('error-text') as HTMLElement,
+    };
+
+    parseBtn.addEventListener('click', handleParse);
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
