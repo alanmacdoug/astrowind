@@ -1,32 +1,32 @@
 ---
 publishDate: 2026-09-16
 title: "The DMARC Report Reading Checklist: What to Look At First"
-excerpt: "Aggregate reports arrive as unreadable XML. This is the reading order, with the fields that matter, the ones to ignore, and what each finding means for your next move."
+excerpt: "Aggregate reports arrive as unreadable XML. This is a guide to parsing and understanding those files. The fields that matter and the ones to ignore, plus, what each finding means strategically."
 category: Deliverability
 tags: [dmarc, reports, email-authentication, dns]
 author: Alan MacDougall
 draft: false
 ---
 
-Every domain with a DMARC record and a `rua=` address receives aggregate reports, usually daily, from Gmail, Outlook, Yahoo and the rest. Almost nobody reads them. Not because the information is worthless. It is the single most detailed view of who is sending mail as your domain that exists anywhere. The problem is that the reports arrive as compressed XML attachments with header names like `auth_results` and `disposition`, and life is short.
+Every domain with a DMARC record and a `rua=` address receives aggregate reports, usually daily, from Gmail, Outlook, Yahoo and other mailbox providers. Almost nobody reads them though. Not because the information is worthless - in fact, it is the single most detailed view of exactly who is sending mail as your domain. The problem is that the reports arrive as compressed XML attachments with header names like `auth_results` and `disposition`. Most small businesses just don't have the bandwidth.
 
-If you have read [the companion piece on what these reports actually are](/understanding-dmarc-reports), you already know the terminology. This post is the operational counterpart: a reading order. Run down these checks, in sequence, and you will extract ninety percent of the actionable value from any aggregate report in a few minutes.
+If you have read [the guide on what these reports actually are](/understanding-dmarc-reports), you already know the terminology. This post is the practical counterpart. Run the following checks, in sequence, and you will extract ninety percent of the actionable value from any aggregate report in a few minutes.
 
-## Before you start: one decision
+## Before you start
 
-A quick orientation that shapes everything below. DMARC aggregate reports come in two flavours of finding: mail that **passes alignment** (sent by senders you have authorised) and mail that **fails it** (everything else). The failing traffic divides again into harmless noise and real problems. The reading order below is optimised to get you to the real problems fastest, which means some checks are deliberately skimmed rather than studied.
+A quick orientation that shapes everything below. DMARC aggregate reports show mail that **passes alignment** (sent by senders you have authorised) and mail that **fails it** (everything else). The failing traffic divides again into harmless noise and real problems. The order below is designed to get you to the real problems fastest, which means some checks are deliberately skimmed rather than studied.
 
 ## 1. Find the totals first
 
 Every report is anchored by two numbers: how many messages were evaluated, and what proportion passed DMARC.
 
-Read these before anything else, because they set the scale. A domain evaluating 40 messages a day is a different problem universe from one evaluating 40,000. And the pass rate is your headline indicator. If 95 percent of your traffic passes, you are reading reports to fine-tune. If 40 percent passes, you are reading them to find out what is broken, and the rest of this checklist becomes urgent rather than routine.
+Read these before anything else, because they set the scale. The pass rate is your headline indicator. If 95 percent of your traffic passes, you are reading reports to fine-tune authentication and delivery. If 40 percent passes, you are reading them to find out what is broken, and the rest of this checklist becomes urgent instead of routine.
 
-A healthy domain with correctly configured senders typically shows near-total passing once legitimate senders are aligned. Widespread failure on your own legitimate mail means a configuration problem, not spoofing. Skip to check 4.
+A healthy domain with correctly configured authentication records typically shows near-total passing once legitimate senders are aligned. Widespread failure on your own legitimate mail means a configuration problem, not spoofing. Skip to check 4.
 
 ## 2. Group by sender, not by message
 
-Reports list each source IP, but you should not be reading them individually. Group the results by the reported sending domain (`header.from` combined with the reverse-DNS of the source). This collapses thousands of rows into a handful of senders with volumes and pass rates attached.
+Reports list each source IP, but you should not be reading them individually. Group the results by the reported sending domain (`header.from` combined with the reverse-DNS of the source). This collapses potentially thousands of rows into a handful of senders with volumes and pass rates attached.
 
 For each sender, one question: **is this mine, and should it be?**
 
@@ -50,16 +50,16 @@ The common failure patterns:
 
 Each message row records what the receiver actually did with it: delivered, quarantined, or rejected. Under a `p=none` policy, everything is delivered regardless of outcome, which is why `p=none` is called monitoring. Under `p=quarantine` or `p=reject`, the failures start getting filtered.
 
-If you are on `p=none`, this column tells you what *would* have happened under enforcement; the dress rehearsal for [policy progression](/dmarc-policy-progression). If you are enforcing, this column tells you whether legitimate mail is being caught in the net, which is the one failure mode that costs money directly.
+If you are on `p=none`, this column tells you what *would* have happened under enforcement; almost like a dress rehearsal for [policy progression](/dmarc-policy-progression). If you are enforcing, this column tells you whether legitimate mail is being caught in the net, which is the one failure mode that costs revenue directly.
 
 ## 5. Scan the sending sources for the unfamiliar
 
 Spoofing traffic shows up as small volumes from IPs with no relationship to you, sending mail with your domain in the `From` header. Look for two patterns specifically:
 
-- **Persistent low-volume spoofing**: a few messages a day from the same sources. Common, mostly phishing-adjacent, exactly what enforcement policy exists to suppress.
-- **Bursts**: sudden spikes in volume from unknown sources. Occasionally a compromise, more commonly a spam campaign borrowing your domain. The volume trend across successive reports is more informative than any single day's snapshot.
+- **Persistent low-volume spoofing**: a few messages a day from the same sources. Common, mostly phishing-related, exactly what enforcement policy exists to suppress.
+- **Bursts**: sudden spikes in volume from unknown sources. Occasionally a compromise, more commonly a spam campaign using your domain. The volume trend across successive reports is more informative than any single day's snapshot.
 
-Note that some spoofed traffic will pass SPF anyway, because spammers sometimes publish their own SPF records for domains they control that reference your domain in the return-path. The alignment check is what catches this. SPF pass alone is not a safety signal.
+Note that some spoofed traffic will pass SPF anyway. This is because spammers sometimes publish their own SPF records for domains they control that reference your domain in the return-path. The alignment check is what catches this. SPF pass alone is not a safety signal.
 
 ## 6. Compare against the previous period
 
@@ -67,14 +67,14 @@ Single reports are snapshots; the value compounds across weeks. Two trends matte
 
 ## What not to do
 
-Two mistakes are worth naming because they consume most of the time people waste on these reports.
+Two mistakes are worth highlighting here because they consume most of the time people waste on these reports.
 
-**Do not chase every failing source.** A domain that has existed for any length of time collects a permanent background hum of failed evaluations: scans, bounce probes, opportunistic spoofing at trivial volume. If a source sends five messages a week and fails, it is noise. Policy enforcement suppresses it without your attention. Attention goes to volume, persistence, and burst patterns.
+**Do not chase every failing source.** A domain that has existed for any length of time collects a permanent background hum of failed evaluations: scans, bounce probes, opportunistic spoofing at trivial volume. If a source sends five messages a week and fails, it is noise. Policy enforcement suppresses it without your attention. Attention goes to volume, persistence and burst patterns.
 
-**Do not act on a single report.** Daily reports vary for dull reasons. Decisions about authorising senders or progressing policy belong to the weekly picture, minimum.
+**Do not act on a single report.** Daily reports can vary for multiple reasons. Decisions about authorising senders or progressing policy belong to the weekly picture, minimum.
 
 ## Doing this faster
 
-Everything above is a manual reading of a machine-readable file, and it is honest work, but the parsing layer is not where the value sits. The [DMARC report viewer](/tools) takes the raw XML attachment and returns the grouped, interpreted picture: senders, volumes, pass rates, and the plain-English meaning of each. The judgement calls in this checklist still apply, from grouping to prioritising to deciding what is yours, but the XML stops being the obstacle.
+Everything above is a manual reading of a machine-readable file. The [DMARC report viewer](/tools) takes the raw XML attachment and returns the grouped, interpreted picture: senders, volumes, pass rates, and the plain-English meaning of each. The judgement calls in this checklist still apply, from grouping to prioritising to deciding what is yours, but the XML stops being the obstacle.
 
-If you would rather have the interpretation and the judgement applied for you, that is the shape of the DMARC report read: a written assessment of your reports, your senders, and what your next policy step should be. Either way, the reports keep arriving daily. The only question is whether anyone reads them.
+If you need some help in applying the interpretation and the judgement, please contact me to discuss a written assessment of your reports, your senders, and what your next policy step should be. Either way, the reports keep arriving daily. The only question is whether anyone reads and acts on them.
