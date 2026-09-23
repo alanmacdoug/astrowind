@@ -1,7 +1,7 @@
 ---
 publishDate: 2026-09-16
 title: "SPF Generator: Building a Record One Answer at a Time"
-excerpt: "A guided tour of the SPF record generator, how the questions map to senders, why the lookup counter matters, and what to do with the record once it is built."
+excerpt: "A guided tour of the SPF generator, how the questions map to senders, why the lookup counter matters, and what to do with the record once it is built."
 category: Tools
 tags: [spf, dns, tools, email-authentication]
 author: Alan MacDougall
