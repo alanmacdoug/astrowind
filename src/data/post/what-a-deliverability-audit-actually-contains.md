@@ -25,7 +25,7 @@ If one of those describes your situation, the audit starts with a conversation a
 
 ## What the investigation covers
 
-An audit is a systematic check of every layer that affects where email lands. The work is divided into three parts, each one checked, each one documented, each one scored as pass/fail with evidence.
+An audit is a systematic check of every layer that affects where email lands. The work is divided into three parts — each checked and documented, with evidence-backed scoring.
 
 ### 1. Domain authentication
 
@@ -39,7 +39,7 @@ Each element is tested live against public DNS, not theorised from documentation
 
 ### 2. Sending infrastructure
 
-Authentication is necessary but not sufficient. The rest of the system is inspected:
+Authentication is necessary but not sufficient. The rest of the system is also inspected:
 
 - **Sending platform configuration**: whether your ESP or self-hosted stack is authenticated correctly, whether separate subdomains are used for different types of send (transactional vs marketing vs system mail), whether IP reputation is managed or delegated to a shared pool.
 - **List hygiene status**: bounce rate on recent sends, whether hard bounces are suppressed automatically, whether dormant subscribers have been re-engaged or pruned. A list maintained to poor standards will fail regardless of authentication quality.
@@ -51,7 +51,7 @@ This is where most "my email is going to spam" problems actually sit: not a DNS 
 
 Email delivery is decided by the receiving system, not yours. An audit therefore checks how you appear to the inbox providers:
 
-- **Test sends to major inboxes**, Gmail, Outlook, Yahoo, with results logged for acceptance, rejection or spam placement.
+- **Test sends to major inboxes** — Gmail, Outlook, Yahoo — with results logged for acceptance, rejection or spam placement.
 - **Feedback loops and reputation tools**: whether you're enrolled in ISP feedback channels, whether Google Postmaster and Microsoft SNDS reports are accessible and monitored, what trends show over recent weeks.
 - **Content checks**: subject lines, link structure, attachment usage, URL shortener domains, plain-text ratio. Content does not carry the full burden of placement, but bad content will sink a good reputation faster than good content will save a bad one.
 
@@ -84,7 +84,7 @@ For clients who need implementation support, the audit transitions naturally int
 
 ## Before the audit begins
 
-If you want to prepare:
+If you want to prepare, gather access details, note the problems, and run the free tools first:
 
 - **Gather access details.** Your ESP credentials, DNS hosting platform login, and any historical reports you have, such as the DMARC aggregate reports and the Postmaster trends. You don't need admin access to everything, but the investigation is cleaner with it.
 - **Note the problems.** When did things start going wrong? What changed around that time? Who else sends email from your domain? The history helps the investigation focus.
