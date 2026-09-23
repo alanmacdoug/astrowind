@@ -52,5 +52,31 @@ const { language, textDirection } = I18N;
     <slot />
 
     <Intersect />
+
+    <!-- GLOBAL VIEW TRANSITIONS REBINDING START -->
+    <script is:inline>
+      // Site-wide interactive rebinding for View Transitions.
+      // Pages with dynamic UI call window.pageInit(fn). The function runs
+      // immediately on registration and again after every soft navigation,
+      // via the astro:page-load event ClientRouter fires on each swap.
+      // Every function passed in must be idempotent: guard its bindings
+      // with a dataset flag on the element it binds to, so repeated fires
+      // do not stack duplicate listeners.
+      (function () {
+        'use strict';
+        if (window.pageInit) return;
+        var inits = [];
+        window.pageInit = function (fn) {
+          inits.push(fn);
+          fn();
+        };
+        document.addEventListener('astro:page-load', function () {
+          for (var i = 0; i < inits.length; i++) {
+            try { inits[i](); } catch (e) { /* keep one page from breaking the rest */ }
+          }
+        });
+      })();
+    </script>
+    <!-- GLOBAL VIEW TRANSITIONS REBINDING END -->
   </body>
 </html>
