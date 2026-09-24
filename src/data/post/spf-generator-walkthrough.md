@@ -54,7 +54,7 @@ Once the generator hands you a record, it needs to go into DNS as a TXT record o
 
 - **One SPF record per domain.** If a TXT record already exists starting `v=spf1`, you edit it; you do not add a second. Two SPF records means neither is evaluated, and receivers are required to treat the situation as an error.
 - **The tool does not modify DNS.** By design. It builds the string; you paste it into your registrar or DNS host, where you can see exactly what changed. Publishers who automate DNS edits on your behalf are doing the same thing, faster and less visibly.
-- **Verify after publishing.** DNS propagation is usually minutes with modern hosts, but verify rather than assume. The [email authentication checker](/tools) will show your published record and interpret it the way a receiver does, including the lookup count as it resolves live, which may differ slightly from the generator's estimate if a provider has changed their include chain.
+- **Verify after publishing.** DNS propagation is usually minutes with modern hosts, but verify rather than assume. The [email authentication checker](/tools/auth-checker) will show your published record and interpret it the way a receiver does, including the lookup count as it resolves live, which may differ slightly from the generator's estimate if a provider has changed their include chain.
 
 ## When the generator is not the right tool
 
