@@ -75,6 +75,6 @@ Two mistakes are worth highlighting here because they consume most of the time p
 
 ## Doing this faster
 
-Everything above is a manual reading of a machine-readable file. The [DMARC report viewer](/tools) takes the raw XML attachment and returns the grouped, interpreted picture: senders, volumes, pass rates, and the plain-English meaning of each. The judgement calls in this checklist still apply, from grouping to prioritising to deciding what is yours, but the XML stops being the obstacle.
+Everything above is a manual reading of a machine-readable file. The [DMARC report viewer](/tools/dmarc-report-viewer) takes the raw XML attachment and returns the grouped, interpreted picture: senders, volumes, pass rates, and the plain-English meaning of each. The judgement calls in this checklist still apply, from grouping to prioritising to deciding what is yours, but the XML stops being the obstacle.
 
 If you need some help in applying the interpretation and the judgement, please contact me to discuss a written assessment of your reports, your senders, and what your next policy step should be. Either way, the reports keep arriving daily. The only question is whether anyone reads and acts on them.
