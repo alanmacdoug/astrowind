@@ -6,11 +6,11 @@ excerpt: >-
   mistakes that later show up as spam complaints and reputation damage.
 author: Alan MacDougall
 publishDate: 2026-09-14
-categories:
-  - Deliverability
+category: 'Deliverability'
 tags:
   - Best Practice
   - Campaign Setup
+---
 ---
 
 The difference between a clean send and a damaged reputation is often one overlooked detail that nobody noticed until after the fact. An authentication record that was half-configured. A sending volume spike that exceeded thresholds. A subject line that triggered filters on the first batch and never got reviewed before the rest went out.
