@@ -8,7 +8,7 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: 'The Brief',
   description:
-    'The MacDougall Email newsletter: a free weekly brief on email deliverability, plus a Premium tier with deeper monthly reports and a monthly domain health check.',
+    'The MacDougall Email newsletter: a free weekly brief on email deliverability, plus a Premium tier with deeper monthly reports and Sentry Lite domain monitoring.',
 };
 
 // Tier data lives here so pricing/copy edits happen in one place.
@@ -35,10 +35,11 @@ const tiers = [
     price: '£15',
     cadence: 'per month',
     summary:
-      'The weekly brief, plus a monthly deep dive and a health check on your own domain.',
+      'The weekly brief, plus a monthly deep dive and Sentry Lite — your monthly domain health snapshot.',
     features: [
       'Monthly deep dive: the detail the weekly format cannot carry',
-      'Monthly domain health check — SPF, DKIM and DMARC validated and reported',
+      'Sentry Lite: monthly SPF, DKIM and DMARC validation and report',
+      'Green/amber/red status with any configuration changes detected',
       'The free weekly brief as standard',
       'Cancel any time, keep everything you have learned',
     ],
@@ -267,4 +268,4 @@ const tiers = [
 
   document.addEventListener('astro:page-load', initSubscribeForm);
   initSubscribeForm();
-</script>
+</script>       
