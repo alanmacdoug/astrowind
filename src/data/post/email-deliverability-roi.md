@@ -2,7 +2,7 @@
 draft: false
 title: "What Better Deliverability Is Worth to You"
 excerpt: >-
-  Small gains in open rate and spam placement compound into measurable
+  Small gains in open rate and inbox placement compound into measurable
   revenue. This is not about fixing broken campaigns; it is about
   quantifying what better performance is actually worth.
 author: Alan MacDougall
@@ -14,21 +14,19 @@ tags:
   - Email Marketing
 ---
 
-Most businesses measure email success in binary terms: did it go out or did it fail. The real numbers live in the middle, in the percentage that lands in the inbox, the fraction that actually gets opened, and the subset of opens that turn into clicks and conversions.
+The success of an email campaign is usually judged on a set of numbers - the percentage that gets delivered, the fraction that actually gets opened, and the subset of opens that turn into clicks and then conversions.
 
-Improving any one of those fractions by a few points is worth significant money over time, and the math is straightforward enough to calculate for your own situation.
+Improving any one of those numbers by a few points is worth significant money over time, and the math is straightforward enough to calculate for your own situation.
 
 ## The leverage points
 
-Three metrics move the needle on email revenue:
+These metrics move the needle on email revenue:
 
 **Open rate**: if 30 per cent of your sends end up in the spam folder, you have already lost 30 per cent of potential engagement before anyone reads a single word. [Authentication issues](/email-authentication-basics), sender reputation problems or bad list hygiene can all contribute.
 
 **Click-through rate**: once in the inbox, does the content compel action? A two-percentage-point lift on click rate translates directly into more conversions, assuming the audience and offer are the same.
 
-**Spam complaint rate**: high complaints damage sender reputation, which then depresses deliverability on subsequent sends. It is a self-reinforcing cycle in the wrong direction, and breaking it starts with reducing complaints at the source.
-
-Each metric is independent. Fixing authentication will not magically improve your subject lines, but it will ensure your mail has the opportunity to be judged on its content rather than its delivery.
+**Volume and frequency**: this does not mean purchasing a list and spamming it every day. But, for a healthy list, volume and frequency matter. More isn't usually best even with opt-in lists; every list has a sweet spot.
 
 ## The compounding effect
 
@@ -57,7 +55,7 @@ The most common blind spots:
 
 - **Untracked conversion attribution**: email clicks that lead to purchases several days later frequently get credited to other channels
 - **Missing segmentation data**: aggregated metrics hide which segments underperform and why
-- **MPP inflation**: Apple's Mail Privacy Protection and similar features inflate reported opens. True open rate is largely unknowable; clicks and conversions are the better metrics to focus on.
+- **Fixing on open rate**: MPP, for example, inflates opens. True open rate is largely unknown; clicks and conversions are better metrics to focus on.
 
 ## Calculate your own numbers
 
