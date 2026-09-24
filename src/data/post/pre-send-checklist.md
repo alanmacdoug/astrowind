@@ -13,7 +13,7 @@ tags:
   - Campaign Setup
 ---
 
-The difference between a clean send and a damaged reputation is often one overlooked detail that nobody noticed until after the fact. An authentication record that was half-configured. A sending volume spike that exceeded your ISP thresholds. A subject line that triggered filters on the first batch and never got reviewed before the rest went out.
+The difference between a clean send and a damaged reputation is often one overlooked detail that nobody noticed until after the fact. An authentication record that was half-configured. A sending volume spike that exceeded thresholds. A subject line that triggered filters on the first batch and never got reviewed before the rest went out.
 
 These failures are not mysterious. They repeat with predictable regularity, and they can be caught before anyone touches the send button.
 
