@@ -287,16 +287,18 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- Preflight Checklist — v1.1 --------------------------------------------
-  // v1.1: View Transitions retrofit — DOM element acquisition, checkbox
-  //       NodeList collection, event listeners and the initial verdict
-  //       render moved into an init() function registered with the
-  //       site-wide window.pageInit helper (Layout.astro). Module scripts
-  //       execute once per full page load; ClientRouter soft navigations
-  //       swap the DOM without re-running them, which left ticking boxes
-  //       without effect after internal navigation. init() re-acquires the
-  //       fresh elements on every astro:page-load; a dataset guard prevents
-  //       stacked duplicate listeners. Verdict logic unchanged from v1.0.
+  // --- Preflight Checklist — v1.2 --------------------------------------------
+  // v1.2: Soft-navigation binding fix. v1.1 relied on window.pageInit
+  //       (Layout.astro), but on soft navigation the module script can
+  //       execute AFTER the layout's astro:page-load event has already
+  //       fired for that swap — so the registered callback never ran,
+  //       leaving checkbox listeners unattached on first visit. Fix: call
+  //       init() directly at module execution time (safe — module scripts
+  //       run after DOM parse and after ClientRouter inserts the new
+  //       document) AND on every astro:page-load. The dataset guard on
+  //       #verdict prevents stacked duplicate listeners. This mirrors the
+  //       working pattern in The Brief's subscribe form. Sticky verdict bar
+  //       retained from v1.1.
 
   let verdict: HTMLDivElement;
   let verdictTitle: HTMLParagraphElement;
@@ -321,13 +323,13 @@ const metadata = {
         'Close — work through the remaining checks before this goes out. Unticked boxes are not failures, just things not yet verified.';
     } else {
       verdict.className =
-        'sticky top-4 z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 mb-6 text-center';
+        'sticky top-4 z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-4 mb-6 text-center';
       verdictSub.textContent =
         'Work down the list — unticked boxes are not failures, just things not yet verified.';
     }
   }
 
-  // --- View Transitions binding (v1.1) — see header comment ------------------
+  // --- Binding (v1.2) — direct call + astro:page-load, dataset-guarded --------
 
   function init() {
     const guardEl = document.getElementById('verdict');
@@ -352,13 +354,9 @@ const metadata = {
     updateVerdict();
   }
 
-  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
-  if (typeof pageInit === 'function') {
-    pageInit(init);
-  } else {
-    // Fallback if the layout helper is ever absent: bind directly and
-    // listen for astro:page-load ourselves (same guard makes this safe).
-    init();
-    document.addEventListener('astro:page-load', init);
-  }
+  // Runs on full load (module scripts execute after DOM parse) and on every
+  // ClientRouter soft navigation. The guard inside init() makes both paths
+  // coexist without duplicate listeners.
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
