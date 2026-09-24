@@ -233,11 +233,25 @@ const metadata = {
 </Layout>
 
 <script>
-  const senderData = new Map();
-  let customEntryCount = 0;
+  // --- SPF Record Generator — v1.1 -------------------------------------------
+  // v1.1: View Transitions retrofit — DOM element acquisition and all 11 event
+  //       listeners moved into an init() function registered with the
+  //       site-wide window.pageInit helper (Layout.astro). Module scripts
+  //       execute once per full page load; ClientRouter soft navigations
+  //       swap the DOM without re-running them, which left the Yes/No
+  //       buttons dead after internal navigation. init() re-acquires the
+  //       fresh elements on every astro:page-load; a dataset guard prevents
+  //       stacked duplicate listeners. State (senderData Map, customEntryCount)
+  //       resets on each init() so soft-navigation back to the page starts
+  //       fresh. All validation, generation and rendering logic unchanged.
+
+  // --- State (module-level, reset on each init()) ----------------------------
+
+  let senderData: Map<string, { entry: string; cost: number }>;
+  let customEntryCount: number;
 
   // Escape untrusted strings before inserting into innerHTML
-  function escapeHtml(s) {
+  function escapeHtml(s: string): string {
     return s
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -246,11 +260,12 @@ const metadata = {
       .replace(/'/g, '&#39;');
   }
 
-  function hideQuestion(id) {
-    document.getElementById(id).classList.add('hidden');
+  function hideQuestion(id: string) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
   }
 
-  function addSender(key, entry, cost) {
+  function addSender(key: string, entry: string, cost: number) {
     if (senderData.has(key)) return;
     senderData.set(key, { entry, cost });
     updateCounter();
@@ -269,21 +284,23 @@ const metadata = {
       breakdownHTML = '<li class="text-muted italic">No senders added yet</li>';
     }
 
-    document.getElementById('lookup-count').textContent = totalLookups;
-    document.getElementById('lookup-breakdown').innerHTML = breakdownHTML;
+    const countEl = document.getElementById('lookup-count');
+    const breakdownEl = document.getElementById('lookup-breakdown');
+    if (countEl) countEl.textContent = String(totalLookups);
+    if (breakdownEl) breakdownEl.innerHTML = breakdownHTML;
 
     const warning = document.getElementById('limit-warning');
     const exceeded = document.getElementById('limit-exceeded');
 
     if (totalLookups >= 8 && totalLookups < 10) {
-      warning.classList.remove('hidden');
-      exceeded.classList.add('hidden');
+      warning?.classList.remove('hidden');
+      exceeded?.classList.add('hidden');
     } else if (totalLookups >= 10) {
-      warning.classList.add('hidden');
-      exceeded.classList.remove('hidden');
+      warning?.classList.add('hidden');
+      exceeded?.classList.remove('hidden');
     } else {
-      warning.classList.add('hidden');
-      exceeded.classList.add('hidden');
+      warning?.classList.add('hidden');
+      exceeded?.classList.add('hidden');
     }
   }
 
@@ -291,7 +308,7 @@ const metadata = {
 
   const IPV4_RE = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}(\/(\d|[12]\d|3[0-2]))?$/;
 
-  function isValidMechanism(v) {
+  function isValidMechanism(v: string): boolean {
     if (v.startsWith('include:')) {
       return /^include:([a-z0-9-]+\.)+[a-z]{2,}$/i.test(v);
     }
@@ -304,11 +321,11 @@ const metadata = {
     return false;
   }
 
-  function mechanismCost(v) {
+  function mechanismCost(v: string): number {
     return v.startsWith('include:') ? 1 : 0;
   }
 
-  function addMarketingPlatform(value) {
+  function addMarketingPlatform(value: string) {
     if (!value || senderData.has('marketing')) return;
 
     const [name, entry, costStr] = value.split('|');
@@ -332,7 +349,8 @@ const metadata = {
   }
 
   function generateRecord() {
-    const policyEl = document.querySelector('input[name="policy"]:checked');
+    const policyEls = document.querySelectorAll<HTMLInputElement>('input[name="policy"]:checked');
+    const policyEl = policyEls[0];
     const policy = policyEl ? policyEl.value : '~all';
     const spfParts = ['v=spf1'];
 
@@ -342,38 +360,45 @@ const metadata = {
 
     spfParts.push(policy);
 
-    document.getElementById('spf-record-output').textContent = spfParts.join(' ');
-    document.getElementById('output-section').classList.remove('hidden');
+    const outputEl = document.getElementById('spf-record-output');
+    if (outputEl) outputEl.textContent = spfParts.join(' ');
+
+    const outputSection = document.getElementById('output-section');
+    if (outputSection) outputSection.classList.remove('hidden');
 
     const explanation = document.getElementById('record-explanation');
-    explanation.innerHTML = '';
-    senderData.forEach(({ entry }, key) => {
-      let meaning = '';
-      switch (key) {
-        case 'google':
-          meaning = 'authorises Google Workspace sending servers';
-          break;
-        case 'm365':
-          meaning = 'authorises Microsoft 365 sending servers';
-          break;
-        case 'marketing':
-          meaning = 'authorises your chosen marketing platform';
-          break;
-        case 'custom-ip-added':
-          meaning = 'authorises your custom server at this range (no lookup cost)';
-          break;
-        default:
-          meaning = entry.startsWith('include:')
-            ? 'authorises the additional sending service you entered (one lookup)'
-            : 'authorises the sending range you entered (no lookup cost)';
-      }
-      explanation.innerHTML += `<li><code>${escapeHtml(entry)}</code> — ${meaning}</li>`;
-    });
+    if (explanation) {
+      explanation.innerHTML = '';
+      senderData.forEach(({ entry }, key) => {
+        let meaning = '';
+        switch (key) {
+          case 'google':
+            meaning = 'authorises Google Workspace sending servers';
+            break;
+          case 'm365':
+            meaning = 'authorises Microsoft 365 sending servers';
+            break;
+          case 'marketing':
+            meaning = 'authorises your chosen marketing platform';
+            break;
+          case 'custom-ip-added':
+            meaning = 'authorises your custom server at this range (no lookup cost)';
+            break;
+          default:
+            meaning = entry.startsWith('include:')
+              ? 'authorises the additional sending service you entered (one lookup)'
+              : 'authorises the sending range you entered (no lookup cost)';
+        }
+        explanation.innerHTML += `<li><code>${escapeHtml(entry)}</code> — ${meaning}</li>`;
+      });
+    }
   }
 
   function copyToClipboard() {
-    const text = document.getElementById('spf-record-output').textContent;
+    const textEl = document.getElementById('spf-record-output');
     const status = document.getElementById('copy-status');
+    if (!textEl || !status) return;
+    const text = textEl.textContent || '';
     navigator.clipboard.writeText(text).then(() => {
       status.textContent = 'Copied to clipboard.';
       setTimeout(() => { status.textContent = ''; }, 3000);
@@ -383,75 +408,139 @@ const metadata = {
     });
   }
 
-  // --- Event bindings (module scope; replaces all inline onclick) ---
-  document.getElementById('btn-google-yes').addEventListener('click', () => {
-    addSender('google', 'include:_spf.google.com', 1);
-    hideQuestion('question-google');
-  });
-  document.getElementById('btn-google-no').addEventListener('click', () => hideQuestion('question-google'));
+  // --- View Transitions binding (v1.1) — see header comment ------------------
 
-  document.getElementById('btn-m365-yes').addEventListener('click', () => {
-    addSender('m365', 'include:spf.protection.outlook.com', 1);
-    hideQuestion('question-m365');
-  });
-  document.getElementById('btn-m365-no').addEventListener('click', () => hideQuestion('question-m365'));
+  function init() {
+    const guardEl = document.getElementById('btn-generate');
+    if (!guardEl || guardEl.dataset.initDone === 'true') return;
+    guardEl.dataset.initDone = 'true';
 
-  document.getElementById('btn-marketing-yes').addEventListener('click', () => {
-    document.getElementById('marketing-dropdown').classList.remove('hidden');
-  });
-  document.getElementById('btn-marketing-no').addEventListener('click', () => hideQuestion('question-marketing'));
+    // Reset state for fresh page session
+    senderData = new Map();
+    customEntryCount = 0;
 
-  document.getElementById('marketing-platform').addEventListener('change', (e) => {
-    addMarketingPlatform(e.target.value);
-  });
+    // --- Event bindings (all moved here from module scope) ---
 
-  // Question 4: custom IP with live validation
-  const customInput = document.getElementById('custom-ip');
-  const customBtn = document.getElementById('btn-custom-confirm');
-  const customError = document.getElementById('custom-ip-error');
-  customInput.addEventListener('input', () => {
-    const v = customInput.value.trim();
-    if (v === '') {
-      customBtn.disabled = true;
-      customError.classList.add('hidden');
-      return;
+    // Google Workspace
+    const btnGoogleYes = document.getElementById('btn-google-yes');
+    const btnGoogleNo = document.getElementById('btn-google-no');
+    if (btnGoogleYes) {
+      btnGoogleYes.addEventListener('click', () => {
+        addSender('google', 'include:_spf.google.com', 1);
+        hideQuestion('question-google');
+      });
     }
-    const valid = IPV4_RE.test(v);
-    customBtn.disabled = !valid;
-    customError.classList.toggle('hidden', valid);
-  });
-  customBtn.addEventListener('click', () => {
-    const ip = customInput.value.trim();
-    if (!ip || !IPV4_RE.test(ip)) return;
-    addSender('custom-ip-added', `ip4:${ip}`, 0);
-    hideQuestion('question-custom');
-  });
-
-  // Question 5: repeatable custom entries (include:, ip4:, ip6:)
-  const mechInput = document.getElementById('custom-mechanism');
-  const mechBtn = document.getElementById('btn-custom-mechanism');
-  const mechError = document.getElementById('custom-mechanism-error');
-  mechInput.addEventListener('input', () => {
-    const v = mechInput.value.trim();
-    if (v === '') {
-      mechBtn.disabled = true;
-      mechError.classList.add('hidden');
-      return;
+    if (btnGoogleNo) {
+      btnGoogleNo.addEventListener('click', () => hideQuestion('question-google'));
     }
-    const valid = isValidMechanism(v);
-    mechBtn.disabled = !valid;
-    mechError.classList.toggle('hidden', valid);
-  });
-  mechBtn.addEventListener('click', () => {
-    const mech = mechInput.value.trim();
-    if (!mech || !isValidMechanism(mech)) return;
-    customEntryCount++;
-    addSender(`custom-entry-${customEntryCount}`, mech, mechanismCost(mech));
-    mechInput.value = '';
-    mechBtn.disabled = true;
-    mechInput.focus();
-  });
 
-  document.getElementById('btn-generate').addEventListener('click', generateRecord);
-  document.getElementById('btn-copy').addEventListener('click', copyToClipboard);
+    // Microsoft 365
+    const btnM365Yes = document.getElementById('btn-m365-yes');
+    const btnM365No = document.getElementById('btn-m365-no');
+    if (btnM365Yes) {
+      btnM365Yes.addEventListener('click', () => {
+        addSender('m365', 'include:spf.protection.outlook.com', 1);
+        hideQuestion('question-m365');
+      });
+    }
+    if (btnM365No) {
+      btnM365No.addEventListener('click', () => hideQuestion('question-m365'));
+    }
+
+    // Marketing platform
+    const btnMarketingYes = document.getElementById('btn-marketing-yes');
+    const btnMarketingNo = document.getElementById('btn-marketing-no');
+    const marketingDropdown = document.getElementById('marketing-dropdown');
+    const marketingPlatform = document.getElementById('marketing-platform') as HTMLSelectElement | null;
+
+    if (btnMarketingYes) {
+      btnMarketingYes.addEventListener('click', () => {
+        if (marketingDropdown) marketingDropdown.classList.remove('hidden');
+      });
+    }
+    if (btnMarketingNo) {
+      btnMarketingNo.addEventListener('click', () => hideQuestion('question-marketing'));
+    }
+    if (marketingPlatform) {
+      marketingPlatform.addEventListener('change', (e) => {
+        addMarketingPlatform((e.target as HTMLSelectElement).value);
+      });
+    }
+
+    // Custom IP validation
+    const customInput = document.getElementById('custom-ip') as HTMLInputElement | null;
+    const customBtn = document.getElementById('btn-custom-confirm') as HTMLButtonElement | null;
+    const customError = document.getElementById('custom-ip-error');
+
+    if (customInput && customBtn) {
+      customInput.addEventListener('input', () => {
+        const v = customInput.value.trim();
+        if (v === '') {
+          customBtn.disabled = true;
+          customError?.classList.add('hidden');
+          return;
+        }
+        const valid = IPV4_RE.test(v);
+        customBtn.disabled = !valid;
+        customError?.classList.toggle('hidden', valid);
+      });
+      customBtn.addEventListener('click', () => {
+        const ip = customInput.value.trim();
+        if (!ip || !IPV4_RE.test(ip)) return;
+        addSender('custom-ip-added', `ip4:${ip}`, 0);
+        hideQuestion('question-custom');
+      });
+    }
+
+    // Custom mechanism (repeatable entries)
+    const mechInput = document.getElementById('custom-mechanism') as HTMLInputElement | null;
+    const mechBtn = document.getElementById('btn-custom-mechanism') as HTMLButtonElement | null;
+    const mechError = document.getElementById('custom-mechanism-error');
+
+    if (mechInput && mechBtn) {
+      mechInput.addEventListener('input', () => {
+        const v = mechInput.value.trim();
+        if (v === '') {
+          mechBtn.disabled = true;
+          mechError?.classList.add('hidden');
+          return;
+        }
+        const valid = isValidMechanism(v);
+        mechBtn.disabled = !valid;
+        mechError?.classList.toggle('hidden', valid);
+      });
+      mechBtn.addEventListener('click', () => {
+        const mech = mechInput.value.trim();
+        if (!mech || !isValidMechanism(mech)) return;
+        customEntryCount++;
+        addSender(`custom-entry-${customEntryCount}`, mech, mechanismCost(mech));
+        mechInput.value = '';
+        mechBtn.disabled = true;
+        mechInput.focus();
+      });
+    }
+
+    // Generate and Copy
+    if (guardEl) {
+      guardEl.addEventListener('click', generateRecord);
+    }
+
+    const btnCopy = document.getElementById('btn-copy');
+    if (btnCopy) {
+      btnCopy.addEventListener('click', copyToClipboard);
+    }
+
+    // Initial counter display
+    updateCounter();
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
