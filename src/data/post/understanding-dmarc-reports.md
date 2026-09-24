@@ -7,8 +7,7 @@ excerpt: >-
   raw XML.
 author: Alan MacDougall
 publishDate: 2026-09-14
-categories:
-  - Email Authentication
+category: 'Email Authentication'
 tags:
   - DMARC
   - Deliverability
