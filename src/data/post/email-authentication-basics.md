@@ -6,8 +6,7 @@ excerpt: >-
   made them mandatory, and how to check your own domain in seconds.
 author: Alan MacDougall
 publishDate: 2026-09-14
-categories:
-  - Email Authentication
+category: 'Email Authentication'
 tags:
   - SPF
   - DKIM
