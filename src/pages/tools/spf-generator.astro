@@ -29,8 +29,8 @@ const metadata = {
         </p>
       </div>
 
-      <!-- Live lookup counter -->
-      <div id="counter-display" class="mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+      <!-- Live lookup counter (sticky — budget stays visible while scrolling) -->
+      <div id="counter-display" class="sticky top-4 z-50 mb-8 p-6 rounded-lg border shadow-lg bg-white dark:bg-slate-900 dark:border-slate-700">
         <h3 class="text-lg font-bold mb-4">Current SPF budget used: <span id="lookup-count">0</span>/10 lookups</h3>
         <ul id="lookup-breakdown" class="space-y-2 text-sm">
           <li class="text-muted italic">No senders added yet</li>
