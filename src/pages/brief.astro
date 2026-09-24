@@ -13,18 +13,17 @@ const metadata = {
 
 // Tier data lives here so pricing/copy edits happen in one place.
 // Payment links (Stripe/Gumroad) are TODO — Premium CTA is disabled until launch.
-// Wingman tier moved to services-pricing — advisory service, not newsletter content.
 const tiers = [
   {
     name: 'Free Weekly',
     price: '£0',
     cadence: 'forever',
     summary:
-      'One brief every week: what changed in deliverability, what it means, and one thing worth doing about it.',
+      'One email a week. What changed in deliverability, what it means, and one thing worth doing about it.',
     features: [
-      'Weekly email covering authentication, deliverability and infrastructure in plain English',
-      'First access to new tools and posts',
-      'No spam, no resale of your address. Unsubscribe any time',
+      'Deliverability, authentication and infrastructure — plain English, no vendor spin',
+      'New tools and posts first, before they go public',
+      'No spam, no resale, one click to leave',
     ],
     ctaText: 'Join the Brief',
     ctaHref: '#signup-form-wrap',
@@ -36,12 +35,12 @@ const tiers = [
     price: '£15',
     cadence: 'per month',
     summary:
-      'Everything in the free brief, plus detailed monthly reporting and analysis on top.',
+      'The weekly brief, plus a monthly deep dive and a health check on your own domain.',
     features: [
-      'Detailed monthly report: deeper analysis and insight than the weekly brief carries',
-      'Monthly domain health check: SPF, DKIM and DMARC validation report',
+      'Monthly deep dive: the detail the weekly format cannot carry',
+      'Monthly domain health check — SPF, DKIM and DMARC validated and reported',
       'The free weekly brief as standard',
-      'Cancel any time, keep what you have learned',
+      'Cancel any time, keep everything you have learned',
     ],
     ctaText: 'Coming Soon',
     ctaHref: '#',
@@ -57,8 +56,8 @@ const tiers = [
   <Hero
     id="hero"
     tagline="The Brief"
-    title="Email best practice: advice, tips and industry updates"
-    subtitle="A weekly brief on what is actually happening to your email: authentication, deliverability and the infrastructure behind it."
+    title="Email news and insight you can act on"
+    subtitle="A weekly brief on authentication, deliverability and the infrastructure behind it — written by someone who fixes those things for a living."
     actions={[
       { variant: 'primary', text: 'Join the Brief', href: '#signup-form-wrap' },
       { variant: 'secondary', text: 'View Services', href: getPermalink('/services') },
@@ -74,7 +73,7 @@ const tiers = [
       <div class="text-center mb-10">
         <h2 class="text-2xl font-bold dark:text-white sm:text-3xl">Choose your level</h2>
         <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Start free. Upgrade when the detail is worth it to you.
+          Start free. Upgrade when the detail is worth paying for.
         </p>
       </div>
 
@@ -176,17 +175,17 @@ const tiers = [
     <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
 
     <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">What every tier gets</h2>
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Who is writing this</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
         <p>
-          The Brief is written by me. I run email infrastructure and deliverability work daily, and
-          the newsletter is where the practical end of that work gets written down. No ghostwriters,
-          no recycled press releases.
+          Me. I run email infrastructure and deliverability work daily — the newsletter is where the
+          practical end of that work gets written down. No ghostwriters, no recycled press releases,
+          no vendor talking points.
         </p>
         <p>
           Every issue connects to something you can act on: a free tool, a configuration change, a
-          check worth running. Premium subscribers get the same work in more depth, with detailed
-          monthly reports and analysis on their own domain's health.
+          check worth running. If it does not earn its place in your inbox, unsubscribe — one click,
+          no questions.
         </p>
       </div>
     </div>
