@@ -6,8 +6,7 @@ excerpt: >-
   spoofers without locking out your own invoices.
 author: Alan MacDougall
 publishDate: 2026-09-15
-categories:
-  - Email Authentication
+category: 'Email Authentication'
 tags:
   - DMARC
   - Deliverability
