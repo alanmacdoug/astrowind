@@ -9,19 +9,45 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: 'Pricing',
   description:
-    'Transparent pricing for MacDougall Email deliverability services — from a single-record check to ongoing advisory support.',
+    'Transparent pricing for MacDougall Email deliverability services — from automated DMARC monitoring to hands-on rescue work and ongoing advisory support.',
 };
 
 // Tier data lives here so pricing edits happen in one place.
 // NOTE: if the audit/package figures change, update the ROI calculator
 // constants (PACKAGE_FEE, TRIGGER_THRESHOLD) in the same pass.
-// TODO pre-launch: sub-£100 entry tier to be defined and inserted below.
-// TODO pre-launch: metadata tail ("single-record check", "advisory support")
-// to be rewritten when tier structure is final.
 const tiers = [
   {
+    name: 'Sender Sentry',
+    price: '£49',
+    cadence: 'per month',
+    summary:
+      'Your domain, watched. I monitor your DMARC reports continuously and tell you when something changes — before it costs you.',
+    features: [
+      'Daily monitoring of your DMARC aggregate reports',
+      'Plain-English summary of every sender acting as your domain',
+      'Alerts when a new sender appears or authentication breaks',
+      'Human review when something needs judgement, not just parsing',
+      'No lock-in — cancel anytime',
+    ],
+    highlight: true,
+  },
+  {
+    name: 'Wingman',
+    price: '£99',
+    cadence: 'per month',
+    summary:
+      'Direct WhatsApp access to an experienced email infrastructure consultant. Advice, not implementation — the decisions stay yours.',
+    features: [
+      'Ask me anything on WhatsApp about your sending, authentication or platform',
+      'Advice and guidance only — I do not log in and change your systems',
+      'Priority replies — typically same working day',
+      'Limited places — advice quality depends on my availability, so capacity is capped',
+    ],
+    highlight: false,
+  },
+  {
     name: 'Authentication Audit',
-    price: '£150',
+    price: '£149',
     cadence: 'one-off',
     summary:
       'Full diagnostic of your current authentication. What is published, what passes, what fails, and why.',
@@ -35,7 +61,7 @@ const tiers = [
   },
   {
     name: 'Deliverability Rescue',
-    price: '£250',
+    price: '£249',
     cadence: 'one-off',
     summary:
       'Your email is going to spam and you do not know why. I diagnose and fix it.',
@@ -46,20 +72,6 @@ const tiers = [
       'Verification tests proving the result',
     ],
     highlight: false,
-  },
-  {
-    name: 'Wingman',
-    price: '£149',
-    cadence: 'per month',
-    summary:
-      'Direct WhatsApp access to an experienced email infrastructure consultant. Advice, not implementation — the decisions stay yours.',
-    features: [
-      'Ask me anything on WhatsApp about your sending, authentication or platform',
-      'Advice and guidance only — I do not log in and change your systems',
-      'Priority replies — typically same working day',
-      'Limited places — advice quality depends on my availability, so capacity is capped',
-    ],
-    highlight: true,
   },
   {
     name: 'Custom Services',
@@ -97,8 +109,8 @@ const tiers = [
   <section id="pricing" class="relative py-12 sm:py-16">
     <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
 
-    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-6xl">
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-7xl">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {tiers.map((tier) => (
           <div
             class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
@@ -109,7 +121,7 @@ const tiers = [
           >
             {tier.highlight && (
               <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
-                Subscription
+                Most Popular
               </span>
             )}
             <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
@@ -128,7 +140,7 @@ const tiers = [
             </ul>
             <a
               href="/contact"
-              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center`}
+              class={`btn ${tier.highlight ? 'btn-primary' : 'btn-outline'} rounded-lg px-5 py-2.5 font-medium mt-6 text-center whitespace-nowrap`}
             >
               Enquire
             </a>
@@ -142,12 +154,17 @@ const tiers = [
     </div>
   </section>
 
-  <!-- Wingman vs Custom (default) -->
+  <!-- Which ongoing service (default) -->
 
   <section class="relative py-12 sm:py-16">
     <div class="px-4 sm:px-6 mx-auto lg:px-8 max-w-3xl">
-      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Wingman or Custom?</h2>
+      <h2 class="text-2xl font-bold dark:text-white sm:text-3xl text-center">Sentry, Wingman or Custom?</h2>
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
+        <p>
+          Sentry is watching. Your domain's DMARC reports are read every day, and you hear about it
+          when something changes — a new sender, a broken alignment, a spike in failures. It is
+          monitoring, not advice: it tells you what is happening, not what to do about it.
+        </p>
         <p>
           Wingman is advice on WhatsApp. It is a subscription: you ask, I answer, the decisions and
           the hands on the keyboard stay with you. Best when you know roughly what to do and want
