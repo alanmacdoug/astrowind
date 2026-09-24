@@ -6,14 +6,13 @@ excerpt: >-
   large, and how to build one from scratch, safely.
 author: Alan MacDougall
 publishDate: 2026-09-15
-categories:
-  - Email Authentication
+category: 'Email Authentication'
 tags:
   - SPF
   - DNS
 ---
 
-A lot SPF guides stop at "publish a record listing your servers." That advice is how most broken SPF records get made. This is the deeper version: what the record's parts actually do, the limit that silently breaks it, and the discipline of building one step by step.
+A lot of SPF guides stop at "publish a record listing your servers." That advice is how most broken SPF records get made. This is the deeper version: what the record's parts actually do, the limit that silently breaks it, and the discipline of building one step by step.
 
 If you are new to the three protocols altogether, [start with the basics](/email-authentication-basics), then come back here.
 
