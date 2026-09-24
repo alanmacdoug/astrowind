@@ -15,11 +15,11 @@ tags:
   - Self-Hosting
 ---
 
-Mautic is the best-known open-source marketing automation platform. Download it, install it on your own server, and you have a system that does what commercial platforms charge hundreds per month for: contact management, segmentation, email campaigns, landing pages, automation workflows.
+Mautic is perhaps the best-known open-source marketing automation platform. Download it, install it on your own server, and you have a system that does what commercial platforms charge hundreds per month for: contact management, segmentation, email campaigns, landing pages, automation workflows.
 
-On paper, it looks like an obvious win. On paper.
+On paper, it looks like an obvious win.
 
-The honest comparison has to count everything. Licence fees are only one line in the total cost of ownership.
+However, the honest comparison has to count everything. Licence fees are only one line in the total cost of ownership.
 
 ## What the licence fee hides
 
@@ -39,7 +39,7 @@ When you self-host Mautic, you buy none of those. You download the software, and
 
 ## The line item everyone forgets: delivery
 
-Running Mautic does not send your email. The application generates the messages; something else has to deliver them. Self-hosters typically relay through a delivery service such as SendGrid, Postmark or Amazon SES, because [delivering bulk mail](/pre-send-checklist) from a VPS IP address in 2026 is an exercise in frustration. That mailbox provider does not know your fresh cloud IP, and it has no reason to trust it.
+Running Mautic does not send your email. The application generates the messages; something else has to deliver them. Self-hosters typically relay through a delivery service such as SendGrid, Postmark or Amazon SES, because [delivering bulk mail](/tools/preflight-checklist) from a new VPS IP address in 2026 is a discipline all of its own. Mailbox providers do not know your fresh cloud IP, and they have no reason to trust it until you prove otherwise.
 
 So the realistic Mautic stack includes:
 
@@ -65,7 +65,7 @@ None of this means self-hosting is wrong. The scales tip in its favour when:
 
 ## The verdict that is not a verdict
 
-There is no universal answer, which is admittedly unhelpful. The honest answer depends on your contact volume, your sending frequency, your in-house technical capability, and how much you value data control. The only way to decide is to run the numbers for your actual situation, not someone else's marketing slide.
+There is no universal answer, which is admittedly unhelpful. The honest answer depends on contact volume, sending frequency, in-house technical capability, and how much you value data control. The only way to decide is to run the numbers for your actual situation, not someone else's marketing slide.
 
 ## Compare your own numbers
 
