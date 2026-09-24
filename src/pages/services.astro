@@ -1,4 +1,3 @@
-
 ---
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
@@ -15,8 +14,48 @@ import servicesMonitoring from '~/assets/images/services-monitoring.jpg';
 const metadata = {
   title: 'Services',
   description:
-    'Email authentication audits, deliverability rescue, managed Mautic hosting and marketing automation consulting. Clear scope, defined deliverables, evidence at every step.',
+    'Five fixed-scope ways to work together: Sender Sentry monitoring, Wingman advisory, authentication audits, deliverability rescue and custom infrastructure work. Clear scope, defined deliverables, evidence at every step.',
 };
+
+// Tier data mirrors /services-pricing so both pages tell one story.
+// If figures change here, change the pricing page in the same pass.
+const tiers = [
+  {
+    name: 'Sender Sentry',
+    price: '£49',
+    cadence: 'per month',
+    summary:
+      'Your domain, watched daily. You hear the moment someone starts pretending to be you.',
+  },
+  {
+    name: 'Wingman',
+    price: '£99',
+    cadence: 'per month',
+    summary:
+      'Direct WhatsApp access to an experienced email infrastructure consultant. Advice, not implementation.',
+  },
+  {
+    name: 'Authentication Audit',
+    price: '£149',
+    cadence: 'one-off',
+    summary:
+      'Full diagnostic of your SPF, DKIM and DMARC. What is published, what passes, what fails, and why.',
+  },
+  {
+    name: 'Deliverability Rescue',
+    price: '£249',
+    cadence: 'one-off',
+    summary:
+      'Your email is going to spam and you do not know why. I diagnose it and fix it.',
+  },
+  {
+    name: 'Custom Services',
+    price: 'PoA',
+    cadence: 'ongoing',
+    summary:
+      'Implementation work scoped to your requirements — the depth behind everything on this page.',
+  },
+];
 ---
 
 <Layout metadata={metadata}>
@@ -25,7 +64,7 @@ const metadata = {
   <Hero
     tagline="Services"
     title="Email infrastructure, handled properly"
-    subtitle="Fixed-scope audits and rescues when something's broken. Ongoing management when you'd rather never think about it again. Nearly twenty years doing both."
+    subtitle="Fixed-scope audits and rescues when something's broken. Ongoing monitoring and advisory when you'd rather never think about it again. Nearly twenty years doing both."
     actions={[
       {
         variant: 'primary',
@@ -36,11 +75,58 @@ const metadata = {
     ]}
   />
 
-  <!-- Project work -->
+  <!-- Named tiers (slate-100): mirrors /services-pricing so visitors see
+       one offer set across both pages -->
+
+  <section id="tiers" class="relative py-12 sm:py-16">
+    <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
+
+    <div class="relative px-4 sm:px-6 mx-auto lg:px-8 max-w-7xl">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl font-bold dark:text-white sm:text-3xl">Five ways to work with me</h2>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Fixed price, fixed scope. Everything else on this page is depth behind these tiers.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {tiers.map((tier) => (
+          <div
+            class={`relative flex flex-col rounded-2xl shadow-lg border p-6 ${
+              tier.name === 'Sender Sentry'
+                ? 'bg-white dark:bg-slate-900 border-primary'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            {tier.name === 'Sender Sentry' && (
+              <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
+                Most Popular
+              </span>
+            )}
+            <h3 class="text-lg font-bold dark:text-white">{tier.name}</h3>
+            <p class="mt-3">
+              <span class="text-3xl font-extrabold dark:text-white">{tier.price}</span>
+              <span class="text-sm text-slate-600 dark:text-slate-300"> {tier.cadence}</span>
+            </p>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">{tier.summary}</p>
+            <a
+              href="/services-pricing"
+              class="btn btn-outline rounded-lg px-5 py-2.5 font-medium mt-6 text-center whitespace-nowrap"
+            >
+              Full details
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Project work (default bg, was slate-100 to preserve alternation
+       with the new tier section above) -->
 
   <Features2
-    title="Service examples"
-    subtitle="Defined scope and clear deliverables. Targeted services, starting with a no-obligation conversation."
+    title="The depth behind the tiers"
+    subtitle="What Custom Services and the fixed tiers draw on: two decades of email infrastructure work, scoped to whatever you need."
     columns={3}
     items={[
       {
@@ -80,11 +166,7 @@ const metadata = {
         icon: 'tabler:server',
       },
     ]}
-  >
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-slate-100 dark:bg-transparent"></div>
-    </Fragment>
-  </Features2>
+  />
 
   <!-- Ongoing work -->
 
@@ -97,27 +179,27 @@ const metadata = {
     }}
     items={[
       {
+        title: 'Sender Sentry',
+        description:
+          'Daily DMARC monitoring across your domain, with alerts when a new sender appears or authentication breaks. Problems caught before your sender reputation pays for them.',
+        icon: 'tabler:radar',
+      },
+      {
+        title: 'Wingman',
+        description:
+          'Ongoing advisory on WhatsApp: you ask, I answer, the decisions stay yours. Same-working-day replies for business-critical email questions.',
+        icon: 'tabler:message-chatbot',
+      },
+      {
         title: 'Managed Mautic hosting',
         description:
-          'Your own self-hosted marketing automation, on infrastructure I administer. Updates, monitoring, deliverability and authentication maintained — without you running a server.',
+          'Your own self-hosted marketing automation, on infrastructure I administer. Updates, monitoring, deliverability and authentication maintained — without you running a server. Scoped under Custom Services.',
         icon: 'tabler:server',
-      },
-      {
-        title: 'Monitoring & maintenance',
-        description:
-          'DNS error detection, blacklist monitoring and DMARC report review, with defined response windows. Problems caught before your sender reputation pays for them.',
-        icon: 'tabler:checkup-list',
-      },
-      {
-        title: 'Ongoing consulting',
-        description:
-          'A monthly relationship for businesses whose email is business-critical: advisory, changes, and someone to call when something looks wrong.',
-        icon: 'tabler:message-report',
       },
       {
         title: 'Campaign support',
         description:
-          'Landing pages, campaign sends and setup work for clients on monthly services or recurring engagements.',
+          'Landing pages, campaign sends and setup work for clients on monthly services or recurring engagements. Scoped under Custom Services.',
         icon: 'tabler:article',
       },
     ]}
@@ -125,9 +207,10 @@ const metadata = {
     <Fragment slot="content">
       <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Ongoing management</h3>
       <p>
-        Some problems are projects. Some are just work that has to keep happening. Ongoing service engagements are billed
-        monthly, scoped to what you actually need, and cancellable with 30 days' notice — the relationship should stay only
-        because it earns its keep.
+        Some problems are projects. Some are just work that has to keep happening. Two of the ongoing
+        tiers are fixed-price — Sentry for watching, Wingman for advice. Everything below those is
+        scoped to what you actually need, billed monthly, and cancellable with 30 days' notice — the
+        relationship should stay only because it earns its keep.
       </p>
     </Fragment>
   </Content>
@@ -161,7 +244,7 @@ const metadata = {
       },
       {
         title: 'Engage <span class="font-normal">— ongoing relationship</span>',
-        description: `Where it makes sense: monitoring, maintenance and defined response windows, so problems are caught before your sender reputation pays for them.`,
+        description: `Where it makes sense: Sentry monitoring, Wingman advisory or scoped ongoing work, so problems are caught before your sender reputation pays for them.`,
         icon: 'tabler:users',
       },
     ]}
