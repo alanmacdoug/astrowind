@@ -51,13 +51,13 @@ A five-point delivery improvement yielded £150 extra on this campaign alone. Mu
 
 ## What gets measured gets fixed
 
-The hardest part is establishing a baseline. Without knowing your current open rate, spam placement and conversion numbers, any claim about potential improvement is speculation. With those numbers in hand, the calculation becomes transparent.
+The hardest part is establishing a baseline. Without knowing your current open rate and conversion numbers, any claim about potential improvement is speculation. With those numbers in hand, the calculation becomes transparent.
 
 The most common blind spots:
 
-- **Unknown spam folder placement**: most senders assume their mail goes to the inbox unless they hear complaints, but spam folder placement often exceeds 10 per cent even for established senders
 - **Untracked conversion attribution**: email clicks that lead to purchases several days later frequently get credited to other channels
 - **Missing segmentation data**: aggregated metrics hide which segments underperform and why
+- **MPP inflation**: Apple's Mail Privacy Protection and similar features inflate reported opens. True open rate is largely unknowable; clicks and conversions are the better metrics to focus on.
 
 ## Calculate your own numbers
 
