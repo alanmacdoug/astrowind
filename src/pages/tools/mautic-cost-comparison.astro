@@ -183,6 +183,18 @@ const metadata = {
 </Layout>
 
 <script>
+  // --- Mautic Cost Comparison — v1.1 ----------------------------------------
+  // v1.1: View Transitions retrofit — DOM element acquisition, dynamic UI
+  //       construction (vendor dropdown, platform checkboxes) and all event
+  //       listeners moved into an init() function registered with the
+  //       site-wide window.pageInit helper (Layout.astro). Module scripts
+  //       execute once per full page load; ClientRouter soft navigations
+  //       swap the DOM without re-running them, which left the form dead
+  //       and the selects empty after internal navigation. init() rebuilds
+  //       the dynamic UI on every astro:page-load; a dataset guard on the
+  //       container prevents duplicated checkboxes and stacked listeners.
+  //       All pricing data and calculation logic unchanged from v1.0.
+
   // --- Data: ESP tier pricing ---------------------------------------------------
   // VERIFIED ANCHORS — September 2026, converted to GBP at ~$1.30/£:
   //   Mailchimp Standard, monthly billing: $20 @ 500 contacts, $100 @ 5k,
@@ -263,74 +275,93 @@ const metadata = {
   const MAX_SUBS = 100000;
 
   // --- DOM ---------------------------------------------------------------------
+  // References and dynamic UI state, populated by init() — acquired/rebuilt
+  // fresh on every page load event so soft-navigated pages bind to their own
+  // (new) elements instead of stale ones from the previous page.
 
-  const fields = {
-    subs: document.getElementById('subs'),
-    mauticFee: document.getElementById('mautic-fee'),
-    eps: document.getElementById('eps'),
-    vendor: document.getElementById('vendor'),
-    calcBtn: document.getElementById('calc-btn'),
-    results: document.getElementById('results'),
-    chartArea: document.getElementById('chart-area'),
-    platformSelects: document.getElementById('platform-selects'),
+  let fields: {
+    subs: HTMLInputElement | null;
+    mauticFee: HTMLInputElement | null;
+    eps: HTMLInputElement | null;
+    vendor: HTMLSelectElement | null;
+    calcBtn: HTMLButtonElement | null;
+    results: HTMLElement | null;
+    chartArea: HTMLElement | null;
+    platformSelects: HTMLElement | null;
   };
 
-  // Populate the delivery-vendor dropdown with shape summaries
-  for (const v of DELIVERY_VENDORS) {
-    const opt = document.createElement('option');
-    opt.value = v.id;
-    opt.textContent = v.name + ' — ' + v.labelSummary;
-    if (v.id === 'sendgrid') opt.selected = true;
-    fields.vendor.appendChild(opt);
-  }
+  let espCheckboxes: HTMLInputElement[] = [];
+  const espPriceInputs: Record<string, HTMLInputElement> = {};
 
-  // Build platform checkboxes with a tier summary and display-only price field
-  const espCheckboxes = [];
-  const espPriceInputs = {};
+  function buildUI() {
+    fields = {
+      subs: document.getElementById('subs') as HTMLInputElement | null,
+      mauticFee: document.getElementById('mautic-fee') as HTMLInputElement | null,
+      eps: document.getElementById('eps') as HTMLInputElement | null,
+      vendor: document.getElementById('vendor') as HTMLSelectElement | null,
+      calcBtn: document.getElementById('calc-btn') as HTMLButtonElement | null,
+      results: document.getElementById('results'),
+      chartArea: document.getElementById('chart-area'),
+      platformSelects: document.getElementById('platform-selects'),
+    };
+    if (!fields.vendor || !fields.platformSelects) return;
 
-  for (const esp of ESPS) {
-    const wrap = document.createElement('div');
-    wrap.className = 'flex items-start gap-3';
+    // Populate the delivery-vendor dropdown with shape summaries
+    for (const v of DELIVERY_VENDORS) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = v.name + ' — ' + v.labelSummary;
+      if (v.id === 'sendgrid') opt.selected = true;
+      fields.vendor.appendChild(opt);
+    }
 
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = esp.id === 'mailchimp';
-    cb.id = esp.id + '-cb';
-    cb.className = 'mt-1 h-4 w-4';
-    espCheckboxes.push(cb);
+    // Build platform checkboxes with a tier summary and display-only price field
+    espCheckboxes = [];
 
-    const lbl = document.createElement('label');
-    lbl.htmlFor = cb.id;
-    lbl.className = 'flex-1 text-sm text-slate-600 dark:text-slate-300 cursor-pointer';
+    for (const esp of ESPS) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flex items-start gap-3';
 
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'block font-medium dark:text-white';
-    nameSpan.textContent = esp.name;
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = esp.id === 'mailchimp';
+      cb.id = esp.id + '-cb';
+      cb.className = 'mt-1 h-4 w-4';
+      espCheckboxes.push(cb);
 
-    const tierSummary = document.createElement('span');
-    tierSummary.className = 'block text-xs mt-1';
-    tierSummary.textContent = esp.tiers
-      .map(function(t) { return t.upto.toLocaleString() + '+: £' + t.price + '/mo'; })
-      .join(' · ');
+      const lbl = document.createElement('label');
+      lbl.htmlFor = cb.id;
+      lbl.className = 'flex-1 text-sm text-slate-600 dark:text-slate-300 cursor-pointer';
 
-    const priceInput = document.createElement('input');
-    priceInput.type = 'number';
-    priceInput.min = '0';
-    priceInput.value = '';
-    priceInput.readOnly = true;
-    priceInput.tabIndex = -1;
-    priceInput.title =
-      'Monthly price at the current subscriber count (auto-filled from the tier table)';
-    priceInput.className =
-      'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary opacity-80';
-    espPriceInputs[esp.id] = priceInput;
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'block font-medium dark:text-white';
+      nameSpan.textContent = esp.name;
 
-    lbl.appendChild(nameSpan);
-    lbl.appendChild(tierSummary);
-    wrap.appendChild(cb);
-    wrap.appendChild(lbl);
-    wrap.appendChild(priceInput);
-    fields.platformSelects.appendChild(wrap);
+      const tierSummary = document.createElement('span');
+      tierSummary.className = 'block text-xs mt-1';
+      tierSummary.textContent = esp.tiers
+        .map(function(t) { return t.upto.toLocaleString() + '+: £' + t.price + '/mo'; })
+        .join(' · ');
+
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.min = '0';
+      priceInput.value = '';
+      priceInput.readOnly = true;
+      priceInput.tabIndex = -1;
+      priceInput.title =
+        'Monthly price at the current subscriber count (auto-filled from the tier table)';
+      priceInput.className =
+        'w-24 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary opacity-80';
+      espPriceInputs[esp.id] = priceInput;
+
+      lbl.appendChild(nameSpan);
+      lbl.appendChild(tierSummary);
+      wrap.appendChild(cb);
+      wrap.appendChild(lbl);
+      wrap.appendChild(priceInput);
+      fields.platformSelects.appendChild(wrap);
+    }
   }
 
   // --- Pricing functions --------------------------------------------------------
@@ -562,10 +593,30 @@ const metadata = {
     return match ? match[1].trim() : html;
   }
 
-  fields.calcBtn.addEventListener('click', calculate);
-  fields.subs.addEventListener('input', calculate);
-  fields.mauticFee.addEventListener('input', calculate);
-  fields.eps.addEventListener('input', calculate);
-  fields.vendor.addEventListener('change', calculate);
-  calculate();
+  // --- View Transitions binding (v1.1) — see header comment ------------------
+
+  function init() {
+    const container = document.getElementById('platform-selects');
+    if (!container || container.dataset.initDone === 'true') return;
+    container.dataset.initDone = 'true';
+
+    buildUI();
+
+    fields.calcBtn.addEventListener('click', calculate);
+    fields.subs.addEventListener('input', calculate);
+    fields.mauticFee.addEventListener('input', calculate);
+    fields.eps.addEventListener('input', calculate);
+    fields.vendor.addEventListener('change', calculate);
+    calculate();
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
