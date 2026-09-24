@@ -14,9 +14,9 @@ tags:
   - DMARC
 ---
 
-If your email keeps going to spam, authentication is the first thing to rule out. It is not the only factor that affects deliverability, but it is the cheapest to verify and the fastest to fix. And since the major inbox providers made proper authentication effectively mandatory, a domain without it starts every send with a handicap.
+If your email keeps going to spam, authentication is the first thing to rule out. It is not the only factor that affects deliverability, but it is the quickest to verify and the fastest to fix. And since the major inbox providers made proper authentication effectively mandatory, a domain without it starts every send at a disadvantage.
 
-Here is what the three systems actually do, stripped of the jargon most documentation wraps them in.
+Here is what the three systems actually do.
 
 ## SPF: the guest list
 
@@ -26,7 +26,7 @@ The most common failure I see in the field is not a missing SPF record. It is an
 
 Rule of thumb: one SPF record per domain, and audit it whenever you connect a new tool that sends mail.
 
-## DKIM: the wax seal
+## DKIM: the handshake
 
 DKIM (DomainKeys Identified Mail) adds a cryptographic signature to outgoing mail. The sending server signs each message with a private key; the matching public key is published in your DNS. The receiving server verifies the signature, which proves the message was not tampered with in transit and identifies which domain took responsibility for it.
 
@@ -36,7 +36,7 @@ The practical problems with DKIM are almost always setup-related:
 2. **The DNS records were half-entered.** A missing or malformed CNAME on the selector means the signature can never verify.
 3. **Nobody knows which selectors exist.** DKIM records live at addresses like `selector._domainkey.example.com`, and without knowing your selector, checking by hand is guesswork.
 
-Note the caveat: an absent selector does not prove a domain lacks DKIM, but if none of the common selectors resolve, further investigation is warranted.
+Note the caveat: an absent selector does not prove a domain lacks DKIM, but if none of the common selectors resolve, further investigation is needed to confirm.
 
 ## DMARC: the policy
 
@@ -51,12 +51,12 @@ Alignment is where the subtleties live: a message can pass SPF and DKIM individu
 
 ## Why this became non-negotiable
 
-For years, authentication was best practice. Then the large mailbox providers set minimum requirements for bulk senders: SPF and DKIM for your domain, and a DMARC record on every domain you send from, including the ones you think are dormant. An unused domain without DMARC is a free forgery kit for whoever cares to impersonate you.
+For years, authentication was best practice. Then the large mailbox providers set minimum requirements for bulk senders. SPF and DKIM for your domain, and a DMARC record on every domain you send from, including the ones you think are dormant. An unused domain without DMARC is a free forgery kit for whoever cares to impersonate you.
 
 ## Check your own domain
 
-None of this requires specialist knowledge to verify. Enter your domain into the tool below and it pulls your public DNS records, walks your SPF includes to check the lookup count, probes the common DKIM selectors, and reads your DMARC policy. Everything runs entirely in your browser, with nothing sent or stored anywhere.
+None of this requires specialist knowledge to at least verify. Enter your domain into the tool below and it pulls your public DNS records, walks your SPF includes to check the lookup count, probes the common DKIM selectors, and reads your DMARC policy. Everything runs entirely in your browser, with nothing sent or stored anywhere.
 
 [Check your email authentication →](/tools/auth-checker)
 
-If the results surprise you, they are worth understanding before you act. A misconfigured fix is often worse than a known gap, and knowing exactly what is missing is the cheap part.
+If the results surprise you, they are worth understanding before you act. A misconfigured fix is often worse than a known gap, and knowing exactly what is missing is the easy part.
