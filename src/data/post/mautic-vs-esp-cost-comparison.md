@@ -7,8 +7,7 @@ excerpt: >-
   against hosted platforms.
 author: Alan MacDougall
 publishDate: 2026-09-14
-categories:
-  - Marketing Infrastructure
+category: 'Marketing Infrastructure'
 tags:
   - Mautic
   - Cost Comparison
