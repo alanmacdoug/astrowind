@@ -7,8 +7,7 @@ excerpt: >-
   quantifying what better performance is actually worth.
 author: Alan MacDougall
 publishDate: 2026-09-14
-categories:
-  - Deliverability
+category: 'Deliverability'
 tags:
   - ROI
   - Email Marketing
