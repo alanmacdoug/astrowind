@@ -29,11 +29,11 @@ const metadata = {
       <div
         class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
-        <!-- Verdict bar -->
+        <!-- Verdict bar — sticky to top of viewport while scrolling -->
 
         <div
           id="verdict"
-          class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6 text-center"
+          class="sticky top-4 z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-4 mb-6 text-center"
         >
           <p id="verdict-title" class="font-bold text-lg dark:text-white">0 of 10 checks verified</p>
           <p id="verdict-sub" class="text-sm text-slate-600 dark:text-slate-300 mt-1">
@@ -311,17 +311,17 @@ const metadata = {
 
     if (checked === TOTAL) {
       verdict.className =
-        'rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-6 text-center';
+        'sticky top-4 z-50 rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-6 text-center';
       verdictSub.textContent =
         'Cleared for send. Every check verified — that is all anyone can honestly do before hitting send.';
     } else if (checked >= TOTAL - 2) {
       verdict.className =
-        'rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 mb-6 text-center';
+        'sticky top-4 z-50 rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 mb-6 text-center';
       verdictSub.textContent =
         'Close — work through the remaining checks before this goes out. Unticked boxes are not failures, just things not yet verified.';
     } else {
       verdict.className =
-        'rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6 text-center';
+        'sticky top-4 z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 mb-6 text-center';
       verdictSub.textContent =
         'Work down the list — unticked boxes are not failures, just things not yet verified.';
     }
@@ -361,7 +361,4 @@ const metadata = {
     init();
     document.addEventListener('astro:page-load', init);
   }
-</script>
-
-  updateVerdict();
 </script>
