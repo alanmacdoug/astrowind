@@ -180,6 +180,17 @@ compact={true}
 </Layout>
 
 <script>
+  // --- Email Authentication Checker — v1.1 -----------------------------------
+  // v1.1: View Transitions retrofit — DOM element acquisition and the form
+  //       submit listener moved into an init() function registered with the
+  //       site-wide window.pageInit helper (Layout.astro). Module scripts
+  //       execute once per full page load; ClientRouter soft navigations swap
+  //       the DOM without re-running them, which left the check button dead
+  //       after internal navigation. init() re-acquires elements on every
+  //       astro:page-load; a dataset guard on the form prevents stacked
+  //       duplicate listeners. All lookup, parsing and rendering logic
+  //       unchanged from v1.0.
+
   // --- DoH client -----------------------------------------------------------
 
   const DOH_ENDPOINTS = [
@@ -322,11 +333,13 @@ compact={true}
 
   // --- Rendering helpers -----------------------------------------------------
 
-  const resultsEl = document.getElementById('results')!;
-  const statusEl = document.getElementById('status')!;
-  const form = document.getElementById('checker-form') as HTMLFormElement;
-  const input = document.getElementById('domain-input') as HTMLInputElement;
-  const button = document.getElementById('check-button') as HTMLButtonElement;
+  // DOM references, populated by init() — acquired fresh on every page load
+  // event so soft-navigated pages bind to their own (new) elements.
+  let resultsEl: HTMLElement;
+  let statusEl: HTMLElement;
+  let form: HTMLFormElement;
+  let input: HTMLInputElement;
+  let button: HTMLButtonElement;
 
   function esc(s: string): string {
     return s.replace(/[&<>"']/g, (c) =>
@@ -630,13 +643,36 @@ compact={true}
     resultsEl.innerHTML = html;
   }
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const domain = normDomain(input.value);
-    if (!domain) {
-      setStatus('Please enter a valid domain, e.g. example.com');
-      return;
-    }
-    runCheck(domain);
-  });
+  // --- View Transitions binding (v1.1) — see header comment ------------------
+
+  function init() {
+    form = document.getElementById('checker-form') as HTMLFormElement;
+    if (!form || form.dataset.initDone === 'true') return;
+    form.dataset.initDone = 'true';
+
+    resultsEl = document.getElementById('results') as HTMLElement;
+    statusEl = document.getElementById('status') as HTMLElement;
+    input = document.getElementById('domain-input') as HTMLInputElement;
+    button = document.getElementById('check-button') as HTMLButtonElement;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const domain = normDomain(input.value);
+      if (!domain) {
+        setStatus('Please enter a valid domain, e.g. example.com');
+        return;
+      }
+      runCheck(domain);
+    });
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
