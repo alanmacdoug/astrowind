@@ -9,7 +9,7 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: 'Pricing',
   description:
-    'Transparent pricing for MacDougall Email deliverability services — from automated DMARC monitoring to hands-on rescue work and ongoing advisory support.',
+    'Transparent pricing for MacDougall Email deliverability services — from daily DMARC monitoring to hands-on rescue work and ongoing advisory support.',
 };
 
 // Tier data lives here so pricing edits happen in one place.
@@ -21,11 +21,11 @@ const tiers = [
     price: '£49',
     cadence: 'per month',
     summary:
-      'Your domain, watched. I monitor your DMARC reports continuously and tell you when something changes — before it costs you.',
+      'Anyone can send mail as your domain and land in your customer\'s inbox. I watch your DMARC reports daily and tell you the moment someone starts pretending to be you.',
     features: [
       'Daily monitoring of your DMARC aggregate reports',
-      'Plain-English summary of every sender acting as your domain',
-      'Alerts when a new sender appears or authentication breaks',
+      'Know within a day when an unrecognised sender claims your domain',
+      'Alerts when authentication breaks or a new sender appears',
       'Human review when something needs judgement, not just parsing',
       'No lock-in — cancel anytime',
     ],
@@ -162,8 +162,9 @@ const tiers = [
       <div class="mt-8 space-y-6 text-slate-600 dark:text-slate-300">
         <p>
           Sentry is watching. Your domain's DMARC reports are read every day, and you hear about it
-          when something changes — a new sender, a broken alignment, a spike in failures. It is
-          monitoring, not advice: it tells you what is happening, not what to do about it.
+          the moment something changes — a new sender claiming to be you, a broken alignment, a
+          spike in failures. It is monitoring, not advice: it tells you what is happening, not what
+          to do about it.
         </p>
         <p>
           Wingman is advice on WhatsApp. It is a subscription: you ask, I answer, the decisions and
@@ -176,8 +177,9 @@ const tiers = [
           someone to actually fix it.
         </p>
         <p>
-          The Brief, the free and paid newsletter, is priced separately — see
-          <a href="/brief" class="underline">The Brief</a>.
+          The Brief, the free and paid newsletter, is priced separately. Its Premium tier includes
+          Sentry Lite, a monthly version of Sentry, for awareness rather than daily protection —
+          see <a href="/brief" class="underline">The Brief</a>.
         </p>
       </div>
     </div>
