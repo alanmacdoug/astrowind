@@ -1,4 +1,3 @@
-
 ---
 import Layout from '~/layouts/PageLayout.astro';
 
@@ -222,6 +221,18 @@ compact={true}
 </Layout>
 
 <script>
+  // --- ROI Calculator — v1.1 ---------------------------------------------------
+  // v1.1: View Transitions retrofit — DOM element acquisition and the
+  //       Calculate button listener moved into an init() function registered
+  //       with the site-wide window.pageInit helper (Layout.astro). Module
+  //       scripts execute once per full page load; ClientRouter soft
+  //       navigations swap the DOM without re-running them, which left the
+  //       button dead after internal navigation. init() re-acquires the
+  //       fresh elements on every astro:page-load; a dataset guard prevents
+  //       stacked duplicate listeners. All calculation logic, sensitivity
+  //       analysis and rendering unchanged from v1.0 — including the v1.0
+  //       behaviour that results render only on button click, not on load.
+
   // --- Configuration ------------------------------------------------------------
   const PACKAGE_FEE = 199;
   const TRIGGER_THRESHOLD = 400;
@@ -232,16 +243,19 @@ compact={true}
     maximumFractionDigits: 0,
   });
 
-  const fields = {
-    listSize: document.getElementById('list-size') as HTMLInputElement,
-    sendFrequency: document.getElementById('send-frequency') as HTMLInputElement,
-    openRate: document.getElementById('open-rate') as HTMLInputElement,
-    clickRate: document.getElementById('click-rate') as HTMLInputElement,
-    conversionRate: document.getElementById('conversion-rate') as HTMLInputElement,
-    customerValue: document.getElementById('customer-value') as HTMLInputElement,
-    bounceRate: document.getElementById('bounce-rate') as HTMLInputElement,
-    button: document.getElementById('calc-button') as HTMLButtonElement,
-    results: document.getElementById('results') as HTMLElement,
+  // --- DOM ----------------------------------------------------------------------
+  // Field references, populated by init() — acquired fresh on every page
+  // load event so soft-navigated pages bind to their own (new) elements.
+  let fields: {
+    listSize: HTMLInputElement | null;
+    sendFrequency: HTMLInputElement | null;
+    openRate: HTMLInputElement | null;
+    clickRate: HTMLInputElement | null;
+    conversionRate: HTMLInputElement | null;
+    customerValue: HTMLInputElement | null;
+    bounceRate: HTMLInputElement | null;
+    button: HTMLButtonElement | null;
+    results: HTMLElement | null;
   };
 
   function num(el: HTMLInputElement, fallback: number): number {
@@ -447,5 +461,35 @@ compact={true}
     );
   }
 
-  fields.button.addEventListener('click', calculate);
+  // --- View Transitions binding (v1.1) — see header comment ------------------
+
+  function init() {
+    const button = document.getElementById('calc-button') as HTMLButtonElement | null;
+    if (!button || button.dataset.initDone === 'true') return;
+    button.dataset.initDone = 'true';
+
+    fields = {
+      listSize: document.getElementById('list-size') as HTMLInputElement,
+      sendFrequency: document.getElementById('send-frequency') as HTMLInputElement,
+      openRate: document.getElementById('open-rate') as HTMLInputElement,
+      clickRate: document.getElementById('click-rate') as HTMLInputElement,
+      conversionRate: document.getElementById('conversion-rate') as HTMLInputElement,
+      customerValue: document.getElementById('customer-value') as HTMLInputElement,
+      bounceRate: document.getElementById('bounce-rate') as HTMLInputElement,
+      button: button,
+      results: document.getElementById('results') as HTMLElement,
+    };
+
+    button.addEventListener('click', calculate);
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
