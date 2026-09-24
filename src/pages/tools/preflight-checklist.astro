@@ -287,13 +287,23 @@ const metadata = {
 </Layout>
 
 <script>
-  const verdict = document.getElementById('verdict') as HTMLDivElement;
-  const verdictTitle = document.getElementById('verdict-title') as HTMLParagraphElement;
-  const verdictSub = document.getElementById('verdict-sub') as HTMLParagraphElement;
-  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
-  const checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('.pf-check'));
+  // --- Preflight Checklist — v1.1 --------------------------------------------
+  // v1.1: View Transitions retrofit — DOM element acquisition, checkbox
+  //       NodeList collection, event listeners and the initial verdict
+  //       render moved into an init() function registered with the
+  //       site-wide window.pageInit helper (Layout.astro). Module scripts
+  //       execute once per full page load; ClientRouter soft navigations
+  //       swap the DOM without re-running them, which left ticking boxes
+  //       without effect after internal navigation. init() re-acquires the
+  //       fresh elements on every astro:page-load; a dataset guard prevents
+  //       stacked duplicate listeners. Verdict logic unchanged from v1.0.
 
-  const TOTAL = checkboxes.length;
+  let verdict: HTMLDivElement;
+  let verdictTitle: HTMLParagraphElement;
+  let verdictSub: HTMLParagraphElement;
+  let resetBtn: HTMLButtonElement;
+  let checkboxes: HTMLInputElement[] = [];
+  let TOTAL = 0;
 
   function updateVerdict() {
     const checked = checkboxes.filter((c) => c.checked).length;
@@ -317,12 +327,41 @@ const metadata = {
     }
   }
 
-  checkboxes.forEach((c) => c.addEventListener('change', updateVerdict));
+  // --- View Transitions binding (v1.1) — see header comment ------------------
 
-  resetBtn.addEventListener('click', () => {
-    checkboxes.forEach((c) => (c.checked = false));
+  function init() {
+    const guardEl = document.getElementById('verdict');
+    if (!guardEl || guardEl.dataset.initDone === 'true') return;
+    guardEl.dataset.initDone = 'true';
+
+    verdict = guardEl as HTMLDivElement;
+    verdictTitle = document.getElementById('verdict-title') as HTMLParagraphElement;
+    verdictSub = document.getElementById('verdict-sub') as HTMLParagraphElement;
+    resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+    checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('.pf-check'));
+
+    TOTAL = checkboxes.length;
+
+    checkboxes.forEach((c) => c.addEventListener('change', updateVerdict));
+
+    resetBtn.addEventListener('click', () => {
+      checkboxes.forEach((c) => (c.checked = false));
+      updateVerdict();
+    });
+
     updateVerdict();
-  });
+  }
+
+  const pageInit = (window as any).pageInit as ((fn: () => void) => void) | undefined;
+  if (typeof pageInit === 'function') {
+    pageInit(init);
+  } else {
+    // Fallback if the layout helper is ever absent: bind directly and
+    // listen for astro:page-load ourselves (same guard makes this safe).
+    init();
+    document.addEventListener('astro:page-load', init);
+  }
+</script>
 
   updateVerdict();
 </script>
