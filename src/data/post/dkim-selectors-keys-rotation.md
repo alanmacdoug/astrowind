@@ -5,8 +5,7 @@ excerpt: >-
   How DKIM selectors work, why records under different selectors behave differently,
   and what key rotation actually involves.
 author: Alan MacDougall
-categories:
-  - Email Authentication
+category: 'Email Authentication'
 tags:
   - DKIM
   - DNS
