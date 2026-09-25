@@ -183,32 +183,24 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- Mautic Cost Comparison — v1.1 ----------------------------------------
-  // v1.1: View Transitions retrofit — DOM element acquisition, dynamic UI
-  //       construction (vendor dropdown, platform checkboxes) and all event
-  //       listeners moved into an init() function registered with the
-  //       site-wide window.pageInit helper (Layout.astro). Module scripts
-  //       execute once per full page load; ClientRouter soft navigations
-  //       swap the DOM without re-running them, which left the form dead
-  //       and the selects empty after internal navigation. init() rebuilds
-  //       the dynamic UI on every astro:page-load; a dataset guard on the
-  //       container prevents duplicated checkboxes and stacked listeners.
-  //       All pricing data and calculation logic unchanged from v1.0.
+ // DOM acquisition, dynamic UI construction and event binding live in init()
+// so ClientRouter soft navigation rebuilds fresh; the dataset guard
+// prevents duplicated checkboxes and stacked listeners.
 
-  // --- Data: ESP tier pricing ---------------------------------------------------
-  // VERIFIED ANCHORS — September 2026, converted to GBP at ~$1.30/£:
-  //   Mailchimp Standard, monthly billing: $20 @ 500 contacts, $100 @ 5k,
-  //     ~$135 @ 10k (sources: mailchimp.com/pricing via EmailToolTester /
-  //     SAAS CRM Review / Groupmail, 2026).
-  //   ActiveCampaign Starter, annual billing: $15 @ 1k, $79 @ 5k contacts
-  //     (sources: activecampaign.com/pricing via RealCostLabs / CostBench,
-  //     2026). Monthly billing runs ~25% higher; Starter is not offered
-  //     above ~25k contacts.
-  // Above the largest verified tier the model extrapolates by slope (see
-  // espPriceFor) — vendors price larger lists via on-page calculators that
-  // do not publish static figures. Check those calculators before quoting
-  // prices above 10k contacts. Price fields on the page are display-only,
-  // auto-filled from these tiers.
+// --- Data: ESP tier pricing ---------------------------------------------------
+// VERIFIED ANCHORS — September 2026, converted to GBP at ~$1.30/£:
+//   Mailchimp Standard, monthly billing: $20 @ 500 contacts, $100 @ 5k,
+//     ~$135 @ 10k (sources: mailchimp.com/pricing via EmailToolTester /
+//     SAAS CRM Review / Groupmail, 2026).
+//   ActiveCampaign Starter, annual billing: $15 @ 1k, $79 @ 5k contacts
+//     (sources: activecampaign.com/pricing via RealCostLabs / CostBench,
+//     2026). Monthly billing runs ~25% higher; Starter is not offered
+//     above ~25k contacts.
+// Above the largest verified tier the model extrapolates by slope
+// (espPriceFor) — vendors price larger lists via on-page calculators
+// that don't publish static figures, so check them before quoting above
+// 10k contacts. Price fields on the page are display-only, auto-filled
+// from these tiers.
   const ESPS = [
     {
       id: 'mailchimp',
