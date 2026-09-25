@@ -78,7 +78,7 @@ To be clear on what an audit does **not** promise:
 
 ## Pricing and the path forward
 
-The diagnostic audit, the full investigation described above, starts at **£150**. That is a fixed price, not an hourly rate, not an estimate. Once the investigation completes, you have either a self-fix plan or a remediation quote, with no further obligation.
+The diagnostic audit, the full investigation described above, starts at **£149**. That is a fixed price, not an hourly rate, not an estimate. Once the investigation completes, you have either a self-fix plan or a remediation quote, with no further obligation.
 
 For clients who need implementation support, the audit transitions naturally into the [review and strategy package](/services): the same investigation plus a prioritised implementation roadmap, delivered together at a single fee. This is the choice after diagnosis. Fix it yourself using the plan, or engage help to execute it.
 
