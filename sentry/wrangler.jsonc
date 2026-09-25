@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sender-sentry-ingest",
+  "compatibility_date": "2026-09-25",
+  "main": "worker.js",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sender-sentry",
+      "database_id": "ce216e2e-2e52-48f7-bfdb-6342f62de13f"
+    }
+  ]
+}
