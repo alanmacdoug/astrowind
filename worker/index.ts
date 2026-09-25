@@ -176,7 +176,7 @@ export default {
           email,
           name: name || null,
           source,
-          status: 'pending', // TODO: flip to 'subscribed' on confirmation once double opt-in leg ships
+          status: 'pending', // subscribers stay 'pending' until double opt-in confirmation ships
           confirm_token: confirmToken,
           timestamp,
         }));
