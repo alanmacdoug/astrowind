@@ -29,18 +29,23 @@ const metadata = {
         </p>
       </div>
 
-      <!-- Live lookup counter (sticky — budget stays visible while scrolling) -->
-      <div id="counter-display" class="sticky top-4 z-50 mb-8 p-6 rounded-lg border shadow-lg bg-white dark:bg-slate-900 dark:border-slate-700">
-        <h3 class="text-lg font-bold mb-4">Current SPF budget used: <span id="lookup-count">0</span>/10 lookups</h3>
+      <!-- Live lookup counter (sticky — count and budget warnings only) -->
+      <div id="counter-display" class="sticky top-4 z-50 mb-4 p-4 rounded-lg border shadow-lg bg-white dark:bg-slate-900 dark:border-slate-700">
+        <h3 class="text-lg font-bold">Current SPF budget used: <span id="lookup-count">0</span>/10 lookups</h3>
+        <div id="limit-warning" class="hidden mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded text-sm">
+          Warning: You're approaching the lookup limit. Each platform may use additional lookups internally.
+        </div>
+        <div id="limit-exceeded" class="hidden mt-3 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded text-sm">
+          Alert: You've exceeded the SPF lookup limit (10). This record will fail evaluation.
+        </div>
+      </div>
+
+      <!-- Sender breakdown (static — sits below the sticky count) -->
+      <div class="mb-8 p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
+        <h4 class="text-sm font-bold mb-3 uppercase tracking-wide text-slate-500 dark:text-slate-400">Senders added</h4>
         <ul id="lookup-breakdown" class="space-y-2 text-sm">
           <li class="text-muted italic">No senders added yet</li>
         </ul>
-        <div id="limit-warning" class="hidden mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded text-sm">
-          Warning: You're approaching the lookup limit. Each platform may use additional lookups internally.
-        </div>
-        <div id="limit-exceeded" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded text-sm">
-          Alert: You've exceeded the SPF lookup limit (10). This record will fail evaluation.
-        </div>
       </div>
 
       <!-- Interview section -->
@@ -96,13 +101,14 @@ const metadata = {
         <div id="question-other" class="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-700">
           <p class="text-base font-medium mb-2">Any other services sending as your domain?</p>
           <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
-            Most businesses have a few. Enter each one exactly as your provider's documentation gives it —
-            for example <code>include:example.com</code>, <code>ip4:203.0.113.10</code> or <code>ip6:2001:db8::/32</code>.
-            <code>include:</code> entries cost one lookup each; IP entries are free.
+            Most businesses have a few. Enter the hostname exactly as your provider's documentation gives it —
+            for example <code>_spf.example.com</code> — or a full entry like <code>include:example.com</code>,
+            <code>ip4:203.0.113.10</code> or <code>ip6:2001:db8::/32</code>. Hostnames are treated as includes
+            and cost one lookup each; IP entries are free.
           </p>
-          <input id="custom-mechanism" type="text" placeholder="include:example.com" class="mb-2 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
+          <input id="custom-mechanism" type="text" placeholder="_spf.example.com" class="mb-2 w-full p-2 border rounded dark:bg-slate-800 dark:border-slate-700" />
           <p id="custom-mechanism-error" class="hidden mb-2 text-sm text-red-600 dark:text-red-400">
-            Entries must start with include:, ip4: or ip6: — copy the entry exactly as your provider's documentation gives it.
+            Enter a hostname (e.g. _spf.example.com) or an entry starting with include:, ip4: or ip6:.
           </p>
           <button id="btn-custom-mechanism" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:bg-slate-400" disabled>Add Entry</button>
           <p class="mt-4 text-sm text-muted italic">
@@ -233,19 +239,11 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- SPF Record Generator — v1.1 -------------------------------------------
-  // v1.1: View Transitions retrofit — DOM element acquisition and all 11 event
-  //       listeners moved into an init() function registered with the
-  //       site-wide window.pageInit helper (Layout.astro). Module scripts
-  //       execute once per full page load; ClientRouter soft navigations
-  //       swap the DOM without re-running them, which left the Yes/No
-  //       buttons dead after internal navigation. init() re-acquires the
-  //       fresh elements on every astro:page-load; a dataset guard prevents
-  //       stacked duplicate listeners. State (senderData Map, customEntryCount)
-  //       resets on each init() so soft-navigation back to the page starts
-  //       fresh. All validation, generation and rendering logic unchanged.
+  // --- SPF Record Generator ----------------------------------------------
+  // Interactive state lives in init() so soft navigation binds fresh
+  // listeners against the swapped DOM; the guard prevents duplicates.
 
-  // --- State (module-level, reset on each init()) ----------------------------
+  // --- State ------------------------------------------------------------------
 
   let senderData: Map<string, { entry: string; cost: number }>;
   let customEntryCount: number;
@@ -308,17 +306,26 @@ const metadata = {
 
   const IPV4_RE = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}(\/(\d|[12]\d|3[0-2]))?$/;
 
-  function isValidMechanism(v: string): boolean {
+  // Hostnames commonly start with an underscore in SPF includes
+  // (e.g. _spf.example.com), so underscores are valid in labels.
+  const HOSTNAME_RE = /^([a-z0-9_-]+\.)+[a-z]{2,}$/i;
+
+  // Accepts include:/ip4:/ip6: entries and bare hostnames; a bare
+  // hostname is normalised to an include: entry. Returns null if invalid.
+  function normalizeMechanism(v: string): string | null {
     if (v.startsWith('include:')) {
-      return /^include:([a-z0-9-]+\.)+[a-z]{2,}$/i.test(v);
+      return HOSTNAME_RE.test(v.slice(8)) ? v : null;
     }
     if (v.startsWith('ip4:')) {
-      return IPV4_RE.test(v.slice(4));
+      return IPV4_RE.test(v.slice(4)) ? v : null;
     }
     if (v.startsWith('ip6:')) {
-      return /^ip6:[0-9a-fA-F:.]+(\/\d{1,3})?$/.test(v);
+      return /^ip6:[0-9a-fA-F:.]+(\/\d{1,3})?$/.test(v) ? v : null;
     }
-    return false;
+    if (HOSTNAME_RE.test(v)) {
+      return `include:${v}`;
+    }
+    return null;
   }
 
   function mechanismCost(v: string): number {
@@ -408,7 +415,7 @@ const metadata = {
     });
   }
 
-  // --- View Transitions binding (v1.1) — see header comment ------------------
+  // --- Event bindings ---------------------------------------------------------
 
   function init() {
     const guardEl = document.getElementById('btn-generate');
@@ -418,8 +425,6 @@ const metadata = {
     // Reset state for fresh page session
     senderData = new Map();
     customEntryCount = 0;
-
-    // --- Event bindings (all moved here from module scope) ---
 
     // Google Workspace
     const btnGoogleYes = document.getElementById('btn-google-yes');
@@ -492,7 +497,7 @@ const metadata = {
       });
     }
 
-    // Custom mechanism (repeatable entries)
+    // Custom mechanism (repeatable entries, shorthand-friendly)
     const mechInput = document.getElementById('custom-mechanism') as HTMLInputElement | null;
     const mechBtn = document.getElementById('btn-custom-mechanism') as HTMLButtonElement | null;
     const mechError = document.getElementById('custom-mechanism-error');
@@ -505,15 +510,16 @@ const metadata = {
           mechError?.classList.add('hidden');
           return;
         }
-        const valid = isValidMechanism(v);
+        const valid = normalizeMechanism(v) !== null;
         mechBtn.disabled = !valid;
         mechError?.classList.toggle('hidden', valid);
       });
       mechBtn.addEventListener('click', () => {
-        const mech = mechInput.value.trim();
-        if (!mech || !isValidMechanism(mech)) return;
+        const raw = mechInput.value.trim();
+        const normalized = raw ? normalizeMechanism(raw) : null;
+        if (!normalized) return;
         customEntryCount++;
-        addSender(`custom-entry-${customEntryCount}`, mech, mechanismCost(mech));
+        addSender(`custom-entry-${customEntryCount}`, normalized, mechanismCost(normalized));
         mechInput.value = '';
         mechBtn.disabled = true;
         mechInput.focus();
