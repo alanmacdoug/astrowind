@@ -221,17 +221,10 @@ compact={true}
 </Layout>
 
 <script>
-  // --- ROI Calculator — v1.1 ---------------------------------------------------
-  // v1.1: View Transitions retrofit — DOM element acquisition and the
-  //       Calculate button listener moved into an init() function registered
-  //       with the site-wide window.pageInit helper (Layout.astro). Module
-  //       scripts execute once per full page load; ClientRouter soft
-  //       navigations swap the DOM without re-running them, which left the
-  //       button dead after internal navigation. init() re-acquires the
-  //       fresh elements on every astro:page-load; a dataset guard prevents
-  //       stacked duplicate listeners. All calculation logic, sensitivity
-  //       analysis and rendering unchanged from v1.0 — including the v1.0
-  //       behaviour that results render only on button click, not on load.
+// --- ROI Calculator ---------------------------------------------------------
+// DOM acquisition and listener binding live in init() for ClientRouter soft
+// navigation; the dataset guard prevents duplicate listeners.
+// Results render only on Calculate — intentionally not on page load.
 
   // --- Configuration ------------------------------------------------------------
   const PACKAGE_FEE = 199;
