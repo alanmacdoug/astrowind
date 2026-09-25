@@ -217,15 +217,7 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- Consultation Booking — v1.0 -------------------------------------------
-  // Posts JSON to the existing /api/contact Worker (KV + email
-  // notification). The Worker's contract is name / email / message with
-  // a "website" honeypot, so the booking-specific fields (domain,
-  // sending setup, volume, focus) are appended to the message body
-  // client-side: they reach both the KV record and the notification
-  // email inside the message, with zero Worker-side changes.
-  // Submission requires JavaScript — the Worker parses JSON only.
-  // Uses the site-wide window.pageInit pattern for View Transitions.
+  // Posts JSON to /api/contact (KV + email notification); JavaScript required.
 
   function init() {
     const form = document.getElementById('consultation-form') as HTMLFormElement | null;
