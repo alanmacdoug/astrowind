@@ -160,30 +160,23 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- DMARC Aggregate Report Parser — v1.5 --------------------------------------
-  // Parses standard DMARC aggregate reports (RFC 7489).
-  // v1.1: all XML-derived values escaped before innerHTML insertion (XSS fix).
-  // v1.2: sending domains rendered per source; align_fail replaced with
-  //       genuine enforcement-action counts (quarantine/reject dispositions).
-  // v1.3: sending-domains selector fixed — aggregate reports carry identity
-  //       under identifiers/header_from and identifiers/envelope_from, not
-  //       message/message_header_from (that element belongs to failure
-  //       reports only). Removed rua from policy details — rua is a DNS
-  //       record value, never present in aggregate report XML.
-  // v1.4: ZIP handling hardened — central directory is reverse-scanned from
-  //       the end of the archive (correct ZIP topology, immune to signature
-  //       bytes occurring in compressed data), archive entries are iterated
-  //       rather than assuming a single file, and a .xml filename is
-  //       validated (case-insensitive) before extraction. Stored entries
-  //       with a non-XML filename are skipped, not parsed.
-  // v1.5: View Transitions retrofit — DOM element acquisition and listener
-  //       binding moved into an init() function registered with the site-wide
-  //       window.pageInit helper (Layout.astro). Module scripts execute once
-  //       per full page load; ClientRouter soft navigations swap the DOM
-  //       without re-running them, which left the parse button dead after
-  //       internal navigation. init() re-acquires elements on every
-  //       astro:page-load; a dataset guard on the button prevents stacked
-  //       duplicate listeners when the event fires twice for one DOM.
+ // --- DMARC Aggregate Report Parser ---------------------------------------
+// Parses standard DMARC aggregate reports (RFC 7489).
+//
+// Notes on quirks this parser has to handle:
+// - Aggregate reports carry identity under identifiers/header_from and
+//   identifiers/envelope_from — the message/message_header_from element
+//   belongs to failure reports only. rua is a DNS record value and is
+//   never present in the report XML.
+// - ZIP archives are reverse-scanned from the central directory (immune
+//   to signature bytes appearing in compressed data), entries are
+//   iterated rather than assumed single, and non-XML filenames are
+//   skipped.
+// - All XML-derived values are escaped before innerHTML insertion.
+//
+// DOM acquisition and listener binding live in init() so ClientRouter
+// soft navigation binds fresh elements; the dataset guard prevents
+// duplicate listeners.
 
   // DOM references, populated by init() — acquired fresh on every page load
   // event so soft-navigated pages bind to their own (new) elements.
