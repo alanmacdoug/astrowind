@@ -25,7 +25,7 @@
   "send_email": [
     {
       "name": "NOTIFY",
-      "destination_addresses": ["amacmack@proton.me"]
+      "destination_addresses": ["amacmack@proton.me", "dougallmack@gmail.com"]
     }
   ]
 }
