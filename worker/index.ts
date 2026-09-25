@@ -25,6 +25,13 @@ interface SubscribePayload {
 
 const NOTIFY_ADDRESS = 'amacmack@proton.me'; // verified Email Routing destination
 
+// TEMPORARY: DMARC report-ammo test leg. Sends a copy of each enquiry to
+// a Gmail address so Google processes mail from macdougallemail.com and
+// generates aggregate reports for the Sentry pipeline. REMOVE AFTER THE
+// SENTRY TEST PERIOD. The address must also be listed in wrangler.jsonc
+// send_email destination_addresses.
+const TEST_NOTIFY_ADDRESS = 'dougallmack@gmail.com';
+
 const json = (data: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
@@ -90,6 +97,19 @@ export default {
         notified = true;
       } catch (err) {
         console.error('Email notification failed:', err);
+      }
+
+      // TEMPORARY: report-ammo copy to Gmail. Failure here must never
+      // affect the primary notification or the visitor's response.
+      try {
+        await env.NOTIFY.send({
+          from: fromAddress,
+          to: TEST_NOTIFY_ADDRESS,
+          subject: `Website enquiry from ${name}`,
+          text: `From: ${name} <${email}>\n\n${message}\n\n---\nReceived: ${timestamp}\nIP: ${ip}\nPage: ${referrer}`,
+        });
+      } catch (err) {
+        console.error('Test leg send failed:', err);
       }
 
       // The submission is durable in KV even if notification failed, so
@@ -158,7 +178,7 @@ export default {
               status: 'pending',
               confirm_token: confirmToken,
               source,
-              resubscribed_at: timestamp,
+              resubmitted_at: timestamp,
             }));
             return json({ ok: true, resubscribed: true });
           }
@@ -206,3 +226,5 @@ export default {
 // Last checked: 2026-09-21 15:40 UTC
 // 2026-09-21: SendGrid leg replaced by NOTIFY send_email binding (routing active).
 // 2026-09-22: Added /api/subscribe endpoint (SUBSCRIBERS_KV, no TTL, no notify).
+// 2026-09-25: Added temporary TEST_NOTIFY_ADDRESS Gmail copy for Sentry pipeline
+//             report generation. Remove after test period.
