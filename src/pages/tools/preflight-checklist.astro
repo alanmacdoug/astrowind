@@ -287,18 +287,13 @@ const metadata = {
 </Layout>
 
 <script>
-  // --- Preflight Checklist — v1.2 --------------------------------------------
-  // v1.2: Soft-navigation binding fix. v1.1 relied on window.pageInit
-  //       (Layout.astro), but on soft navigation the module script can
-  //       execute AFTER the layout's astro:page-load event has already
-  //       fired for that swap — so the registered callback never ran,
-  //       leaving checkbox listeners unattached on first visit. Fix: call
-  //       init() directly at module execution time (safe — module scripts
-  //       run after DOM parse and after ClientRouter inserts the new
-  //       document) AND on every astro:page-load. The dataset guard on
-  //       #verdict prevents stacked duplicate listeners. This mirrors the
-  //       working pattern in The Brief's subscribe form. Sticky verdict bar
-  //       retained from v1.1.
+// --- Preflight Checklist ---------------------------------------------------
+// This page binds init() DIRECTLY and also on astro:page-load — deliberately
+// not via window.pageInit. On soft navigation the module script can execute
+// after the layout's astro:page-load has already fired for the swap, so a
+// pageInit-registered callback never runs and listeners stay unattached
+// until a hard refresh. Direct call closes that gap; the dataset guard on
+// #verdict prevents duplicate listeners.
 
   let verdict: HTMLDivElement;
   let verdictTitle: HTMLParagraphElement;
