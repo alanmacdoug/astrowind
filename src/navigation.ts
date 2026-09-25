@@ -29,7 +29,7 @@ export const headerData = {
   actions: [
   {
     text: 'Free Consultation',
-    href: getPermalink('/contact'),
+    href: getPermalink('/consultation'),
     variant: 'primary',
   },
 ],
