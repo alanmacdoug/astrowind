@@ -99,7 +99,33 @@ const metadata = {
       </p>
     </div>
   </section>
-
+  <!-- About this tool -->
+  <section id="about-this-tool" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold dark:text-white">What drives the crossover number</h2>
+    </div>
+    <div class="space-y-4 text-slate-600 dark:text-slate-300">
+      <p>
+        Most public comparisons of Mautic cost stop at "software is free" and "hosting runs £X/month". This
+        calculator adds the delivery layer that every Mautic instance needs — the SMTP vendor, the per-thousand
+        send rates, overage charges once you exceed plan allowances. Those line items are what the ESP's
+        contact-based pricing is actually covering for you, bundled into tier jumps. Seeing them separately
+        makes the trade-off honest: flat infrastructure plus pay-per-send against per-subscriber subscription
+        fees that climb as your list grows.
+      </p>
+      <p>
+        The break-even point is the subscriber count where the two curves cross. Below it, the ESP is cheaper;
+        above it, managed Mautic wins. But the gap widens differently at each tier boundary, so the exact number
+        depends on your sending frequency and which delivery vendor you pair with Mautic. All those inputs stay
+        on screen while you adjust them, so the result comes from your actual numbers rather than an average
+        case someone else assumed.
+      </p>
+      <p>
+        Once you're past the crossover and you own the infrastructure, the supporting layers become your
+        responsibility. The <a href="/ip-warmup-playbook" class="link font-medium">IP warm-up playbook</a> covers how to build reputation safely on new sending infrastructure, the <a href="/preflight-checklist" class="link font-medium">preflight checklist</a> verifies authentication before a campaign goes live, and the <a href="/dmarc-report-reading-checklist" class="link font-medium">DMARC report reading checklist</a> shows what the reports tell you about who is actually sending as you. All free. If you would rather hand the delivery layer to someone who runs it as part of the managed service, the <a href="/consultation" class="link font-medium">discussion</a> starts with your current numbers.
+      </p>
+    </div>
+  </section>
   <!-- CTA -->
 
   <CallToAction
