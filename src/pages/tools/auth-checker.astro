@@ -89,7 +89,34 @@ compact={true}
       },
     ]}
   />
-
+  <!-- About this tool -->
+  <section id="about-this-tool" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold dark:text-white">Why the checker walks the includes</h2>
+    </div>
+    <div class="space-y-4 text-slate-600 dark:text-slate-300">
+      <p>
+        Judging an SPF record by what is written in it only gets you halfway. Every include points at another
+        record, and that record can point at more still. The budget is spent across the whole chain, so a record
+        that looks modest on the surface can quietly exceed the ten-lookup limit two levels down. This checker
+        follows each include against live DNS and attributes the cost where it belongs, so nested lookups are
+        counted rather than estimated.
+      </p>
+      <p>
+        The rest of the check works the same way: it reads your MX records to identify who actually handles your
+        mail, and probes the DKIM selectors most providers publish. One honest limitation on that last part:
+        DKIM selectors are chosen freely, so the probe only covers the common ones. A selector it cannot guess
+        shows as not found, which is worth knowing before treating a quiet result as a missing record.
+      </p>
+      <p>
+        The raw records stay attached to every verdict. Interpretation first, evidence retained, so you can
+        verify the plain English against the DNS text it came from.
+      </p>
+      <p>
+        What you do next depends on what the check finds: the <a href="/tools/spf-generator" class="link font-medium">SPF record generator</a> rebuilds a record with the budget visible as you go, and the <a href="/tools/dmarc-report-viewer" class="link font-medium">DMARC report viewer</a> shows what mailbox providers actually did with the mail claiming to be you. Both are free. If the check turned up something you would rather have diagnosed and fixed in one pass, the <a href="/consultation" class="link font-medium">audit</a> works from your live sending data.
+      </p>
+    </div>
+  </section>
   <!-- CTA -->
 
   <CallToAction
