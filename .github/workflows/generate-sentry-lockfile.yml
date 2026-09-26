@@ -1,0 +1,28 @@
+name: Generate sentry package-lock
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate lockfile
+        working-directory: sentry
+        run: npm install --package-lock-only
+
+      - name: Commit lockfile
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(sentry): add package-lock.json for workers build"
+          file_pattern: sentry/package-lock.json
