@@ -538,18 +538,26 @@ const metadata = {
       'Managed Mautic total: <strong class="dark:text-white">' + gbp.format(mauticResult.total) + '/mo</strong> (' + gbp.format(mauticFee) + ' hosting + ' + gbp.format(mauticResult.delivery) + ' delivery)' +
       '</div>';
 
+    // Mobile label helper for responsive reflow
+    const mobileLabel = (text: string) =>
+      `<span class="sm:hidden block text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1">${text}</span>`;
+
     let tableHtml =
-      '<div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">' +
-      '<table class="w-full text-sm">' +
-      '<thead>' +
+      '<div class="rounded-lg border border-slate-200 dark:border-slate-700">' +
+      '<div>' +
+      '<table class="w-full text-sm block sm:table">';
+
+    tableHtml +=
+      '<thead class="hidden sm:table-header-group">' +
       '<tr class="text-left border-b border-slate-200 dark:border-slate-700 dark:text-slate-300">' +
       '<th class="p-3">Platform</th>' +
       '<th class="p-3 text-right">Monthly total at ' + subs.toLocaleString() + ' subs</th>' +
       '<th class="p-3 text-right">vs Mautic total</th>' +
       '<th class="p-3 text-right">Annual difference</th>' +
       '</tr>' +
-      '</thead>' +
-      '<tbody>';
+      '</thead>';
+
+    tableHtml += '<tbody class="block sm:table-row-group">';
 
     for (const esp of activeEsps) {
       const price = espPriceFor(esp, subs);
@@ -561,23 +569,54 @@ const metadata = {
         ? '<span class="text-red-600 dark:text-red-400 font-semibold">+' + gbp.format(diff) + '</span>'
         : '<span class="text-emerald-600 dark:text-emerald-400 font-semibold">' + gbp.format(diff) + '</span>';
       tableHtml +=
-        '<tr class="border-b border-slate-100 dark:border-slate-800">' +
-        '<td class="p-3 dark:text-white">' + esp.name + '<br /><span class="text-xs text-slate-500 dark:text-slate-400">Break-even: ' + (be ? be.toLocaleString() + ' subscribers' : 'never at these fees') + '</span></td>' +
-        '<td class="p-3 text-right dark:text-white">' + gbp.format(price) + '</td>' +
-        '<td class="p-3 text-right">' + diffCell + '</td>' +
-        '<td class="p-3 text-right dark:text-white">' + gbp.format(annual) + '</td>' +
-        '</tr>';
+        '<tr class="block sm:table-row border-b border-slate-200 dark:border-slate-700 last:border-b-0 pb-4 sm:pb-0">';
+      tableHtml +=
+        '<td class="block sm:table-cell p-3 dark:text-white">' +
+        mobileLabel('Platform') +
+        esp.name + '<br /><span class="text-xs text-slate-500 dark:text-slate-400">Break-even: ' + (be ? be.toLocaleString() + ' subscribers' : 'never at these fees') + '</span>' +
+        '</td>';
+      tableHtml +=
+        '<td class="block sm:table-cell p-3 text-right dark:text-white">' +
+        mobileLabel('Monthly total') +
+        gbp.format(price) +
+        '</td>';
+      tableHtml +=
+        '<td class="block sm:table-cell p-3 text-right">' +
+        mobileLabel('vs Mautic') +
+        diffCell +
+        '</td>';
+      tableHtml +=
+        '<td class="block sm:table-cell p-3 text-right dark:text-white">' +
+        mobileLabel('Annual difference') +
+        gbp.format(annual) +
+        '</td>';
+      tableHtml += '</tr>';
     }
 
     tableHtml +=
-      '<tr class="border-t-2 border-slate-200 dark:border-slate-700 dark:text-white">' +
-      '<td class="p-3 font-semibold">Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">' + gbp.format(mauticFee) + ' hosting + ' + gbp.format(mauticResult.delivery) + ' delivery via ' + vName + '</span></td>' +
-      '<td class="p-3 text-right font-semibold">' + gbp.format(mauticResult.total) + '</td>' +
-      '<td class="p-3 text-right">—</td>' +
-      '<td class="p-3 text-right">—</td>' +
-      '</tr>' +
+      '<tr class="block sm:table-row border-t-2 border-slate-200 dark:border-slate-700 dark:text-white pt-4 sm:pt-0">' +
+      '<td class="block sm:table-cell p-3 font-semibold">' +
+      mobileLabel('Platform') +
+      'Managed Mautic (hosting + delivery)<br /><span class="text-xs font-normal text-slate-500 dark:text-slate-400">' + gbp.format(mauticFee) + ' hosting + ' + gbp.format(mauticResult.delivery) + ' delivery via ' + vName + '</span>' +
+      '</td>' +
+      '<td class="block sm:table-cell p-3 text-right font-semibold">' +
+      mobileLabel('Monthly total') +
+      gbp.format(mauticResult.total) +
+      '</td>' +
+      '<td class="block sm:table-cell p-3 text-right">' +
+      mobileLabel('vs Mautic') +
+      '—' +
+      '</td>' +
+      '<td class="block sm:table-cell p-3 text-right">' +
+      mobileLabel('Annual difference') +
+      '—' +
+      '</td>' +
+      '</tr>';
+
+    tableHtml +=
       '</tbody>' +
       '</table>' +
+      '</div>' +
       '</div>';
 
     const worstDiff = Math.max(0, ...activeEsps.map(function(e) { return espPriceFor(e, subs) - mauticResult.total; }));
