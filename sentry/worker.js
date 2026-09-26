@@ -1,5 +1,4 @@
-// Sender Sentry: Inbound Email Worker (parser phase, v5)
-// Pipeline: receive -> validate gates -> store raw -> parse MIME ->
+// Sender Sentry: Inbound Email Worker (parser phase, v5.1 — Git build wiring)// Pipeline: receive -> validate gates -> store raw -> parse MIME ->
 //           gunzip/extract XML -> aggregate -> update status.
 import PostalMime from "postal-mime";
 
