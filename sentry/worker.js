@@ -199,12 +199,14 @@ export default {
     const localPart = toAddress.slice(0, atIndex);
     const domain = toAddress.slice(atIndex + 1);
 
+    // Gate 1: recipient must be on the reports subdomain, exactly.
     if (domain !== EXPECTED_DOMAIN) {
       console.log("REJECT gate1: domain=[" + domain + "]");
       message.setReject("Recipient rejected: invalid address");
       return;
     }
 
+    // Gate 2: local-part must carry the dmarc-XXXX token pattern.
     const match = localPart.match(TOKEN_PATTERN);
     if (!match) {
       console.log("REJECT gate2: localPart=[" + localPart + "]");
@@ -213,6 +215,7 @@ export default {
     }
     const customerToken = match[1];
 
+    // Gate 3: token must belong to an active customer.
     let customer = null;
     try {
       customer = await env.DB.prepare(
@@ -260,12 +263,12 @@ export default {
       return;
     }
 
-    // Duplicate suppression on content hash.
+    // Duplicate suppression on content hash (pre-insert: any match is a duplicate).
     let dupId = null;
     if (rawHash) {
       try {
         const dup = await env.DB.prepare(
-          "SELECT id FROM reports_raw WHERE raw_content_hash = ?1 AND id != last_insert_rowid() LIMIT 1"
+          "SELECT id FROM reports_raw WHERE raw_content_hash = ?1 LIMIT 1"
         ).bind(rawHash).first();
         dupId = dup ? dup.id : null;
       } catch (err) {
