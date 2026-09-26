@@ -77,6 +77,36 @@ const metadata = {
       </p>
     </div>
   </section>
+  <!-- About this tool -->
+  <section id="about-this-tool" class="relative px-4 py-12 sm:px-6 mx-auto lg:px-8 max-w-3xl">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold dark:text-white">Why the plain English comes first</h2>
+    </div>
+    <div class="space-y-4 text-slate-600 dark:text-slate-300">
+      <p>
+        A DMARC aggregate report is a machine-to-machine document. Providers batch up everything that claimed to
+        be your domain over roughly the last day, compress it, and send it to wherever your DNS record points.
+        The format is efficient, not readable: counts against source IPs, pass and fail flags, a policy summary,
+        all in nested XML. Reading one by hand is possible in the way reading a ledger by candlelight is possible.
+      </p>
+      <p>
+        So this viewer puts the interpretation ahead of the data. The verdict line comes first — what your policy
+        is set to, roughly what share of sampled messages passed, whether enforcement acted on anything — because
+        those are the questions you actually brought the report here to answer. The table beneath it carries the
+        detail, sorted by volume, with each source's authentication results spelled out rather than coded. When
+        the envelope-from and the From: your recipients saw disagree, both are kept in view, because that
+        disagreement is itself the finding.
+      </p>
+      <p>
+        One habit worth forming: run reports from more than one provider if you receive them. Sampling differs
+        between reporters, so a Google report and a Microsoft report over the same period are two pictures of the
+        same traffic, and the differences between them are informative.
+      </p>
+      <p>
+        Once you can read what the reports say, the <a href="/tools/auth-checker" class="link font-medium">email authentication checker</a> shows the DNS records behind those results, and the <a href="/tools/spf-generator" class="link font-medium">SPF record generator</a> rebuilds the record most reports end up prompting. Both are free. If you would rather the reading, the diagnosis and the fix were handled in one pass, the <a href="/consultation" class="link font-medium">audit</a> covers all three from your live sending data.
+      </p>
+    </div>
+  </section>
   <!-- CTA -->
 
   <CallToAction
